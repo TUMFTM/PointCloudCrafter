@@ -2,9 +2,9 @@
 <package format="3">
   <name>tum_rosbag_analyzer</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="maxi.leitenstern@tum.de">maxi</maintainer>
-  <license>LGPLv3</license>
+  <description>Package to process rosbag and analyze selected signals</description>
+  <maintainer email="maxi.leitenstern@tum.de">Maximilian Leitenstern</maintainer>
+  <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
