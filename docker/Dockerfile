@@ -19,11 +19,10 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
     make \
     apt-utils \
     libpcl-dev \
-    libcgal-dev \
-    ros-${ROS_DISTRO}-rmw-cyclonedds-cpp \
     ros-${ROS_DISTRO}-pcl-conversions \
-    ros-${ROS_DISTRO}-pcl-ros \
     ros-${ROS_DISTRO}-rviz2 \
+    ros-${ROS_DISTRO}-rosbag2-cpp \
+    ros-$ROS_DISTRO-rosbag2-storage-mcap \
     && rm -rf /var/lib/apt/lists/*
 
 # GeographicLib
@@ -38,11 +37,9 @@ RUN rm v2.3.tar.gz
 # Get geoid dataset from GeographicLib
 RUN geographiclib-get-geoids good
 
-ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
-
 WORKDIR /ros_ws
 
-COPY . /ros_ws/src/flexcloud/
+COPY . /ros_ws/src/PointCloudCrafter
 
 # Install flexcloud
 RUN /bin/bash -c '. /opt/ros/$ROS_DISTRO/setup.bash && \
