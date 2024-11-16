@@ -59,7 +59,7 @@ sensor_msgs::msg::PointField GetTimestampField(const sensor_msgs::msg::PointClou
  * @param[in] field              - sensor_msgs::msg::PointField:
  *                                 field containing the timestamps
  * @param[out]                   - std::vector<double>:
- *                                 normalized timestamps
+ *                                 timestamps
  */
 std::vector<double> ExtractTimestampsFromMsg(
   const sensor_msgs::msg::PointCloud2 & msg, const sensor_msgs::msg::PointField & field);

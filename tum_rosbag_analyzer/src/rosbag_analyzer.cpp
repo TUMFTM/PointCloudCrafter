@@ -15,8 +15,10 @@
 
 int main(int argc, char ** argv)
 {
+  // Get rosbag analyzer mode
   std::string mode = std::string(argv[1]);
 
+  // Sanity check for mode
   if (mode != "timestamps") {
     std::cout << "Usage: ros2 run rosbag_analyzer rosbag_analyzer <mode> <other options ...>"
               << std::endl;
@@ -24,6 +26,7 @@ int main(int argc, char ** argv)
     return -1;
   }
 
+  // Sanity check for amount of arguments
   if (mode == "timestamps") {
     if (argc != 4) {
       std::cout
@@ -34,10 +37,12 @@ int main(int argc, char ** argv)
       return -1;
     }
 
+    // Get input arguments
     std::string input_path = std::string(argv[2]);
-    std::string pcl_topic = std::string(argv[3]);
+    std::string topic = std::string(argv[3]);
 
-    auto ret = analyze_timestamps(input_path, pcl_topic);
+    // Process rosbag
+    auto ret = analyze_timestamps(input_path, topic);
     if (ret == 0) {
       std::cout << "Successfully processed Rosbag!" << std::endl;
     } else {

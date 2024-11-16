@@ -12,14 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include "tum_rosbag_analyzer/timestamp_analyzer.hpp"
+/**
+ * @brief analyze timestamps of pointcloud messages
+ * @param [in]          std::string
+ *                      path to rosbag
+ * @param [in]          std::string
+ *                      topic name of pointcloud messages
+ * @return int
+ */
 int analyze_timestamps(std::string input_path, std::string topic_name)
 {
+  // Init rosbag reader
   rclcpp::Serialization<sensor_msgs::msg::PointCloud2> serialization;
   std::unique_ptr<rosbag2_cpp::Reader> reader = std::make_unique<rosbag2_cpp::Reader>();
 
   std::vector<double> bag_diff{};
 
   reader->open(input_path);
+
+  // Process msgs
   while (reader->has_next()) {
     rosbag2_storage::SerializedBagMessageSharedPtr msg = reader->read_next();
 
@@ -35,6 +46,8 @@ int analyze_timestamps(std::string input_path, std::string topic_name)
       std::vector<double> stamps = GetTimestamps(*ros_msg);
       double diff =
         *max_element(stamps.begin(), stamps.end()) - *min_element(stamps.begin(), stamps.end());
+
+      // Print properties of current msgs
       std::cout << "PointCloud" << std::endl;
       std::cout << "size: " << stamps.size() << std::endl;
       std::cout << std::fixed << std::setprecision(9);
@@ -58,6 +71,13 @@ int analyze_timestamps(std::string input_path, std::string topic_name)
   //           << std::endl;
   return 0;
 }
+/**
+ * @brief extract timestamps from pointcloud message
+ * @param [in]          sensor_msgs::msg::PointCloud2
+ *                      pointcloud message
+ * @param [out]         std::vector<double>
+ *                      timestamps of single points
+ */
 std::vector<double> GetTimestamps(const sensor_msgs::msg::PointCloud2 & msg)
 {
   sensor_msgs::msg::PointField timestamp_field = GetTimestampField(msg);
@@ -67,6 +87,13 @@ std::vector<double> GetTimestamps(const sensor_msgs::msg::PointCloud2 & msg)
 
   return timestamps;
 }
+/**
+ * @brief extract timestamp fields from pointcloud2 message
+ * @param [in]          sensor_msgs::msg::PointCloud2
+ *                      pointcloud message
+ * @param [out]         sensor_msgs::msg::PointField
+ *                      output field
+ */
 sensor_msgs::msg::PointField GetTimestampField(const sensor_msgs::msg::PointCloud2 & msg)
 {
   sensor_msgs::msg::PointField timestamp_field;
@@ -76,10 +103,19 @@ sensor_msgs::msg::PointField GetTimestampField(const sensor_msgs::msg::PointClou
     }
   }
   if (!timestamp_field.count) {
-    throw std::runtime_error("Field 'timestamp'  does not exist");
+    throw std::runtime_error("No field with timestamps found!");
   }
   return timestamp_field;
 }
+/**
+ * @brief extract timestamps from pointcloud message
+ * @param [in]          sensor_msgs::msg::PointCloud2
+ *                      input pointcloud message
+ * @param [in]          sensor_msgs::msg::PointField
+ *                      field containing the timestamps
+ * @param [out]         std::vector<double>
+ *                      timestamps
+ */
 std::vector<double> ExtractTimestampsFromMsg(
   const sensor_msgs::msg::PointCloud2 & msg, const sensor_msgs::msg::PointField & field)
 {
@@ -105,8 +141,7 @@ std::vector<double> ExtractTimestampsFromMsg(
       for (size_t i = 0; i < n_points; ++i, ++msg_t) {
         timestamps.emplace_back(*msg_t);
       }
-    } else if (field.datatype == pcl::PCLPointField::UINT8) {  // type 2 - array of 8 uint8 (luminar
-                                                               // iris driver)
+    } else if (field.datatype == pcl::PCLPointField::UINT8) {  // type 2 - array of 8 uint8
       sensor_msgs::PointCloud2ConstIterator<uint8_t> msg_t(msg, field.name);
       for (size_t i = 0; i < n_points; ++i, ++msg_t) {
         uint64_t stamp;
