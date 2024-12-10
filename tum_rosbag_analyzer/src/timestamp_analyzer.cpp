@@ -12,6 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include "tum_rosbag_analyzer/timestamp_analyzer.hpp"
+
+#include <algorithm>
+#include <iostream>
+#include <memory>
+#include <string>
+#include <vector>
 /**
  * @brief analyze timestamps of pointcloud messages
  * @param [in]          std::string
