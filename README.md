@@ -7,5 +7,18 @@ A toolkit for extracting, manipulating, and evaluating point clouds and 3D spati
 [![Linux](https://img.shields.io/badge/os-linux-blue.svg)](https://www.linux.org/)
 [![Docker](https://badgen.net/badge/icon/docker?icon=docker&label)](https://www.docker.com/)
 [![ROS2humble](https://img.shields.io/badge/ros2-humble-blue.svg)](https://docs.ros.org/en/humble/index.html)
+</div>
 
+<h2>Docker Usage</h2>
 
+Pull the latest version of the provided docker image from the github registry:
+
+```bash
+docker pull ghcr.io/tumftm/pointcloudcrafter:latest
+```
+
+If you want to build the docker image yourself, run the following script:
+
+```bash
+./docker/build_docker.sh
+```
