@@ -13,6 +13,8 @@
 // limitations under the License.
 #include "tum_rosbag_analyzer/rosbag_analyzer.hpp"
 
+#include <iostream>
+#include <string>
 int main(int argc, char ** argv)
 {
   // Get rosbag analyzer mode
