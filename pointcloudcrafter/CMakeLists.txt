@@ -28,8 +28,6 @@ find_package(sensor_msgs REQUIRED)
 find_package(pcl_ros REQUIRED)
 find_package(pcl_conversions REQUIRED)
 find_package(tf2_ros REQUIRED)
-find_package(gps_msgs REQUIRED)
-find_package(nav_msgs REQUIRED)
 find_package(fmt REQUIRED)
 find_package(PCL REQUIRED)
 
@@ -49,10 +47,10 @@ target_compile_features(pointcloudcrafter_lib PRIVATE cxx_std_20)
 ament_target_dependencies(pointcloudcrafter_lib PUBLIC
   rclcpp
   rosbag2_cpp
-  gps_msgs
   sensor_msgs
   pcl_conversions
   tf2_ros)
+
 target_link_libraries(pointcloudcrafter_lib PRIVATE
   ${PCL_LIBRARIES}
   fmt)
@@ -71,7 +69,6 @@ ament_export_targets(export_pointcloudcrafter_lib HAS_LIBRARY_TARGET)
 ament_export_dependencies(
   rclcpp
   rosbag2_cpp
-  gps_msgs
   sensor_msgs
   pcl_conversions
   tf2_ros)

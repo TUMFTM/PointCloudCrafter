@@ -23,8 +23,6 @@
 #include <tf2_ros/buffer.h>
 
 #include <Eigen/Eigen>
-#include <cstdint>
-#include <gps_msgs/msg/gps_fix.hpp>
 #include <memory>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/detail/point_cloud2__struct.hpp>
@@ -36,6 +34,10 @@
 #include <vector>
 
 #include "pointcloudcrafter/rosbag_reader.hpp"
+
+// clang-format off
+typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::msg::PointCloud2, sensor_msgs::msg::PointCloud2, sensor_msgs::msg::PointCloud2, sensor_msgs::msg::PointCloud2> ApproxTimeSyncPolicy;  // NOLINT
+// clang-format on
 namespace pointcloudcrafter
 {
 // Flags
@@ -52,15 +54,13 @@ extern bool sequential_names;
 extern bool bag_time;
 extern std::vector<float> geometric_filtering;
 extern bool pie_filter;
-using ApproxSyncPolicy = message_filters::sync_policies::ApproximateTime<
-  sensor_msgs::msg::PointCloud2, sensor_msgs::msg::PointCloud2, sensor_msgs::msg::PointCloud2,
-  sensor_msgs::msg::PointCloud2>;
-// Main class
+/**
+ * @brief PointCloudCrafter class
+ */
 class PointCloudCrafter
 {
 public:
   PointCloudCrafter();
-
   void run();
 
 protected:
@@ -80,19 +80,24 @@ protected:
     const sensor_msgs::msg::PointCloud2 & msg_in, sensor_msgs::msg::PointCloud2 & msg_out);
 
 private:
+  // Custom rosbag reader
   tools::RosbagReader reader_;
+  // TF2 buffer to store transform
   tf2_ros::Buffer tf2_buffer_;
+  // ROS logger
   rclcpp::Logger logger_;
+  // Subscribers for pointclouds
   std::vector<std::unique_ptr<tools::BagSubscriber<sensor_msgs::msg::PointCloud2>>> subscribers_;
-  std::unique_ptr<message_filters::Synchronizer<ApproxSyncPolicy>> synchronizer_;
+  // Synchronizer for pointclouds
+  std::unique_ptr<message_filters::Synchronizer<ApproxTimeSyncPolicy>> synchronizer_;
   message_filters::Connection sync_connection_{};
 
+  // Map to store transforms given by file
   std::unordered_map<std::string, Eigen::Affine3d> file_transforms_;
 
-  size_t num_sensors_;
-
-  std::vector<uint64_t> timestamps_lidar_;
-
+  // Storage
+  size_t num_sensors_{};
+  std::vector<uint64_t> timestamps_lidar_{};
   int64_t loaded_frames_{0};
   int64_t stride_frames_{0};
 };

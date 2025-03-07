@@ -29,6 +29,7 @@
 namespace pointcloudcrafter::tools::utils
 {
 constexpr std::uint64_t BILLION = 1000000000;
+constexpr float COLORS[] = {0.0, 1.0, 0.333, 0.666};
 /**
  * @brief Save a vector of timestamps to a file
  * @param filename - path to the file

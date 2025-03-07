@@ -52,8 +52,6 @@
 #include "pointcloudcrafter/utils.hpp"
 namespace pointcloudcrafter
 {
-constexpr float COLORS[] = {0.0, 1.0, 0.333, 0.666};
-
 // global variables that will be populated by CLI arguments
 std::string bag_path;  // NOLINT
 std::vector<std::string> topic_names;
@@ -68,7 +66,9 @@ bool sequential_names = false;
 bool bag_time = false;
 std::vector<float> geometric_filtering{};
 bool pie_filter = false;
-// Constructor
+/**
+ * @brief PointCloudCrafter class
+ */
 PointCloudCrafter::PointCloudCrafter()
 : reader_(bag_path),
   tf2_buffer_(std::make_shared<rclcpp::Clock>()),
@@ -88,8 +88,9 @@ PointCloudCrafter::PointCloudCrafter()
   reader_.add_listener<tf2_msgs::msg::TFMessage>("/tf", tf_callback_bind);
   reader_.add_listener<tf2_msgs::msg::TFMessage>("/tf_static", tf_callback_bind);
 
-  synchronizer_ = std::make_unique<message_filters::Synchronizer<ApproxSyncPolicy>>(
-    ApproxSyncPolicy(20), *subscribers_[0], *subscribers_[1], *subscribers_[2], *subscribers_[3]);
+  synchronizer_ = std::make_unique<message_filters::Synchronizer<ApproxTimeSyncPolicy>>(
+    ApproxTimeSyncPolicy(20), *subscribers_[0], *subscribers_[1], *subscribers_[2],
+    *subscribers_[3]);
   sync_connection_ = synchronizer_->registerCallback(std::bind(
     &PointCloudCrafter::pointcloud_callback_sync, this, std::placeholders::_1,
     std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
@@ -251,7 +252,7 @@ void PointCloudCrafter::process_merge_and_save(
     if (!sensor_number_field.empty()) {
       for (sensor_msgs::PointCloud2Iterator<float> it(msg_transformed, sensor_number_field);
            it != it.end(); ++it) {
-        *it = COLORS[i % 4];
+        *it = tools::utils::COLORS[i % 4];
       }
     }
 
