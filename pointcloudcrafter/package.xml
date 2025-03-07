@@ -7,7 +7,7 @@
   <author email="markus.pielmeier@tum.de">Markus Pielmeier</author>
   <maintainer email="dominik.kulmer@tum.de">Dominik Kulmer</maintainer>
   <maintainer email="maxi.leitenstern@tum.de">Maximilian Leitenstern</maintainer>
-  <license>LGPL 3.0</license>
+  <license>Apache 2.0</license>
 
   <depend>nav_msgs</depend>
   <depend>sensor_msgs</depend>
