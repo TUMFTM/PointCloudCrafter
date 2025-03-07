@@ -40,7 +40,6 @@
 #include <vector>
 
 #include "rosbag_reader.hpp"
-#include "pointcloudcrafter/filter_subscriber.hpp"
 namespace pointcloudcrafter {
 extern std::string bag_path;
 extern std::vector<std::string> topic_names;
@@ -60,14 +59,13 @@ using ApproxSyncPolicy =
                                                     sensor_msgs::msg::PointCloud2,
                                                     sensor_msgs::msg::PointCloud2,
                                                     sensor_msgs::msg::PointCloud2>;
-using PCTimeSynchronizer = message_filters::Synchronizer<ApproxSyncPolicy>;
 class RosbagToPcd {
     tools::RosbagReader reader_;
     pcl::PCDWriter writer_;
     tf2_ros::Buffer tf2_buffer_;
     rclcpp::Logger logger_;
     std::vector<std::unique_ptr<tools::BagSubscriber<sensor_msgs::msg::PointCloud2>>> subscribers_;
-    std::unique_ptr<PCTimeSynchronizer> synchronizer_;
+    std::unique_ptr<message_filters::Synchronizer<ApproxSyncPolicy>> synchronizer_;
     message_filters::Connection sync_connection_{};
 
     YAML::Node transform_config_;

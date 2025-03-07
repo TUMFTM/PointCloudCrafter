@@ -26,6 +26,9 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+
+#include "message_filters/message_event.h"
+#include "message_filters/simple_filter.h"
 namespace pointcloudcrafter::tools
 {
 template <typename T>
@@ -37,8 +40,6 @@ struct RosbagReaderMsg
 class ISerializedMessageHandler
 {
 public:
-  using Ptr = std::unique_ptr<ISerializedMessageHandler>;
-
   virtual void handle_serialized_message(
     const rosbag2_storage::SerializedBagMessage & bag_msg,
     const rclcpp::SerializedMessage & ser_msg) = 0;
@@ -46,13 +47,14 @@ public:
 template <typename T>
 class SerializedMessageHandler : public ISerializedMessageHandler
 {
-  using CallbackT = std::function<void(const RosbagReaderMsg<T> &)>;
-
   rclcpp::Serialization<T> serialization_;
-  CallbackT callback_;
+  std::function<void(const RosbagReaderMsg<T> &)> callback_;
 
 public:
-  explicit SerializedMessageHandler(CallbackT callback) : callback_(callback) {}
+  explicit SerializedMessageHandler(std::function<void(const RosbagReaderMsg<T> &)> callback)
+  : callback_(callback)
+  {
+  }
   void handle_serialized_message(
     const rosbag2_storage::SerializedBagMessage & bag_msg,
     const rclcpp::SerializedMessage & ser_msg) override
@@ -128,10 +130,29 @@ public:
   }
 
 private:
-  std::unordered_map<std::string, std::vector<ISerializedMessageHandler::Ptr>> handlers_;
+  std::unordered_map<std::string, std::vector<std::shared_ptr<ISerializedMessageHandler>>>
+    handlers_;
   bool running_{true};
 
   rclcpp::Logger logger_ = rclcpp::get_logger("rosbag_reader");
   rosbag2_cpp::Reader reader_;
+};
+template <typename T>
+class BagSubscriber : public message_filters::SimpleFilter<T>
+{
+public:
+  BagSubscriber(const std::string & topic_name, RosbagReader & reader, bool bag_time = false)
+  {
+    reader.add_listener<T>(topic_name, [this, bag_time](const RosbagReaderMsg<T> & msg) {
+      auto msg_ptr = std::make_shared<T>(msg.ros_msg);
+
+      if (bag_time) {
+        msg_ptr->header.stamp.sec = static_cast<int>(msg.bag_msg.time_stamp / 1000000000L);
+        msg_ptr->header.stamp.nanosec = msg.bag_msg.time_stamp % 1000000000L;
+      }
+
+      this->signalMessage(msg_ptr);
+    });
+  }
 };
 }  // namespace pointcloudcrafter::tools
