@@ -23,6 +23,7 @@
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
 #include <string>
+#include <unordered_map>
 #include <vector>
 namespace pointcloudcrafter::tools::utils
 {
@@ -149,5 +150,41 @@ void set_timestamps(
     std::cerr << "Warning: No timestamp field found in pointcloud message" << std::endl;
   }
   return;
+}
+std::unordered_map<std::string, Eigen::Affine3d> load_transforms_from_file(
+  const std::string & filename)
+{
+  std::unordered_map<std::string, Eigen::Affine3d> transforms;
+
+  std::ifstream file(filename);
+  if (!file.is_open()) {
+    throw std::runtime_error("Cannot open file: " + filename);
+  }
+
+  std::string frameId;
+  double x, y, z;
+  double r1, r2, r3, r4, r5, r6, r7, r8, r9;
+
+  std::string line;
+  while (std::getline(file, line)) {
+    if (line.empty()) {
+      continue;
+    }
+    std::istringstream iss(line);
+
+    if (!(iss >> frameId >> r1 >> r2 >> r3 >> x >> r4 >> r5 >> r6 >> y >> r7 >> r8 >> r9 >> z)) {
+      std::cerr << "Transform not in expected format" << std::endl;
+    }
+    Eigen::Matrix3d rotation;
+    rotation << r1, r2, r3, r4, r5, r6, r7, r8, r9;
+
+    Eigen::Affine3d trafo = Eigen::Affine3d::Identity();
+    trafo.linear() = rotation;
+    trafo.translation() << x, y, z;
+
+    transforms[frameId] = trafo;
+  }
+
+  return transforms;
 }
 }  // namespace pointcloudcrafter::tools::utils

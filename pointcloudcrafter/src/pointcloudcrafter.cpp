@@ -102,8 +102,7 @@ PointCloudCrafter::PointCloudCrafter()
 
   // Load transforms from file
   if (!TRANSFORM_FILE.empty()) {
-    // TODO(Maxi): Implement function to read from txt file
-    // this->file_transforms_ = ...
+    this->file_transforms_ = tools::utils::load_transforms_from_file(TRANSFORM_FILE);
   }
 }
 void PointCloudCrafter::run() { reader_.process(); }
@@ -163,15 +162,15 @@ void PointCloudCrafter::process_pointclouds(
     sensor_msgs::msg::PointCloud2 msg_transformed;
     transform_pc(msg, msg_transformed);
 
-    // adjust time information to be relative to base_time
-    // this part adjust the timestamp of each point in the cloud, which is necessary
-    // if the point stamps are relative to the header stamp
+    // adjust time information to have correct offset to base time
     uint64_t time_offset = tools::utils::timestamp_from_ros(msg.header.stamp) - base_time;
     try {
       if (RELATIVE_TIME) {
+        // Point timestamps are relative to the header timestamp of each message
         tools::utils::set_timestamps(
           msg_transformed, tools::utils::timestamp_from_ros(msg.header.stamp), time_offset);
       } else {
+        // Point timestamps are absolute timestamps
         tools::utils::set_timestamps(msg_transformed, 0, time_offset);
       }
     } catch (std::runtime_error &) {
