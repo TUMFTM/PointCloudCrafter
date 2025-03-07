@@ -61,6 +61,9 @@ int main(int argc, char * argv[])
   app.add_flag(
     "--bag-time, -b", pointcloudcrafter::BAG_TIME, "Use bag timestamps instead of header");
   app.add_flag(
+    "--relative-time, -r", pointcloudcrafter::RELATIVE_TIME,
+    "Use relative time to header instead of absolute point timestamps");
+  app.add_flag(
     "--pie-filter, --pf", pointcloudcrafter::PIE_FILTER,
     "Do circle segment filtering to cut out chase vehicle");
 

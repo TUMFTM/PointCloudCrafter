@@ -52,6 +52,7 @@ extern int64_t SKIP_FRAMES;
 extern int64_t STRIDE_FRAMES;
 extern bool SEQUENTIAL_NAMES;
 extern bool BAG_TIME;
+extern bool RELATIVE_TIME;
 extern std::vector<float> GEOMETRIC_FILTERING;
 extern bool PIE_FILTER;
 /**

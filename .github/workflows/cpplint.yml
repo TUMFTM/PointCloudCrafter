@@ -7,4 +7,4 @@ jobs:
     - uses: actions/checkout@v1
     - uses: actions/setup-python@v1
     - run: pip install cpplint
-    - run: python3 -m cpplint --recursive .
+    - run: python3 -m cpplint --recursive --exclude pointcloudcrafter/include/CLI11.hpp ./

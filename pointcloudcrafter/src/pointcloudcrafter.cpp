@@ -64,6 +64,7 @@ int64_t SKIP_FRAMES = 0;
 int64_t STRIDE_FRAMES = 1;
 bool SEQUENTIAL_NAMES = false;
 bool BAG_TIME = false;
+bool RELATIVE_TIME = false;
 std::vector<float> GEOMETRIC_FILTERING{};
 bool PIE_FILTER = false;
 /**
@@ -105,10 +106,7 @@ PointCloudCrafter::PointCloudCrafter()
     // this->file_transforms_ = ...
   }
 }
-void PointCloudCrafter::run()
-{
-  reader_.process();
-}
+void PointCloudCrafter::run() { reader_.process(); }
 void PointCloudCrafter::tf_callback(const tools::RosbagReaderMsg<tf2_msgs::msg::TFMessage> & msg)
 {
   for (auto & tf : msg.ros_msg.transforms) {
@@ -168,12 +166,13 @@ void PointCloudCrafter::process_pointclouds(
     // adjust time information to be relative to base_time
     // this part adjust the timestamp of each point in the cloud, which is necessary
     // if the point stamps are relative to the header stamp
+    uint64_t time_offset = tools::utils::timestamp_from_ros(msg.header.stamp) - base_time;
     try {
-      uint64_t time_offset = tools::utils::timestamp_from_ros(msg.header.stamp) - base_time;
-      for (sensor_msgs::PointCloud2Iterator<uint64_t> it(msg_transformed, "time_us");
-           it != it.end(); ++it) {
-        *it += time_offset;
-      }
+      std::vector<std::uint64_t> global_timestamps =
+        (RELATIVE_TIME)
+          ? tools::utils::set_timestamps(
+              msg_transformed, tools::utils::timestamp_from_ros(msg.header.stamp), time_offset)
+          : tools::utils::set_timestamps(msg_transformed, 0, time_offset);
     } catch (std::runtime_error &) {
       // do nothing if cloud has no field t
     }

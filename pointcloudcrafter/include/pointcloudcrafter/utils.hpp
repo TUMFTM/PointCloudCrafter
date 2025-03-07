@@ -98,63 +98,74 @@ void transform_pointcloud2(
  * @param [out]         std::vector<std::uint64_t>
  *                      timestamps
  */
-std::vector<std::uint64_t> extract_timestamps(const sensor_msgs::msg::PointCloud2 & msg)
+std::vector<std::uint64_t> set_timestamps(
+  sensor_msgs::msg::PointCloud2 & msg, const std::uint64_t header_stamp = 0,
+  const std::uint64_t offset = 0)
 {
+  // Get number of points
+  const size_t n_points = msg.height * msg.width;
+  std::vector<std::uint64_t> timestamps;
+  timestamps.reserve(n_points);
+
+  // Search for timestamp field
   sensor_msgs::msg::PointField timestamp_field;
   for (const auto & field : msg.fields) {
     if (field.name == "timestamp" || field.name == "time_stamp" || field.name == "t") {
       timestamp_field = field;
     }
   }
-  if (!timestamp_field.count) {
-    throw std::runtime_error("No field with timestamps found!");
-  }
-  // Extract timestamps from cloud_msg
-  const size_t n_points = msg.height * msg.width;
-  std::vector<std::uint64_t> timestamps;
-  timestamps.reserve(n_points);
-
-  // Timestamps are doubles -> time in sec as offset to center time
-  if (
-    timestamp_field.name == "timestamp" || timestamp_field.name == "time_stamp" ||
-    timestamp_field.name == "t") {
+  if (timestamp_field.count) {
+    // Timestamps are doubles -> time in sec as offset to center time
     if (timestamp_field.datatype == pcl::PCLPointField::FLOAT32) {  // type 7
       sensor_msgs::PointCloud2ConstIterator<float> msg_t(msg, timestamp_field.name);
       for (size_t i = 0; i < n_points; ++i, ++msg_t) {
+        // TODO(Maxi): Modify stamp in cloud based on header stamp + offset
         timestamps.emplace_back(static_cast<std::uint64_t>(*msg_t * BILLION));
       }
     } else if (timestamp_field.datatype == pcl::PCLPointField::FLOAT64) {  // type 8
       sensor_msgs::PointCloud2ConstIterator<double> msg_t(msg, timestamp_field.name);
       for (size_t i = 0; i < n_points; ++i, ++msg_t) {
+        // TODO(Maxi): Modify stamp in cloud based on header stamp + offset
         timestamps.emplace_back(static_cast<std::uint64_t>(*msg_t * BILLION));
       }
     } else if (timestamp_field.datatype == pcl::PCLPointField::UINT32) {  // type 6
       sensor_msgs::PointCloud2ConstIterator<uint32_t> msg_t(msg, timestamp_field.name);
       for (size_t i = 0; i < n_points; ++i, ++msg_t) {
+        // TODO(Maxi): Modify stamp in cloud based on header stamp + offset
         timestamps.emplace_back(static_cast<std::uint64_t>(*msg_t * BILLION));
       }
     } else if (timestamp_field.datatype == pcl::PCLPointField::UINT8) {  // type 2 - array of 8
                                                                          // uint8
       sensor_msgs::PointCloud2ConstIterator<uint8_t> msg_t(msg, timestamp_field.name);
       for (size_t i = 0; i < n_points; ++i, ++msg_t) {
-        uint64_t stamp;
-        std::memcpy(&stamp, &*msg_t, sizeof(uint64_t));
-        timestamps.emplace_back(static_cast<double>(stamp));
+        std::uint64_t stamp;
+        std::memcpy(&stamp, &*msg_t, sizeof(std::uint64_t));
+        // TODO(Maxi): Modify stamp in cloud based on header stamp + offset
+        timestamps.emplace_back(stamp);
       }
     } else {
       std::cout << "Time field of type != 2,6,7,8" << std::endl;
       exit(EXIT_FAILURE);
     }
+
+    // Add offset to timestamps
+    if (offset != 0) {
+      for (auto & stamp : timestamps) {
+        stamp += offset;
+      }
+    }
+  } else {
+    std::cerr << "Warning: No timestamp field found in pointcloud message" << std::endl;
   }
   return timestamps;
 }
-    //   // Print properties of current msgs
-    //   std::cout << "PointCloud" << std::endl;
-    //   std::cout << "size: " << stamps.size() << std::endl;
-    //   std::cout << std::fixed << std::setprecision(9);
-    //   std::cout << "msg_stamp: " << msg_stamp * (1e-9) << std::endl;
-    //   std::cout << "max_stamp: " << *max_element(stamps.begin(), stamps.end()) * (1e-9) << std::endl
-    //             << "min_stamp: " << *min_element(stamps.begin(), stamps.end()) * (1e-9)
-    //             << std::endl;
-    //   bag_diff.push_back(diff);
+//   // Print properties of current msgs
+//   std::cout << "PointCloud" << std::endl;
+//   std::cout << "size: " << stamps.size() << std::endl;
+//   std::cout << std::fixed << std::setprecision(9);
+//   std::cout << "msg_stamp: " << msg_stamp * (1e-9) << std::endl;
+//   std::cout << "max_stamp: " << *max_element(stamps.begin(), stamps.end()) * (1e-9) << std::endl
+//             << "min_stamp: " << *min_element(stamps.begin(), stamps.end()) * (1e-9)
+//             << std::endl;
+//   bag_diff.push_back(diff);
 }  // namespace pointcloudcrafter::tools::utils
