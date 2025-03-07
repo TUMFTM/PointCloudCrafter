@@ -16,17 +16,13 @@
  */
 
 #pragma once
-
 #include <message_filters/connection.h>
 #include <message_filters/sync_policies/approximate_time.h>
 #include <message_filters/synchronizer.h>
 #include <message_filters/time_synchronizer.h>
-#include <pcl/io/pcd_io.h>
-#include <pcl/pcl_macros.h>
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
 #include <tf2_ros/buffer.h>
 
+#include <Eigen/Eigen>
 #include <cstdint>
 #include <gps_msgs/msg/gps_fix.hpp>
 #include <memory>
@@ -36,13 +32,13 @@
 #include <string>
 #include <tf2_msgs/msg/detail/tf_message__struct.hpp>
 #include <tf2_msgs/msg/tf_message.hpp>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 #include "pointcloudcrafter/rosbag_reader.hpp"
-#include "pointcloudcrafter/utils.hpp"
 namespace pointcloudcrafter
 {
+// Flags
 extern std::string bag_path;
 extern std::vector<std::string> topic_names;
 extern std::string out_dir;
@@ -59,12 +55,32 @@ extern bool pie_filter;
 using ApproxSyncPolicy = message_filters::sync_policies::ApproximateTime<
   sensor_msgs::msg::PointCloud2, sensor_msgs::msg::PointCloud2, sensor_msgs::msg::PointCloud2,
   sensor_msgs::msg::PointCloud2>;
-
 // Main class
 class PointCloudCrafter
 {
+public:
+  PointCloudCrafter();
+
+  void run();
+
+protected:
+  // void save(uint64_t timestamp, const pcl::PCLPointCloud2::Ptr & pc);
+
+  void tf_callback(const tools::RosbagReaderMsg<tf2_msgs::msg::TFMessage> & msg);
+
+  void pointcloud_callback_sync(
+    const sensor_msgs::msg::PointCloud2::ConstSharedPtr & pc1,
+    const sensor_msgs::msg::PointCloud2::ConstSharedPtr & pc2,
+    const sensor_msgs::msg::PointCloud2::ConstSharedPtr & pc3,
+    const sensor_msgs::msg::PointCloud2::ConstSharedPtr & pc4);
+
+  void process_merge_and_save(std::vector<sensor_msgs::msg::PointCloud2::ConstSharedPtr> & pc_msgs);
+
+  void transform_pc(
+    const sensor_msgs::msg::PointCloud2 & msg_in, sensor_msgs::msg::PointCloud2 & msg_out);
+
+private:
   tools::RosbagReader reader_;
-  pcl::PCDWriter writer_;
   tf2_ros::Buffer tf2_buffer_;
   rclcpp::Logger logger_;
   std::vector<std::unique_ptr<tools::BagSubscriber<sensor_msgs::msg::PointCloud2>>> subscribers_;
@@ -79,30 +95,5 @@ class PointCloudCrafter
 
   int64_t loaded_frames_{0};
   int64_t stride_frames_{0};
-
-public:
-  PointCloudCrafter();
-
-  void run();
-
-protected:
-  std::string make_filename(uint64_t timestamp) const;
-
-  void save(uint64_t timestamp, const pcl::PCLPointCloud2::Ptr & pc);
-
-  void transform_callback(const tools::RosbagReaderMsg<tf2_msgs::msg::TFMessage> & msg);
-
-  void pointcloud_callback_sync(
-    const sensor_msgs::msg::PointCloud2::ConstSharedPtr & pc1,
-    const sensor_msgs::msg::PointCloud2::ConstSharedPtr & pc2,
-    const sensor_msgs::msg::PointCloud2::ConstSharedPtr & pc3,
-    const sensor_msgs::msg::PointCloud2::ConstSharedPtr & pc4);
-
-  void process_merge_and_save(std::vector<sensor_msgs::msg::PointCloud2::ConstSharedPtr> & pc_msgs);
-
-  void transform_pc(
-    const sensor_msgs::msg::PointCloud2 & msg_in, sensor_msgs::msg::PointCloud2 & msg_out);
-
-  void circleSegmentFilter(float & circ_angle, float & offset);
 };
 }  // namespace pointcloudcrafter

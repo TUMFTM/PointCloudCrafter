@@ -20,10 +20,6 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-# find dependencies
-# find_package(autoware_cmake REQUIRED)
-# autoware_package()
-
 find_package(ament_cmake REQUIRED)
 
 find_package(rclcpp REQUIRED)
@@ -39,23 +35,55 @@ find_package(PCL REQUIRED)
 
 include_directories(SYSTEM
   ${PCL_INCLUDE_DIRS}
-  ${GeographicLib_INCLUDE_DIRS}
 )
 
+# Library
+add_library(pointcloudcrafter_lib SHARED
+  src/pointcloudcrafter.cpp)
+
+target_include_directories(pointcloudcrafter_lib
+  PUBLIC 
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
+target_compile_features(pointcloudcrafter_lib PRIVATE cxx_std_20)
+ament_target_dependencies(pointcloudcrafter_lib PUBLIC
+  rclcpp
+  rosbag2_cpp
+  gps_msgs
+  sensor_msgs
+  pcl_conversions
+  tf2_ros)
+target_link_libraries(pointcloudcrafter_lib PRIVATE
+  ${PCL_LIBRARIES}
+  fmt)
+
+install(
+  TARGETS pointcloudcrafter_lib
+  EXPORT export_pointcloudcrafter_lib
+  DESTINATION lib/pointcloudcrafter_lib
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include
+)
+
+ament_export_targets(export_pointcloudcrafter_lib HAS_LIBRARY_TARGET)
+ament_export_dependencies(
+  rclcpp
+  rosbag2_cpp
+  gps_msgs
+  sensor_msgs
+  pcl_conversions
+  tf2_ros)
+
+# Executable
 add_executable(pointcloudcrafter
-  src/pointcloudcrafter_main.cpp
-  src/pointcloudcrafter.cpp
-  src/utils.cpp)
-ament_target_dependencies(pointcloudcrafter rclcpp rosbag2_cpp gps_msgs sensor_msgs pcl_conversions tf2_ros)
+  src/pointcloudcrafter_main.cpp)
 
-target_include_directories(pointcloudcrafter
-  PRIVATE 
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
+target_link_libraries(pointcloudcrafter
+  pointcloudcrafter_lib)
 
-target_link_libraries(pointcloudcrafter ${PCL_LIBRARIES} fmt)
-
-target_compile_features(pointcloudcrafter PRIVATE cxx_std_17)
+target_compile_features(pointcloudcrafter PRIVATE cxx_std_20)
 
 install(TARGETS pointcloudcrafter RUNTIME DESTINATION lib/${PROJECT_NAME})
 

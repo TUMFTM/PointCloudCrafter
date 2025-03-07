@@ -48,6 +48,8 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include "pointcloudcrafter/utils.hpp"
+
 namespace pointcloudcrafter
 {
 constexpr float COLORS[] = {0.0, 1.0, 0.333, 0.666};
@@ -83,9 +85,9 @@ PointCloudCrafter::PointCloudCrafter()
       topic, reader_, bag_time));
   }
 
-  auto tf_callback = std::bind(&PointCloudCrafter::transform_callback, this, std::placeholders::_1);
-  reader_.add_listener<tf2_msgs::msg::TFMessage>("/tf", tf_callback);
-  reader_.add_listener<tf2_msgs::msg::TFMessage>("/tf_static", tf_callback);
+  auto tf_callback_bind = std::bind(&PointCloudCrafter::tf_callback, this, std::placeholders::_1);
+  reader_.add_listener<tf2_msgs::msg::TFMessage>("/tf", tf_callback_bind);
+  reader_.add_listener<tf2_msgs::msg::TFMessage>("/tf_static", tf_callback_bind);
 
   synchronizer_ = std::make_unique<message_filters::Synchronizer<ApproxSyncPolicy>>(
     ApproxSyncPolicy(20), *subscribers_[0], *subscribers_[1], *subscribers_[2], *subscribers_[3]);
@@ -95,11 +97,9 @@ PointCloudCrafter::PointCloudCrafter()
 
   tf2_buffer_.setUsingDedicatedThread(true);
 
-  std::filesystem::create_directories(out_dir + "/pcd");
-  std::filesystem::create_directories(out_dir + "/times");
-
   if (!transform_file.empty()) {
-    // transform_config_ = YAML::LoadFile(transform_file);
+    // TODO(Maxi): Implement function to read from txt file
+    // this->file_transforms_ = ...
   }
 }
 void PointCloudCrafter::run()
@@ -108,103 +108,71 @@ void PointCloudCrafter::run()
 
   tools::utils::save_timestamps(out_dir + "/times/lidar_timestamps.txt", timestamps_lidar_);
 }
-std::string PointCloudCrafter::make_filename(uint64_t timestamp) const
-{
-  std::string basename;
-  if (sequential_names) {
-    char tmp[20];
-    std::snprintf(tmp, sizeof(tmp), "%06ld", loaded_frames_);
-    basename = tmp;
-  } else {
-    auto ts = tools::utils::timestamp_to_ros(timestamp);
-    basename = fmt::format("{}_{:09}", ts.sec, ts.nanosec);
-  }
+// void PointCloudCrafter::save(uint64_t timestamp, const pcl::PCLPointCloud2::Ptr & pc)
+// {
+//   if (!geometric_filtering.empty()) {
+//     pcl::CropBox<pcl::PCLPointCloud2> crop_box;
 
-  return out_dir + "/pcd/" + basename + ".pcd";
-}
-void PointCloudCrafter::save(uint64_t timestamp, const pcl::PCLPointCloud2::Ptr & pc)
-{
-  if (!geometric_filtering.empty()) {
-    pcl::CropBox<pcl::PCLPointCloud2> crop_box;
+//     // filter points inside rectangular box
+//     crop_box.setMin({geometric_filtering[0], geometric_filtering[1], geometric_filtering[2], 1.0});
+//     crop_box.setMax({geometric_filtering[3], geometric_filtering[4], geometric_filtering[5], 1.0});
+//     crop_box.setInputCloud(pc);
+//     crop_box.setNegative(true);
+//     crop_box.filter(*pc);
+//   }
 
-    // filter points inside rectangular box
-    crop_box.setMin({geometric_filtering[0], geometric_filtering[1], geometric_filtering[2], 1.0});
-    crop_box.setMax({geometric_filtering[3], geometric_filtering[4], geometric_filtering[5], 1.0});
-    crop_box.setInputCloud(pc);
-    crop_box.setNegative(true);
-    crop_box.filter(*pc);
-  }
+//   if (pie_filter) {
+//     pcl::PCLPointCloud2 filtered_cloud;
+//     filtered_cloud.header = pc->header;
+//     filtered_cloud.height = 1;
+//     filtered_cloud.width = 0;
+//     filtered_cloud.fields = pc->fields;
+//     filtered_cloud.point_step = pc->point_step;
+//     filtered_cloud.row_step = 0;
+//     filtered_cloud.is_bigendian = pc->is_bigendian;
+//     filtered_cloud.is_dense = pc->is_dense;
+//     filtered_cloud.data.clear();
 
-  if (pie_filter) {
-    pcl::PCLPointCloud2 filtered_cloud;
-    filtered_cloud.header = pc->header;
-    filtered_cloud.height = 1;
-    filtered_cloud.width = 0;
-    filtered_cloud.fields = pc->fields;
-    filtered_cloud.point_step = pc->point_step;
-    filtered_cloud.row_step = 0;
-    filtered_cloud.is_bigendian = pc->is_bigendian;
-    filtered_cloud.is_dense = pc->is_dense;
-    filtered_cloud.data.clear();
+//     for (size_t i = 0; i < pc->data.size(); i += pc->point_step) {
+//       float x, y;
+//       for (size_t j = 0; j < pc->fields.size(); ++j) {
+//         pcl::PCLPointField & field = pc->fields[j];
+//         size_t point_offset = i + field.offset;
+//         if (field.name == "x") {
+//           if (field.datatype == pcl::PCLPointField::FLOAT32) {
+//             memcpy(&x, &pc->data[point_offset], sizeof(float));
+//           }
+//         } else if (field.name == "y") {
+//           if (field.datatype == pcl::PCLPointField::FLOAT32) {
+//             memcpy(&y, &pc->data[point_offset], sizeof(float));
+//           }
+//         } else {
+//           break;
+//         }
+//       }
+//       auto point_angle = std::atan2(y, x - 1.5);
+//       auto segment_angle = M_PI * (300.0f / 360.0f);
 
-    for (size_t i = 0; i < pc->data.size(); i += pc->point_step) {
-      float x, y;
-      for (size_t j = 0; j < pc->fields.size(); ++j) {
-        pcl::PCLPointField & field = pc->fields[j];
-        size_t point_offset = i + field.offset;
-        if (field.name == "x") {
-          if (field.datatype == pcl::PCLPointField::FLOAT32) {
-            memcpy(&x, &pc->data[point_offset], sizeof(float));
-          }
-        } else if (field.name == "y") {
-          if (field.datatype == pcl::PCLPointField::FLOAT32) {
-            memcpy(&y, &pc->data[point_offset], sizeof(float));
-          }
-        } else {
-          break;
-        }
-      }
-      auto point_angle = std::atan2(y, x - 1.5);
-      auto segment_angle = M_PI * (300.0f / 360.0f);
+//       if (std::abs(point_angle) <= segment_angle) {
+//         filtered_cloud.data.insert(
+//           filtered_cloud.data.end(), pc->data.begin() + i, pc->data.begin() + i + pc->point_step);
+//         filtered_cloud.width++;
+//         filtered_cloud.row_step += pc->point_step;
+//       }
+//     }
+//     *pc = filtered_cloud;
+//   }
 
-      if (std::abs(point_angle) <= segment_angle) {
-        filtered_cloud.data.insert(
-          filtered_cloud.data.end(), pc->data.begin() + i, pc->data.begin() + i + pc->point_step);
-        filtered_cloud.width++;
-        filtered_cloud.row_step += pc->point_step;
-      }
-    }
-    *pc = filtered_cloud;
-  }
-  // This part of the code is solely dedicated to LUMINAR, as they are not able to keep their
-  // driver to the PointCloud2 convention. LUMINAR appends a default PointField with '',0,0,0 to
-  // the end of each message.
-  for (size_t i = 0; i < pc->fields.size(); ++i) {
-    if (pc->fields[i].count == 0) {
-      //   pcl::PointCloud<types::PointXYZIT> pc_xyzit{};
-      //   pcl::fromPCLPointCloud2(*pc, pc_xyzit);
-      //   writer_.writeBinary(make_filename(timestamp), pc_xyzit);
-    } else {
-      // pcl::PointCloud<pt::PointXYZITd> pc_xyzitd{};
-      // pcl::fromPCLPointCloud2(*pc, pc_xyzitd);
-      // std::cout << std::fixed << std::setprecision(9); std::cout <<
-      // pc_xyzitd.points[i].timestamp
-      // << std::endl;
-      // writer_.writeBinary(make_filename(timestamp), pc_xyzitd);
-      writer_.writeBinary(make_filename(timestamp), *pc);
-    }
-  }
+//   timestamps_lidar_.push_back(timestamp);
 
-  timestamps_lidar_.push_back(timestamp);
+//   stride_frames_ = stride_frames - 1;
 
-  stride_frames_ = stride_frames - 1;
-
-  loaded_frames_++;
-  if (max_frames > 0 && loaded_frames_ >= max_frames) {
-    reader_.set_state(false);
-  }
-}
-void PointCloudCrafter::transform_callback(
+//   loaded_frames_++;
+//   if (max_frames > 0 && loaded_frames_ >= max_frames) {
+//     reader_.set_state(false);
+//   }
+// }
+void PointCloudCrafter::tf_callback(
   const tools::RosbagReaderMsg<tf2_msgs::msg::TFMessage> & msg)
 {
   for (auto & tf : msg.ros_msg.transforms) {
@@ -297,6 +265,6 @@ void PointCloudCrafter::process_merge_and_save(
     *merged_pc += pc;
   }
 
-  save(base_time, merged_pc);
+  // save(base_time, merged_pc);
 }
 }  // namespace pointcloudcrafter
