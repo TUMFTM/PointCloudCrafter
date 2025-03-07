@@ -37,36 +37,21 @@ find_package(nav_msgs REQUIRED)
 find_package(fmt REQUIRED)
 find_package(yaml-cpp REQUIRED)
 find_package(PCL REQUIRED)
-# find_package(GeographicLib REQUIRED)
-# find_package(novatel_oem7_msgs REQUIRED)
-# find_package(vectornav_msgs REQUIRED)
 
 include_directories(SYSTEM
   ${PCL_INCLUDE_DIRS}
   ${GeographicLib_INCLUDE_DIRS}
 )
 
-# ament_auto_add_executable(rosbag_to_pcd src/rosbag_to_pcd_main.cpp src/rosbag_to_pcd.cpp src/utils.cpp src/pcl_utils.cpp)
-# ament_target_dependencies(rosbag_to_pcd rclcpp rosbag2_cpp gps_msgs sensor_msgs pcl_conversions tf2_ros yaml-cpp)
-
 add_executable(rosbag_to_pcd ${CMAKE_CURRENT_SOURCE_DIR}/src/rosbag_to_pcd_main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/rosbag_to_pcd.cpp src/utils.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/pcl_utils.cpp)
 ament_target_dependencies(rosbag_to_pcd rclcpp rosbag2_cpp gps_msgs sensor_msgs pcl_conversions tf2_ros yaml-cpp)
 
-# add_executable(rosbag_to_gnss ${CMAKE_CURRENT_SOURCE_DIR}/src/rosbag_to_gnss_main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/rosbag_to_gnss.cpp src/utils.cpp)
-# ament_target_dependencies(rosbag_to_gnss rclcpp rosbag2_cpp gps_msgs sensor_msgs tf2_ros novatel_oem7_msgs vectornav_msgs nav_msgs GeographicLib)
-
 target_include_directories(rosbag_to_pcd PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-# target_include_directories(rosbag_to_gnss PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 target_link_libraries(rosbag_to_pcd ${PCL_LIBRARIES} fmt)
-# target_link_libraries(rosbag_to_gnss ${PCL_LIBRARIES} fmt ${GeographicLib_LIBRARIES})
 
 target_compile_features(rosbag_to_pcd PRIVATE cxx_std_17)
-# target_compile_features(rosbag_to_gnss PRIVATE cxx_std_17)
 
 install(TARGETS rosbag_to_pcd RUNTIME DESTINATION lib/${PROJECT_NAME})
-# install(TARGETS rosbag_to_gnss RUNTIME DESTINATION lib/${PROJECT_NAME})
-# install(DIRECTORY launch rviz DESTINATION share/${PROJECT_NAME}/)
 
-# ament_auto_package()
 ament_package()
