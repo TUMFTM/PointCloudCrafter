@@ -20,12 +20,9 @@
 
 // PCL
 #define PCL_NO_PRECOMPILE
-#include <pcl/io/pcd_io.h>
-#include <pcl/features/normal_3d.h>
-#include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
-#include <pcl/point_types_conversion.h>
+#include <pcl/conversions.h>
 
 using PointCloud = pcl::PCLPointCloud2;
 

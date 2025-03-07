@@ -20,20 +20,10 @@
 #include <limits>
 
 // PCL
-#include <pcl/cloud_iterator.h>
-#include <pcl/common/common.h>
-#include <pcl/common/transforms.h>
-#include <pcl/conversions.h>
-#include <pcl/features/normal_3d.h>
-#include <pcl/filters/approximate_voxel_grid.h>
-#include <pcl/filters/crop_box.h>
-#include <pcl/filters/extract_indices.h>
-#include <pcl/filters/radius_outlier_removal.h>
-#include <pcl/filters/statistical_outlier_removal.h>
-#include <pcl/filters/voxel_grid.h>
 #include <pcl/io/pcd_io.h>
-#include <pcl/search/kdtree.h>
-#include <pcl/segmentation/region_growing.h>
+#include <pcl/filters/extract_indices.h>
+#include <pcl/filters/crop_box.h>
+#include <pcl/filters/voxel_grid.h>
 #include <pcl/visualization/pcl_visualizer.h>
 
 using PointCloud = pcl::PCLPointCloud2;
