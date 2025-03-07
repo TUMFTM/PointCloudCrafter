@@ -104,31 +104,4 @@ protected:
 
     void circleSegmentFilter(float &circ_angle, float &offset);
 };
-// Dedicated to LUMINAR
-class pt {
-public:
-    struct PointXYZIT {
-        PCL_ADD_POINT4D;
-        float intensity;
-        std::uint32_t timestamp;
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    } EIGEN_ALIGN16;
-    struct PointXYZITd {
-        PCL_ADD_POINT4D;
-        float intensity;
-        double timestamp;
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    } EIGEN_ALIGN16;
-};
 }  // namespace pointcloudcrafter
-
-POINT_CLOUD_REGISTER_POINT_STRUCT(pointcloudcrafter::pt::PointXYZIT,
-                                  (float, x, x)(float, y, y)(float, z, z)(float,
-                                                                          intensity,
-                                                                          intensity)(std::uint32_t,
-                                                                                     timestamp,
-                                                                                     time_us))
-
-POINT_CLOUD_REGISTER_POINT_STRUCT(pointcloudcrafter::pt::PointXYZITd,
-                                  (float, x, x)(float, y, y)(float, z, z)(
-                                      float, intensity, intensity)(double, timestamp, timestamp))

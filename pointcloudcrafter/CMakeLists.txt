@@ -46,7 +46,10 @@ include_directories(SYSTEM
 add_executable(rosbag_to_pcd ${CMAKE_CURRENT_SOURCE_DIR}/src/rosbag_to_pcd_main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/rosbag_to_pcd.cpp src/utils.cpp)
 ament_target_dependencies(rosbag_to_pcd rclcpp rosbag2_cpp gps_msgs sensor_msgs pcl_conversions tf2_ros yaml-cpp)
 
-target_include_directories(rosbag_to_pcd PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(rosbag_to_pcd
+  PRIVATE 
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
 
 target_link_libraries(rosbag_to_pcd ${PCL_LIBRARIES} fmt)
 
