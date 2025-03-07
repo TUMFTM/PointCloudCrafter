@@ -306,7 +306,7 @@ Modifyer & Modifyer::timestampAnalyzer(const std::string & file_path)
   }
 
   if (!time_float.empty()) {
-    saveTimestamps(time_float, file_path);
+    saveTimestamps<double>(time_float, file_path);
 
     // Basic statistics
     std::cout << "Float timestamps: " << time_float.size() << " entries" << std::endl;
@@ -319,7 +319,7 @@ Modifyer & Modifyer::timestampAnalyzer(const std::string & file_path)
   }
 
   if (!time_int.empty()) {
-    saveTimestamps(time_int, file_path);
+    saveTimestamps<size_t>(time_int, file_path);
 
     // Basic statistics
     std::cout << "Integer timestamps: " << time_int.size() << " entries" << std::endl;
@@ -333,27 +333,8 @@ Modifyer & Modifyer::timestampAnalyzer(const std::string & file_path)
 
   return *this;
 }
-bool Modifyer::saveTimestamps(
-  const std::vector<uint64_t> & timestamps, const std::string & output_path)
-{
-  std::ofstream outfile;
-  outfile.open(output_path);
-
-  if (!outfile.is_open()) {
-    std::cerr << "Failed to open file for writing: " << output_path << std::endl;
-    return false;
-  }
-
-  for (const auto & ts : timestamps) {
-    outfile << ts << std::endl;
-  }
-
-  outfile.close();
-  std::cout << "Timestamps saved to: " << output_path << std::endl;
-  return true;
-}
-bool Modifyer::saveTimestamps(
-  const std::vector<double> & timestamps, const std::string & output_path)
+template <typename T>
+bool Modifyer::saveTimestamps(const std::vector<T> & timestamps, const std::string & output_path)
 {
   std::ofstream outfile;
   outfile.open(output_path);
