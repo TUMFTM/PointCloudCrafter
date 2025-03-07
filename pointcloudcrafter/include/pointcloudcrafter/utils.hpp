@@ -25,7 +25,6 @@
 #include <sensor_msgs/point_cloud2_iterator.hpp>
 #include <string>
 #include <vector>
-#include <pointcloudcrafter/point_types.hpp>
 namespace pointcloudcrafter::tools::utils
 {
 

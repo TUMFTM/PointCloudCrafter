@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "pointcloudcrafter/rosbag_to_pcd.hpp"
+#include "pointcloudcrafter/pointcloudcrafter.hpp"
 
 #include <Eigen/src/Core/Matrix.h>
 #include <Eigen/src/Core/util/Constants.h>
@@ -48,12 +48,9 @@
 #include <sensor_msgs/point_cloud2_iterator.hpp>
 #include <stdexcept>
 #include <string>
-#include <tf2_msgs/msg/detail/tf_message__struct.hpp>
-#include <tf2_msgs/msg/tf_message.hpp>
 #include <vector>
 
-#include "pointcloudcrafter/rosbag_reader.hpp"
-#include "pointcloudcrafter/utils.hpp"
+
 namespace pointcloudcrafter
 {
 constexpr float COLORS[] = {0.0, 1.0, 0.333, 0.666};
@@ -73,8 +70,7 @@ bool bag_time = false;
 std::vector<float> geometric_filtering{};
 bool pie_filter = false;
 
-using PointCloud = pcl::PointCloud<pt::PointXYZIT>;
-RosbagToPcd::RosbagToPcd()
+PointCloudCrafter::PointCloudCrafter()
 : reader_(bag_path),
   tf2_buffer_(std::make_shared<rclcpp::Clock>()),
   logger_(rclcpp::get_logger("rosbag_to_pcd")),
@@ -89,14 +85,14 @@ RosbagToPcd::RosbagToPcd()
       topic, reader_, bag_time));
   }
 
-  auto tf_callback = std::bind(&RosbagToPcd::transform_callback, this, std::placeholders::_1);
+  auto tf_callback = std::bind(&PointCloudCrafter::transform_callback, this, std::placeholders::_1);
   reader_.add_listener<tf2_msgs::msg::TFMessage>("/tf", tf_callback);
   reader_.add_listener<tf2_msgs::msg::TFMessage>("/tf_static", tf_callback);
 
   synchronizer_ = std::make_unique<message_filters::Synchronizer<ApproxSyncPolicy>>(
     ApproxSyncPolicy(20), *subscribers_[0], *subscribers_[1], *subscribers_[2], *subscribers_[3]);
   sync_connection_ = synchronizer_->registerCallback(std::bind(
-    &RosbagToPcd::pointcloud_callback_sync, this, std::placeholders::_1, std::placeholders::_2,
+    &PointCloudCrafter::pointcloud_callback_sync, this, std::placeholders::_1, std::placeholders::_2,
     std::placeholders::_3, std::placeholders::_4));
 
   tf2_buffer_.setUsingDedicatedThread(true);
@@ -108,13 +104,13 @@ RosbagToPcd::RosbagToPcd()
     transform_config_ = YAML::LoadFile(transform_file);
   }
 }
-void RosbagToPcd::run()
+void PointCloudCrafter::run()
 {
   reader_.process();
 
   tools::utils::save_timestamps(out_dir + "/times/lidar_timestamps.txt", timestamps_lidar_);
 }
-std::string RosbagToPcd::make_filename(uint64_t timestamp) const
+std::string PointCloudCrafter::make_filename(uint64_t timestamp) const
 {
   std::string basename;
   if (sequential_names) {
@@ -128,7 +124,7 @@ std::string RosbagToPcd::make_filename(uint64_t timestamp) const
 
   return out_dir + "/pcd/" + basename + ".pcd";
 }
-void RosbagToPcd::save(uint64_t timestamp, const pcl::PCLPointCloud2::Ptr & pc)
+void PointCloudCrafter::save(uint64_t timestamp, const pcl::PCLPointCloud2::Ptr & pc)
 {
   if (!geometric_filtering.empty()) {
     pcl::CropBox<pcl::PCLPointCloud2> crop_box;
@@ -187,9 +183,9 @@ void RosbagToPcd::save(uint64_t timestamp, const pcl::PCLPointCloud2::Ptr & pc)
   // the end of each message.
   for (size_t i = 0; i < pc->fields.size(); ++i) {
     if (pc->fields[i].count == 0) {
-      PointCloud pc_xyzit{};
-      pcl::fromPCLPointCloud2(*pc, pc_xyzit);
-      writer_.writeBinary(make_filename(timestamp), pc_xyzit);
+    //   pcl::PointCloud<types::PointXYZIT> pc_xyzit{};
+    //   pcl::fromPCLPointCloud2(*pc, pc_xyzit);
+    //   writer_.writeBinary(make_filename(timestamp), pc_xyzit);
     } else {
       // pcl::PointCloud<pt::PointXYZITd> pc_xyzitd{};
       // pcl::fromPCLPointCloud2(*pc, pc_xyzitd);
@@ -210,7 +206,7 @@ void RosbagToPcd::save(uint64_t timestamp, const pcl::PCLPointCloud2::Ptr & pc)
     reader_.set_state(false);
   }
 }
-void RosbagToPcd::transform_callback(const tools::RosbagReaderMsg<tf2_msgs::msg::TFMessage> & msg)
+void PointCloudCrafter::transform_callback(const tools::RosbagReaderMsg<tf2_msgs::msg::TFMessage> & msg)
 {
   for (auto & tf : msg.ros_msg.transforms) {
     if (tf.header.frame_id == tf.child_frame_id) {
@@ -219,7 +215,7 @@ void RosbagToPcd::transform_callback(const tools::RosbagReaderMsg<tf2_msgs::msg:
     tf2_buffer_.setTransform(tf, "bag", msg.bag_msg.topic_name == "/tf_static");
   }
 }
-void RosbagToPcd::pointcloud_callback_sync(
+void PointCloudCrafter::pointcloud_callback_sync(
   const sensor_msgs::msg::PointCloud2::ConstSharedPtr & pc1,
   const sensor_msgs::msg::PointCloud2::ConstSharedPtr & pc2,
   const sensor_msgs::msg::PointCloud2::ConstSharedPtr & pc3,
@@ -242,7 +238,7 @@ void RosbagToPcd::pointcloud_callback_sync(
 
   process_merge_and_save(pc_msgs);
 }
-void RosbagToPcd::transform_pc(
+void PointCloudCrafter::transform_pc(
   const sensor_msgs::msg::PointCloud2 & msg_in, sensor_msgs::msg::PointCloud2 & msg_out)
 {
   Eigen::Affine3d transformation(Eigen::Affine3d::Identity());
@@ -268,7 +264,7 @@ void RosbagToPcd::transform_pc(
 
   tools::utils::transform_pointcloud2(transformation.cast<float>(), msg_in, msg_out);
 }
-void RosbagToPcd::process_merge_and_save(
+void PointCloudCrafter::process_merge_and_save(
   std::vector<sensor_msgs::msg::PointCloud2::ConstSharedPtr> & pc_msgs)
 {
   uint64_t base_time = std::numeric_limits<uint64_t>::max();

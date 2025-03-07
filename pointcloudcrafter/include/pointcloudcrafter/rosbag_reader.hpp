@@ -37,7 +37,7 @@ struct RosbagReaderMsg
   const rosbag2_storage::SerializedBagMessage & bag_msg;
   const T & ros_msg;
 };
-class ISerializedMessageHandler
+class SerializedMessageHandlerBase
 {
 public:
   virtual void handle_serialized_message(
@@ -45,7 +45,7 @@ public:
     const rclcpp::SerializedMessage & ser_msg) = 0;
 };
 template <typename T>
-class SerializedMessageHandler : public ISerializedMessageHandler
+class SerializedMessageHandler : public SerializedMessageHandlerBase
 {
   rclcpp::Serialization<T> serialization_;
   std::function<void(const RosbagReaderMsg<T> &)> callback_;
@@ -130,7 +130,7 @@ public:
   }
 
 private:
-  std::unordered_map<std::string, std::vector<std::shared_ptr<ISerializedMessageHandler>>>
+  std::unordered_map<std::string, std::vector<std::shared_ptr<SerializedMessageHandlerBase>>>
     handlers_;
   bool running_{true};
 

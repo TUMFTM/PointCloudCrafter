@@ -43,18 +43,21 @@ include_directories(SYSTEM
   ${GeographicLib_INCLUDE_DIRS}
 )
 
-add_executable(rosbag_to_pcd ${CMAKE_CURRENT_SOURCE_DIR}/src/rosbag_to_pcd_main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/rosbag_to_pcd.cpp src/utils.cpp)
-ament_target_dependencies(rosbag_to_pcd rclcpp rosbag2_cpp gps_msgs sensor_msgs pcl_conversions tf2_ros yaml-cpp)
+add_executable(pointcloudcrafter
+  src/pointcloudcrafter_main.cpp
+  src/pointcloudcrafter.cpp
+  src/utils.cpp)
+ament_target_dependencies(pointcloudcrafter rclcpp rosbag2_cpp gps_msgs sensor_msgs pcl_conversions tf2_ros yaml-cpp)
 
-target_include_directories(rosbag_to_pcd
+target_include_directories(pointcloudcrafter
   PRIVATE 
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
-target_link_libraries(rosbag_to_pcd ${PCL_LIBRARIES} fmt)
+target_link_libraries(pointcloudcrafter ${PCL_LIBRARIES} fmt)
 
-target_compile_features(rosbag_to_pcd PRIVATE cxx_std_17)
+target_compile_features(pointcloudcrafter PRIVATE cxx_std_17)
 
-install(TARGETS rosbag_to_pcd RUNTIME DESTINATION lib/${PROJECT_NAME})
+install(TARGETS pointcloudcrafter RUNTIME DESTINATION lib/${PROJECT_NAME})
 
 ament_package()
