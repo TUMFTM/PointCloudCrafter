@@ -36,7 +36,7 @@ A toolkit for extracting, manipulating, and evaluating point clouds and 3D spati
 
 PointClouCrafter comprises the following tools and functionalities:
 - ROS2 tools
-  - tum_mapping_tools
+  - pointcloudcrafter
   This package provides two executables to handle `sensor_msgs::msg::PointCloud2` and `nav_msgs::msg::Odometry` within rosbags:
     1. Transform and/or concatenate single pointclouds based on their timestamp and extract them to `.pcd` files.
     2. Transform odometry messages into another frame and write them to `.txt` files

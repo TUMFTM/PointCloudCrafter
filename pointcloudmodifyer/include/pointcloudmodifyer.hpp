@@ -70,6 +70,7 @@ private:
 
     template <typename T>
     bool saveTimestamps(const std::vector<T>& timestamps, const std::string& output_path);
+
 };
 
 }  // namespace pointcloudmodifyer
