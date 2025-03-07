@@ -17,17 +17,25 @@
 
 #pragma once
 
+#include <Eigen/Eigen>
 #include <builtin_interfaces/msg/time.hpp>
 #include <cinttypes>
 #include <cstdint>
+#include <sensor_msgs/msg/point_cloud2.hpp>
+#include <sensor_msgs/point_cloud2_iterator.hpp>
 #include <string>
 #include <vector>
-namespace pointcloudcrafter::tools::utils {
+namespace pointcloudcrafter::tools::utils
+{
 
-void save_timestamps(const std::string &filename, const std::vector<uint64_t> &timestamps);
+void save_timestamps(const std::string & filename, const std::vector<uint64_t> & timestamps);
 
-uint64_t timestamp_from_ros(const builtin_interfaces::msg::Time &ros);
+uint64_t timestamp_from_ros(const builtin_interfaces::msg::Time & ros);
 
 builtin_interfaces::msg::Time timestamp_to_ros(uint64_t stamp);
+
+void transform_pointcloud2(
+  const Eigen::Affine3f & transform, const sensor_msgs::msg::PointCloud2 & pc_in,
+  sensor_msgs::msg::PointCloud2 & pc_out);
 
 }  // namespace pointcloudcrafter::tools::utils

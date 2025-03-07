@@ -53,7 +53,6 @@
 #include <vector>
 
 #include "pointcloudcrafter/filter_subscriber.hpp"
-#include "pointcloudcrafter/pcl_utils.hpp"
 #include "pointcloudcrafter/rosbag_reader.hpp"
 #include "pointcloudcrafter/utils.hpp"
 namespace pointcloudcrafter {
