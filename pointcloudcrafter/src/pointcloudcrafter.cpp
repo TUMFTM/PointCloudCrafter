@@ -48,8 +48,8 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
-#include "pointcloudcrafter/utils.hpp"
 
+#include "pointcloudcrafter/utils.hpp"
 namespace pointcloudcrafter
 {
 constexpr float COLORS[] = {0.0, 1.0, 0.333, 0.666};
@@ -68,7 +68,6 @@ bool sequential_names = false;
 bool bag_time = false;
 std::vector<float> geometric_filtering{};
 bool pie_filter = false;
-
 // Constructor
 PointCloudCrafter::PointCloudCrafter()
 : reader_(bag_path),
@@ -114,9 +113,9 @@ void PointCloudCrafter::run()
 //     pcl::CropBox<pcl::PCLPointCloud2> crop_box;
 
 //     // filter points inside rectangular box
-//     crop_box.setMin({geometric_filtering[0], geometric_filtering[1], geometric_filtering[2], 1.0});
-//     crop_box.setMax({geometric_filtering[3], geometric_filtering[4], geometric_filtering[5], 1.0});
-//     crop_box.setInputCloud(pc);
+//     crop_box.setMin({geometric_filtering[0], geometric_filtering[1],
+//     geometric_filtering[2], 1.0}); crop_box.setMax({geometric_filtering[3],
+//     geometric_filtering[4], geometric_filtering[5], 1.0}); crop_box.setInputCloud(pc);
 //     crop_box.setNegative(true);
 //     crop_box.filter(*pc);
 //   }
@@ -155,7 +154,8 @@ void PointCloudCrafter::run()
 
 //       if (std::abs(point_angle) <= segment_angle) {
 //         filtered_cloud.data.insert(
-//           filtered_cloud.data.end(), pc->data.begin() + i, pc->data.begin() + i + pc->point_step);
+//           filtered_cloud.data.end(), pc->data.begin() + i, pc->data.begin() + i +
+//           pc->point_step);
 //         filtered_cloud.width++;
 //         filtered_cloud.row_step += pc->point_step;
 //       }
@@ -172,8 +172,7 @@ void PointCloudCrafter::run()
 //     reader_.set_state(false);
 //   }
 // }
-void PointCloudCrafter::tf_callback(
-  const tools::RosbagReaderMsg<tf2_msgs::msg::TFMessage> & msg)
+void PointCloudCrafter::tf_callback(const tools::RosbagReaderMsg<tf2_msgs::msg::TFMessage> & msg)
 {
   for (auto & tf : msg.ros_msg.transforms) {
     if (tf.header.frame_id == tf.child_frame_id) {
@@ -213,12 +212,8 @@ void PointCloudCrafter::transform_pc(
   if (file_transforms_.find(msg_in.header.frame_id) != file_transforms_.end()) {
     transformation = file_transforms_[msg_in.header.frame_id];
   } else if (!target_frame.empty()) {
-    geometry_msgs::msg::Transform tf =
-      tf2_buffer_.lookupTransform(target_frame, msg_in.header.frame_id, rclcpp::Time{0}).transform;
-
-    Eigen::Quaterniond rot{tf.rotation.w, tf.rotation.x, tf.rotation.y, tf.rotation.z};
-    transformation =
-      Eigen::Translation3d(tf.translation.x, tf.translation.y, tf.translation.z) * rot;
+    transformation = tools::utils::transform2eigen(
+      tf2_buffer_.lookupTransform(target_frame, msg_in.header.frame_id, rclcpp::Time{0}));
   }
 
   tools::utils::transform_pointcloud2(transformation.cast<float>(), msg_in, msg_out);

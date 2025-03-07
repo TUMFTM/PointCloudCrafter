@@ -21,8 +21,6 @@
 
 #include <Eigen/Eigen>
 #include <builtin_interfaces/msg/time.hpp>
-#include <cinttypes>
-#include <cstdint>
 #include <fstream>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
@@ -30,41 +28,73 @@
 #include <vector>
 namespace pointcloudcrafter::tools::utils
 {
-constexpr auto one_billion = 1000000000L;
-void save_timestamps(const std::string & filename, const std::vector<uint64_t> & timestamps)
+constexpr std::uint64_t BILLION = 1000000000;
+/**
+ * @brief Save a vector of timestamps to a file
+ * @param filename - path to the file
+ * @param timestamps - vector of timestamps
+ */
+void save_timestamps(const std::string & filename, const std::vector<std::uint64_t> & timestamps)
 {
-  std::ofstream gps_file;
-  gps_file.open(filename);
-  for (uint64_t timestamp : timestamps) {
-    gps_file << fmt::format("{} {:09d}\n", timestamp / one_billion, timestamp % one_billion);
+  std::ofstream file;
+  file.open(filename);
+  for (std::uint64_t timestamp : timestamps) {
+    file << fmt::format("{} {:09d}\n", timestamp / BILLION, timestamp % BILLION);
   }
 }
+/**
+ * @brief Convert a ROS timestamp to a uint64_t
+ * @param ros - ROS timestamp
+ * @return uint64_t timestamp in nanoseconds
+ */
 uint64_t timestamp_from_ros(const builtin_interfaces::msg::Time & ros)
 {
-  return static_cast<uint64_t>(ros.sec) * one_billion + static_cast<uint64_t>(ros.nanosec);
+  return static_cast<std::uint64_t>(ros.sec) * BILLION + static_cast<std::uint64_t>(ros.nanosec);
 }
-builtin_interfaces::msg::Time timestamp_to_ros(uint64_t stamp)
+/**
+ * @brief Convert a uint64_t timestamp to a ROS timestamp
+ * @param stamp - uint64_t timestamp in nanoseconds
+ * @return ROS timestamp
+ */
+builtin_interfaces::msg::Time timestamp_to_ros(std::uint64_t stamp)
 {
   builtin_interfaces::msg::Time ros;
-  ros.sec = static_cast<int32_t>(stamp / one_billion);
-  ros.nanosec = static_cast<int32_t>(stamp % one_billion);
+  ros.sec = static_cast<std::int32_t>(stamp / BILLION);
+  ros.nanosec = static_cast<std::uint32_t>(stamp % BILLION);
   return ros;
 }
+/**
+ * @brief Convert a ROS transform message to an Eigen transform
+ * @param transform - ROS transform message
+ * @return Eigen transform
+ */
+Eigen::Affine3d transform2eigen(const geometry_msgs::msg::TransformStamped & transform)
+{
+  Eigen::Affine3d affine = Eigen::Affine3d::Identity();
+  const auto & t = transform.transform;
+  affine.translate(Eigen::Vector3d{t.translation.x, t.translation.y, t.translation.z});
+  affine.rotate(Eigen::Quaterniond{t.rotation.w, t.rotation.x, t.rotation.y, t.rotation.z});
+  return affine;
+}
+/**
+ * @brief Transform a pointcloud2 message using an Eigen transform
+ * @param transform - Eigen transform
+ * @param pc_in - input pointcloud2 message
+ * @param pc_out - output pointcloud2 message
+ */
 void transform_pointcloud2(
   const Eigen::Affine3f & transform, const sensor_msgs::msg::PointCloud2 & pc_in,
   sensor_msgs::msg::PointCloud2 & pc_out)
 {
-  using ConstIt = sensor_msgs::PointCloud2ConstIterator<float>;
-  using It = sensor_msgs::PointCloud2Iterator<float>;
-  // Make a copy first so that the headers are correct
+  // Make a copy first so that the headers are staying the same
   pc_out = pc_in;
 
-  ConstIt it_x_in(pc_in, "x");
-  ConstIt it_y_in(pc_in, "y");
-  ConstIt it_z_in(pc_in, "z");
-  It it_x_out(pc_out, "x");
-  It it_y_out(pc_out, "y");
-  It it_z_out(pc_out, "z");
+  sensor_msgs::PointCloud2ConstIterator<float> it_x_in(pc_in, "x");
+  sensor_msgs::PointCloud2ConstIterator<float> it_y_in(pc_in, "y");
+  sensor_msgs::PointCloud2ConstIterator<float> it_z_in(pc_in, "z");
+  sensor_msgs::PointCloud2Iterator<float> it_x_out(pc_out, "x");
+  sensor_msgs::PointCloud2Iterator<float> it_y_out(pc_out, "y");
+  sensor_msgs::PointCloud2Iterator<float> it_z_out(pc_out, "z");
 
   for (; it_x_in != it_x_in.end();
        ++it_x_in, ++it_y_in, ++it_z_in, ++it_x_out, ++it_y_out, ++it_z_out) {
@@ -74,13 +104,5 @@ void transform_pointcloud2(
     *it_y_out = point_out.y();
     *it_z_out = point_out.z();
   }
-}
-Eigen::Isometry3d transform2eigen(const geometry_msgs::msg::TransformStamped & transform)
-{
-  Eigen::Isometry3d iso = Eigen::Isometry3d::Identity();
-  const auto & t = transform.transform;
-  iso.translate(Eigen::Vector3d{t.translation.x, t.translation.y, t.translation.z});
-  iso.rotate(Eigen::Quaterniond{t.rotation.w, t.rotation.x, t.rotation.y, t.rotation.z});
-  return iso;
 }
 }  // namespace pointcloudcrafter::tools::utils
