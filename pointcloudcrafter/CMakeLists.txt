@@ -28,7 +28,6 @@ find_package(sensor_msgs REQUIRED)
 find_package(pcl_ros REQUIRED)
 find_package(pcl_conversions REQUIRED)
 find_package(tf2_ros REQUIRED)
-find_package(fmt REQUIRED)
 find_package(PCL REQUIRED)
 
 include_directories(SYSTEM
@@ -52,8 +51,7 @@ ament_target_dependencies(pointcloudcrafter_lib PUBLIC
   tf2_ros)
 
 target_link_libraries(pointcloudcrafter_lib PRIVATE
-  ${PCL_LIBRARIES}
-  fmt)
+  ${PCL_LIBRARIES})
 
 install(
   TARGETS pointcloudcrafter_lib

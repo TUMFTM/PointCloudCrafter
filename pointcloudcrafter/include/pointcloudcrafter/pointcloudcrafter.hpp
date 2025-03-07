@@ -64,17 +64,15 @@ public:
   void run();
 
 protected:
-  // void save(uint64_t timestamp, const pcl::PCLPointCloud2::Ptr & pc);
-
   void tf_callback(const tools::RosbagReaderMsg<tf2_msgs::msg::TFMessage> & msg);
 
-  void pointcloud_callback_sync(
+  void pointcloud_sync_callback(
     const sensor_msgs::msg::PointCloud2::ConstSharedPtr & pc1,
     const sensor_msgs::msg::PointCloud2::ConstSharedPtr & pc2,
     const sensor_msgs::msg::PointCloud2::ConstSharedPtr & pc3,
     const sensor_msgs::msg::PointCloud2::ConstSharedPtr & pc4);
 
-  void process_merge_and_save(std::vector<sensor_msgs::msg::PointCloud2::ConstSharedPtr> & pc_msgs);
+  void process_pointclouds(std::vector<sensor_msgs::msg::PointCloud2::ConstSharedPtr> & pc_msgs);
 
   void transform_pc(
     const sensor_msgs::msg::PointCloud2 & msg_in, sensor_msgs::msg::PointCloud2 & msg_out);
@@ -99,6 +97,6 @@ private:
   size_t num_sensors_{};
   std::vector<uint64_t> timestamps_lidar_{};
   int64_t loaded_frames_{0};
-  int64_t STRIDE_FRAMES_{0};
+  int64_t stride_frames_{0};
 };
 }  // namespace pointcloudcrafter

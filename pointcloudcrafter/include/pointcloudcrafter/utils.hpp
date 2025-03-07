@@ -17,8 +17,6 @@
 
 #pragma once
 
-#include <fmt/format.h>
-
 #include <Eigen/Eigen>
 #include <builtin_interfaces/msg/time.hpp>
 #include <fstream>
@@ -30,19 +28,6 @@ namespace pointcloudcrafter::tools::utils
 {
 constexpr std::uint64_t BILLION = 1000000000;
 constexpr float COLORS[] = {0.0, 1.0, 0.333, 0.666};
-/**
- * @brief Save a vector of timestamps to a file
- * @param filename - path to the file
- * @param timestamps - vector of timestamps
- */
-void save_timestamps(const std::string & filename, const std::vector<std::uint64_t> & timestamps)
-{
-  std::ofstream file;
-  file.open(filename);
-  for (std::uint64_t timestamp : timestamps) {
-    file << fmt::format("{} {:09d}\n", timestamp / BILLION, timestamp % BILLION);
-  }
-}
 /**
  * @brief Convert a ROS timestamp to a uint64_t
  * @param ros - ROS timestamp

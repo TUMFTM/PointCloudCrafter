@@ -79,18 +79,19 @@ PointCloudCrafter::PointCloudCrafter()
   if (TOPICS.size() > 4) {
     throw std::runtime_error("Only a maximum of 4 topics are supported");
   }
-  // Initialize bag subscribers to reader
+  // Initialize message to filter and sync to reader
   for (size_t i = 0; i < 4; i++) {
     std::string topic = (i < num_sensors_) ? TOPICS[i] : TOPICS[0];
-    subscribers_.push_back(std::make_unique<tools::MsgFilter<sensor_msgs::msg::PointCloud2>>(
-      topic, reader_, BAG_TIME));
+    subscribers_.push_back(
+      std::make_unique<tools::MsgFilter<sensor_msgs::msg::PointCloud2>>(topic, reader_, BAG_TIME));
   }
   // Initialize synchronizer for pointclouds
   synchronizer_ = std::make_unique<message_filters::Synchronizer<ApproxTimeSyncPolicy>>(
     ApproxTimeSyncPolicy(20), *subscribers_[0], *subscribers_[1], *subscribers_[2],
     *subscribers_[3]);
+  // Register callback for synchronized pointclouds
   sync_connection_ = synchronizer_->registerCallback(std::bind(
-    &PointCloudCrafter::pointcloud_callback_sync, this, std::placeholders::_1,
+    &PointCloudCrafter::pointcloud_sync_callback, this, std::placeholders::_1,
     std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 
   // Initialize transform listener
@@ -107,74 +108,7 @@ PointCloudCrafter::PointCloudCrafter()
 void PointCloudCrafter::run()
 {
   reader_.process();
-
-  tools::utils::save_timestamps(OUT_DIR + "/times/lidar_timestamps.txt", timestamps_lidar_);
 }
-// void PointCloudCrafter::save(uint64_t timestamp, const pcl::PCLPointCloud2::Ptr & pc)
-// {
-//   if (!GEOMETRIC_FILTERING.empty()) {
-//     pcl::CropBox<pcl::PCLPointCloud2> crop_box;
-
-//     // filter points inside rectangular box
-//     crop_box.setMin({GEOMETRIC_FILTERING[0], GEOMETRIC_FILTERING[1],
-//     GEOMETRIC_FILTERING[2], 1.0}); crop_box.setMax({GEOMETRIC_FILTERING[3],
-//     GEOMETRIC_FILTERING[4], GEOMETRIC_FILTERING[5], 1.0}); crop_box.setInputCloud(pc);
-//     crop_box.setNegative(true);
-//     crop_box.filter(*pc);
-//   }
-
-//   if (PIE_FILTER) {
-//     pcl::PCLPointCloud2 filtered_cloud;
-//     filtered_cloud.header = pc->header;
-//     filtered_cloud.height = 1;
-//     filtered_cloud.width = 0;
-//     filtered_cloud.fields = pc->fields;
-//     filtered_cloud.point_step = pc->point_step;
-//     filtered_cloud.row_step = 0;
-//     filtered_cloud.is_bigendian = pc->is_bigendian;
-//     filtered_cloud.is_dense = pc->is_dense;
-//     filtered_cloud.data.clear();
-
-//     for (size_t i = 0; i < pc->data.size(); i += pc->point_step) {
-//       float x, y;
-//       for (size_t j = 0; j < pc->fields.size(); ++j) {
-//         pcl::PCLPointField & field = pc->fields[j];
-//         size_t point_offset = i + field.offset;
-//         if (field.name == "x") {
-//           if (field.datatype == pcl::PCLPointField::FLOAT32) {
-//             memcpy(&x, &pc->data[point_offset], sizeof(float));
-//           }
-//         } else if (field.name == "y") {
-//           if (field.datatype == pcl::PCLPointField::FLOAT32) {
-//             memcpy(&y, &pc->data[point_offset], sizeof(float));
-//           }
-//         } else {
-//           break;
-//         }
-//       }
-//       auto point_angle = std::atan2(y, x - 1.5);
-//       auto segment_angle = M_PI * (300.0f / 360.0f);
-
-//       if (std::abs(point_angle) <= segment_angle) {
-//         filtered_cloud.data.insert(
-//           filtered_cloud.data.end(), pc->data.begin() + i, pc->data.begin() + i +
-//           pc->point_step);
-//         filtered_cloud.width++;
-//         filtered_cloud.row_step += pc->point_step;
-//       }
-//     }
-//     *pc = filtered_cloud;
-//   }
-
-//   timestamps_lidar_.push_back(timestamp);
-
-//   STRIDE_FRAMES_ = STRIDE_FRAMES - 1;
-
-//   loaded_frames_++;
-//   if (MAX_FRAMES > 0 && loaded_frames_ >= MAX_FRAMES) {
-//     reader_.set_state(false);
-//   }
-// }
 void PointCloudCrafter::tf_callback(const tools::RosbagReaderMsg<tf2_msgs::msg::TFMessage> & msg)
 {
   for (auto & tf : msg.ros_msg.transforms) {
@@ -184,46 +118,36 @@ void PointCloudCrafter::tf_callback(const tools::RosbagReaderMsg<tf2_msgs::msg::
     tf2_buffer_.setTransform(tf, "bag", msg.bag_msg.topic_name == "/tf_static");
   }
 }
-void PointCloudCrafter::pointcloud_callback_sync(
+void PointCloudCrafter::pointcloud_sync_callback(
   const sensor_msgs::msg::PointCloud2::ConstSharedPtr & pc1,
   const sensor_msgs::msg::PointCloud2::ConstSharedPtr & pc2,
   const sensor_msgs::msg::PointCloud2::ConstSharedPtr & pc3,
   const sensor_msgs::msg::PointCloud2::ConstSharedPtr & pc4)
 {
+  // Check if we should skip frames
   if (SKIP_FRAMES > 0) {
     SKIP_FRAMES--;
     return;
   }
 
-  if (STRIDE_FRAMES_ > 0) {
-    STRIDE_FRAMES_--;
+  if (stride_frames_ > 0) {
+    stride_frames_--;
     return;
   }
 
-  // attention: size of vector may not always equal number of sensors!
-  // last items may be dummy
+  // Put all pointclouds into a vector
+  // Attention: size of vector may not always equal number of sensors!
+  // -> Resize to number of sensors
   std::vector<sensor_msgs::msg::PointCloud2::ConstSharedPtr> pc_msgs{pc1, pc2, pc3, pc4};
   pc_msgs.resize(num_sensors_);
 
-  process_merge_and_save(pc_msgs);
+  // Process the pointclouds
+  process_pointclouds(pc_msgs);
 }
-void PointCloudCrafter::transform_pc(
-  const sensor_msgs::msg::PointCloud2 & msg_in, sensor_msgs::msg::PointCloud2 & msg_out)
-{
-  Eigen::Affine3d transformation(Eigen::Affine3d::Identity());
-
-  if (file_transforms_.find(msg_in.header.frame_id) != file_transforms_.end()) {
-    transformation = file_transforms_[msg_in.header.frame_id];
-  } else if (!TARGET_FRAME.empty()) {
-    transformation = tools::utils::transform2eigen(
-      tf2_buffer_.lookupTransform(TARGET_FRAME, msg_in.header.frame_id, rclcpp::Time{0}));
-  }
-
-  tools::utils::transform_pointcloud2(transformation.cast<float>(), msg_in, msg_out);
-}
-void PointCloudCrafter::process_merge_and_save(
+void PointCloudCrafter::process_pointclouds(
   std::vector<sensor_msgs::msg::PointCloud2::ConstSharedPtr> & pc_msgs)
 {
+  // Find the smallest timestamp of all pointclouds
   uint64_t base_time = std::numeric_limits<uint64_t>::max();
   // find the smallest timestamp
   for (auto & msg : pc_msgs) {
@@ -233,14 +157,18 @@ void PointCloudCrafter::process_merge_and_save(
     }
   }
 
+  // Concatenate all pointclouds into one
   auto merged_pc = pcl::make_shared<pcl::PCLPointCloud2>();
   for (size_t i = 0; i < pc_msgs.size(); i++) {
+    // Transform the pointcloud to the target frame
     const sensor_msgs::msg::PointCloud2 & msg = *pc_msgs[i];
     sensor_msgs::msg::PointCloud2 msg_transformed;
     transform_pc(msg, msg_transformed);
 
+    // adjust time information to be relative to base_time
+    // this part adjust the timestamp of each point in the cloud, which is necessary
+    // if the point stamps are relative to the header stamp
     try {
-      // adjust time information to be relative to base_time
       uint64_t time_offset = tools::utils::timestamp_from_ros(msg.header.stamp) - base_time;
       for (sensor_msgs::PointCloud2Iterator<uint64_t> it(msg_transformed, "time_us");
            it != it.end(); ++it) {
@@ -258,11 +186,36 @@ void PointCloudCrafter::process_merge_and_save(
       }
     }
 
+    // Convert the pointcloud to PCL format and concatenate
     pcl::PCLPointCloud2 pc;
     pcl_conversions::toPCL(msg_transformed, pc);
     *merged_pc += pc;
   }
 
-  // save(base_time, merged_pc);
+  timestamps_lidar_.push_back(base_time);
+
+  stride_frames_ = stride_frames_ - 1;
+
+  loaded_frames_++;
+  if (MAX_FRAMES > 0 && loaded_frames_ >= MAX_FRAMES) {
+    reader_.set_state(false);
+  }
+
+  // Modify the merged pointcloud with pointcloudmodifier
+  // TODO(Maxi): Call pointcloudmodifier here
+}
+void PointCloudCrafter::transform_pc(
+  const sensor_msgs::msg::PointCloud2 & msg_in, sensor_msgs::msg::PointCloud2 & msg_out)
+{
+  Eigen::Affine3d transformation(Eigen::Affine3d::Identity());
+
+  if (file_transforms_.find(msg_in.header.frame_id) != file_transforms_.end()) {
+    transformation = file_transforms_[msg_in.header.frame_id];
+  } else if (!TARGET_FRAME.empty()) {
+    transformation = tools::utils::transform2eigen(
+      tf2_buffer_.lookupTransform(TARGET_FRAME, msg_in.header.frame_id, rclcpp::Time{0}));
+  }
+
+  tools::utils::transform_pointcloud2(transformation.cast<float>(), msg_in, msg_out);
 }
 }  // namespace pointcloudcrafter
