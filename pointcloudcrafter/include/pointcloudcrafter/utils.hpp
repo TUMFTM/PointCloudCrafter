@@ -25,6 +25,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <iostream>
 namespace pointcloudcrafter::tools::utils
 {
 constexpr std::uint64_t BILLION = 1000000000;

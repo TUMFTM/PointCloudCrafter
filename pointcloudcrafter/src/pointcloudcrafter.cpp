@@ -19,7 +19,6 @@
 
 #include <Eigen/src/Core/Matrix.h>
 #include <Eigen/src/Core/util/Constants.h>
-#include <fmt/format.h>
 #include <message_filters/subscriber.h>
 #include <message_filters/time_synchronizer.h>
 #include <pcl/PCLPointCloud2.h>
@@ -33,9 +32,6 @@
 #include <tf2_ros/buffer.h>
 
 #include <Eigen/Eigen>
-#include <cstddef>
-#include <cstdint>
-#include <filesystem>
 #include <functional>
 #include <limits>
 #include <memory>
