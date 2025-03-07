@@ -15,9 +15,12 @@
 
 #include <math.h>
 
-#include <filesystem>
+#include <filesystem>  // NOLINT
 #include <iostream>
 #include <limits>
+#include <memory>
+#include <vector>
+#include <string>
 
 // PCL
 #include <pcl/io/pcd_io.h>
