@@ -22,7 +22,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
-namespace tum::mapping::tools::utils {
+namespace pointcloudcrafter::tools::utils {
 
 void save_timestamps(const std::string &filename, const std::vector<uint64_t> &timestamps);
 
@@ -30,4 +30,4 @@ uint64_t timestamp_from_ros(const builtin_interfaces::msg::Time &ros);
 
 builtin_interfaces::msg::Time timestamp_to_ros(uint64_t stamp);
 
-}  // namespace tum::mapping::tools::utils
+}  // namespace pointcloudcrafter::tools::utils

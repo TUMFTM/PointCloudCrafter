@@ -19,9 +19,9 @@
 
 #include <Eigen/Eigen>
 #include <sensor_msgs/msg/point_cloud2.hpp>
-namespace tum::mapping::tools::utils {
+namespace pointcloudcrafter::tools::utils {
 void transform_pointcloud2(const Eigen::Affine3f &transform,
                            const sensor_msgs::msg::PointCloud2 &pc_in,
                            sensor_msgs::msg::PointCloud2 &pc_out);
 
-}  // namespace tum::mapping::tools::utils
+}  // namespace pointcloudcrafter::tools::utils

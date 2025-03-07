@@ -20,7 +20,7 @@
 #include "CLI11.hpp"
 #include "pointcloudcrafter/rosbag_to_pcd.hpp"
 
-namespace p = tum::mapping;
+namespace p = pointcloudcrafter;
 int main(int argc, char *argv[]) {
     rclcpp::init(argc, argv);
 
@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
 
     CLI11_PARSE(app, argc, argv);
 
-    tum::mapping::RosbagToPcd().run();
+    pointcloudcrafter::RosbagToPcd().run();
 
     rclcpp::shutdown();
     return 0;

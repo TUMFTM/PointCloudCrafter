@@ -41,7 +41,7 @@
 
 #include "rosbag_reader.hpp"
 #include "pointcloudcrafter/filter_subscriber.hpp"
-namespace tum::mapping {
+namespace pointcloudcrafter {
 extern std::string bag_path;
 extern std::vector<std::string> topic_names;
 extern std::string out_dir;
@@ -120,15 +120,15 @@ public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     } EIGEN_ALIGN16;
 };
-}  // namespace tum::mapping
+}  // namespace pointcloudcrafter
 
-POINT_CLOUD_REGISTER_POINT_STRUCT(tum::mapping::pt::PointXYZIT,
+POINT_CLOUD_REGISTER_POINT_STRUCT(pointcloudcrafter::pt::PointXYZIT,
                                   (float, x, x)(float, y, y)(float, z, z)(float,
                                                                           intensity,
                                                                           intensity)(std::uint32_t,
                                                                                      timestamp,
                                                                                      time_us))
 
-POINT_CLOUD_REGISTER_POINT_STRUCT(tum::mapping::pt::PointXYZITd,
+POINT_CLOUD_REGISTER_POINT_STRUCT(pointcloudcrafter::pt::PointXYZITd,
                                   (float, x, x)(float, y, y)(float, z, z)(
                                       float, intensity, intensity)(double, timestamp, timestamp))

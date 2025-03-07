@@ -19,7 +19,7 @@
 
 #include <Eigen/Eigen>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
-namespace tum::mapping::tools::utils {
+namespace pointcloudcrafter::tools::utils {
 void transform_pointcloud2(const Eigen::Affine3f &transform,
                            const sensor_msgs::msg::PointCloud2 &pc_in,
                            sensor_msgs::msg::PointCloud2 &pc_out) {
@@ -44,4 +44,4 @@ void transform_pointcloud2(const Eigen::Affine3f &transform,
         *it_z_out = point_out.z();
     }
 }
-}  // namespace tum::mapping::tools::utils
+}  // namespace pointcloudcrafter::tools::utils

@@ -23,7 +23,7 @@
 #include "message_filters/message_event.h"
 #include "message_filters/simple_filter.h"
 #include "rosbag_reader.hpp"
-namespace tum::mapping::tools {
+namespace pointcloudcrafter::tools {
 template <typename T>
 class BagSubscriber : public message_filters::SimpleFilter<T> {
 public:
@@ -40,4 +40,4 @@ public:
         });
     }
 };
-}  // namespace tum::mapping::tools
+}  // namespace pointcloudcrafter::tools

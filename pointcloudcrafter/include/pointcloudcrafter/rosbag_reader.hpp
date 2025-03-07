@@ -26,88 +26,112 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-namespace tum::mapping::tools {
+namespace pointcloudcrafter::tools
+{
 template <typename T>
-struct RosbagReaderMsg {
-    const rosbag2_storage::SerializedBagMessage &bag_msg;
-    const T &ros_msg;
+struct RosbagReaderMsg
+{
+  const rosbag2_storage::SerializedBagMessage & bag_msg;
+  const T & ros_msg;
 };
-class ISerializedMessageHandler {
+class ISerializedMessageHandler
+{
 public:
-    using Ptr = std::unique_ptr<ISerializedMessageHandler>;
+  using Ptr = std::unique_ptr<ISerializedMessageHandler>;
 
-    virtual void handle_serialized_message(const rosbag2_storage::SerializedBagMessage &bag_msg,
-                                           const rclcpp::SerializedMessage &ser_msg) = 0;
+  virtual void handle_serialized_message(
+    const rosbag2_storage::SerializedBagMessage & bag_msg,
+    const rclcpp::SerializedMessage & ser_msg) = 0;
 };
 template <typename T>
-class SerializedMessageHandler : public ISerializedMessageHandler {
-    using CallbackT = std::function<void(const RosbagReaderMsg<T> &)>;
+class SerializedMessageHandler : public ISerializedMessageHandler
+{
+  using CallbackT = std::function<void(const RosbagReaderMsg<T> &)>;
 
-    rclcpp::Serialization<T> serialization_;
-    CallbackT callback_;
-
-public:
-    explicit SerializedMessageHandler(CallbackT callback) : callback_(callback) {}
-    void handle_serialized_message(const rosbag2_storage::SerializedBagMessage &bag_msg,
-                                   const rclcpp::SerializedMessage &ser_msg) override {
-        T msg;
-        serialization_.deserialize_message(&ser_msg, &msg);
-        callback_({bag_msg, msg});
-    }
-};
-class RosbagReader {
-    using InternalHandler = std::function<void(rclcpp::SerializedMessage &)>;
-
-    rosbag2_cpp::Reader reader_;
-    std::unordered_map<std::string, std::vector<ISerializedMessageHandler::Ptr>> handlers_;
-    bool running_{true};
-
-    rclcpp::Logger logger_ = rclcpp::get_logger("rosbag_reader");
+  rclcpp::Serialization<T> serialization_;
+  CallbackT callback_;
 
 public:
-    explicit RosbagReader(const std::string &bag_uri) { reader_.open(bag_uri); }
-    template <typename T>
-    void add_listener(const std::string &topic_name,
-                      std::function<void(const RosbagReaderMsg<T> &)> callback) {
-        handlers_[topic_name].push_back(std::make_unique<SerializedMessageHandler<T>>(callback));
-    }
-    void set_running(bool running) { running_ = running; }
-    void process() {
-        int64_t first_msg_time = -1;
-        rclcpp::Clock wall_clock{};
-
-        std::vector<std::string> topics{};
-        topics.reserve(handlers_.size());
-        for (auto &entry : handlers_) {
-            topics.push_back(entry.first);
-        }
-        reader_.set_filter({topics});
-
-        double total_duration =
-            static_cast<double>((reader_.get_metadata().duration.count()) / 1.0e9);
-        running_ = true;
-
-        while (reader_.has_next() && rclcpp::ok() && running_) {
-            auto bag_msg = reader_.read_next();
-            rclcpp::SerializedMessage ser_msg{*bag_msg->serialized_data};
-
-            if (first_msg_time < 0) {
-                first_msg_time = bag_msg->time_stamp;
-            }
-
-            double time_done = static_cast<double>((bag_msg->time_stamp - first_msg_time) / 1e9);
-            RCLCPP_INFO_THROTTLE(logger_, wall_clock, 5000, "Processed %.3f sec of bag [% 5.1f%%]",
-                                 time_done, 100 * time_done / total_duration);
-
-            auto it = handlers_.find(bag_msg->topic_name);
-            if (it == handlers_.end()) {
-                continue;
-            }
-
-            for (auto &handler : it->second) {
-                handler->handle_serialized_message(*bag_msg, ser_msg);
-            }
-        }
-    }
+  explicit SerializedMessageHandler(CallbackT callback) : callback_(callback) {}
+  void handle_serialized_message(
+    const rosbag2_storage::SerializedBagMessage & bag_msg,
+    const rclcpp::SerializedMessage & ser_msg) override
+  {
+    T msg;
+    serialization_.deserialize_message(&ser_msg, &msg);
+    callback_({bag_msg, msg});
+  }
 };
-}  // namespace tum::mapping::tools
+class RosbagReader
+{
+public:
+  // Constructor
+  explicit RosbagReader(const std::string & bag_path) { reader_.open(bag_path); }
+  /**
+   * @brief Add a listener for a specific topic
+   * @tparam T - ROS message type
+   * @param topic_name - name of the topic
+   * @param callback - callback function that will be called when a message is received
+   */
+  template <typename T>
+  void add_listener(
+    const std::string & topic_name, std::function<void(const RosbagReaderMsg<T> &)> callback)
+  {
+    handlers_[topic_name].push_back(std::make_unique<SerializedMessageHandler<T>>(callback));
+  }
+  /**
+   * @brief Set the state flag to false to stop processing
+   * @param state - flag to set
+   */
+  void set_state(bool state) { running_ = state; }
+  /**
+   * @brief Process the bag file
+   */
+  void process()
+  {
+    int64_t first_msg_time = -1;
+    rclcpp::Clock wall_clock{};
+
+    std::vector<std::string> topics{};
+    topics.reserve(handlers_.size());
+    for (auto & entry : handlers_) {
+      topics.push_back(entry.first);
+    }
+    reader_.set_filter({topics});
+
+    double total_duration = static_cast<double>((reader_.get_metadata().duration.count()) / 1.0e9);
+    running_ = true;
+
+    while (reader_.has_next() && rclcpp::ok() && running_) {
+      auto bag_msg = reader_.read_next();
+      rclcpp::SerializedMessage ser_msg{*bag_msg->serialized_data};
+
+      if (first_msg_time < 0) {
+        first_msg_time = bag_msg->time_stamp;
+      }
+
+      // Log progress
+      double time_done = static_cast<double>((bag_msg->time_stamp - first_msg_time) / 1e9);
+      RCLCPP_INFO_THROTTLE(
+        logger_, wall_clock, 5000, "Processed %.3f sec of bag [% 5.1f%%]", time_done,
+        100 * time_done / total_duration);
+
+      auto it = handlers_.find(bag_msg->topic_name);
+      if (it == handlers_.end()) {
+        continue;
+      }
+
+      for (auto & handler : it->second) {
+        handler->handle_serialized_message(*bag_msg, ser_msg);
+      }
+    }
+  }
+
+private:
+  std::unordered_map<std::string, std::vector<ISerializedMessageHandler::Ptr>> handlers_;
+  bool running_{true};
+
+  rclcpp::Logger logger_ = rclcpp::get_logger("rosbag_reader");
+  rosbag2_cpp::Reader reader_;
+};
+}  // namespace pointcloudcrafter::tools

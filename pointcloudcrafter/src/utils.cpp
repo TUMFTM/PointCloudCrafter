@@ -21,7 +21,7 @@
 
 #include <cstdint>
 #include <fstream>
-namespace tum::mapping::tools::utils {
+namespace pointcloudcrafter::tools::utils {
 constexpr auto one_billion = 1000000000L;
 void save_timestamps(const std::string &filename, const std::vector<uint64_t> &timestamps) {
     std::ofstream gps_file;
@@ -39,4 +39,4 @@ builtin_interfaces::msg::Time timestamp_to_ros(uint64_t stamp) {
     ros.nanosec = static_cast<int32_t>(stamp % one_billion);
     return ros;
 }
-}  // namespace tum::mapping::tools::utils
+}  // namespace pointcloudcrafter::tools::utils

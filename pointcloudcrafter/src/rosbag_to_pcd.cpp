@@ -56,7 +56,7 @@
 #include "pointcloudcrafter/pcl_utils.hpp"
 #include "pointcloudcrafter/rosbag_reader.hpp"
 #include "pointcloudcrafter/utils.hpp"
-namespace tum::mapping {
+namespace pointcloudcrafter {
 constexpr float COLORS[] = {0.0, 1.0, 0.333, 0.666};
 
 // global variables that will be populated by CLI arguments
@@ -208,7 +208,7 @@ void RosbagToPcd::save(uint64_t timestamp, const pcl::PCLPointCloud2::Ptr &pc) {
 
     loaded_frames_++;
     if (max_frames > 0 && loaded_frames_ >= max_frames) {
-        reader_.set_running(false);
+        reader_.set_state(false);
     }
 }
 void RosbagToPcd::transform_callback(const tools::RosbagReaderMsg<tf2_msgs::msg::TFMessage> &msg) {
@@ -310,4 +310,4 @@ void RosbagToPcd::process_merge_and_save(
 
     save(base_time, merged_pc);
 }
-}  // namespace tum::mapping
+}  // namespace pointcloudcrafter
