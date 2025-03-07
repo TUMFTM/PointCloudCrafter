@@ -1,0 +1,41 @@
+// For format details, see https://aka.ms/vscode-remote/devcontainer.json or this file's README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.134.1/containers/docker-existing-dockerfile
+{
+	"name": "pointcloudcrafter",
+	// Sets the run context to one level up instead of the .devcontainer folder.
+	"context": "..",
+	// Update the 'dockerFile' property if you aren't using the standard 'Dockerfile' filename.
+	"dockerFile": "../docker/Dockerfile.dev",
+	// Set *default* container specific settings.json values on container create.
+	"settings": {
+		"python.pythonPath": "/bin/python3",
+        "C_Cpp.intelliSenseEngine": "Default"
+	},
+	// Add the IDs of extensions you want installed when the container is created.
+	"extensions": [
+        "ms-vscode.cpptools",
+		"ms-vscode.cmake-tools"
+	],
+	// Uncomment the next line to run commands after the container is created - for example installing curl.
+	// "postCreateCommand": "bash /dev_ws/.devcontainer/postCreateCommand.sh",
+	// Workspace mount
+	"workspaceMount": "source=${localWorkspaceFolder},target=/ros_ws,type=bind,consistency=delegated",
+	// Define workspace
+	"workspaceFolder": "/ros_ws",
+	"runArgs": [
+		"-e", "DISPLAY=${env:DISPLAY}",
+        "-v", "/tmp/.X11-unix:/tmp/.X11-unix",
+        "-v", "/etc/localtime:/etc/localtime:ro",
+        "-v", "/dev/input:/dev/input",
+		"-v", "/home/${env:USER}/Documents/datasets:/datasets",
+		"--network=host",
+		"--cap-add=SYS_PTRACE",
+		"--security-opt=seccomp:unconfined",
+		"--security-opt=apparmor:unconfined",
+		"--privileged"
+		],
+	"containerEnv": {
+		"LIBGL_ALWAYS_SOFTWARE": "1"
+	}
+}
+

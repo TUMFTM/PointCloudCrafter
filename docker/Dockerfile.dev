@@ -1,0 +1,32 @@
+ARG ROS_DISTRO=humble
+FROM ros:${ROS_DISTRO}
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install dependencies
+RUN apt-get update && apt-get install -y -q --no-install-recommends \
+    wget \
+    curl \
+    vim \
+    build-essential \
+    ca-certificates \
+    gnupg2 \
+    lsb-release \
+    python3-pip \
+    python3-tk \
+    git \
+    cmake \
+    make \
+    apt-utils \
+    libpcl-dev \
+    ros-${ROS_DISTRO}-pcl-conversions \
+    ros-${ROS_DISTRO}-rviz2 \
+    ros-${ROS_DISTRO}-rosbag2-cpp \
+    ros-$ROS_DISTRO-rosbag2-storage-mcap \
+    cpplint \
+    clang-format \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /ros_ws
+
+CMD [ "bash" ]
