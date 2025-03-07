@@ -31,7 +31,6 @@
 #include <pcl/point_cloud.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <tf2_ros/buffer.h>
-#include <yaml-cpp/node/parse.h>
 
 #include <Eigen/Eigen>
 #include <cstddef>
@@ -49,8 +48,6 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
-
-
 namespace pointcloudcrafter
 {
 constexpr float COLORS[] = {0.0, 1.0, 0.333, 0.666};
@@ -70,6 +67,7 @@ bool bag_time = false;
 std::vector<float> geometric_filtering{};
 bool pie_filter = false;
 
+// Constructor
 PointCloudCrafter::PointCloudCrafter()
 : reader_(bag_path),
   tf2_buffer_(std::make_shared<rclcpp::Clock>()),
@@ -92,8 +90,8 @@ PointCloudCrafter::PointCloudCrafter()
   synchronizer_ = std::make_unique<message_filters::Synchronizer<ApproxSyncPolicy>>(
     ApproxSyncPolicy(20), *subscribers_[0], *subscribers_[1], *subscribers_[2], *subscribers_[3]);
   sync_connection_ = synchronizer_->registerCallback(std::bind(
-    &PointCloudCrafter::pointcloud_callback_sync, this, std::placeholders::_1, std::placeholders::_2,
-    std::placeholders::_3, std::placeholders::_4));
+    &PointCloudCrafter::pointcloud_callback_sync, this, std::placeholders::_1,
+    std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 
   tf2_buffer_.setUsingDedicatedThread(true);
 
@@ -101,7 +99,7 @@ PointCloudCrafter::PointCloudCrafter()
   std::filesystem::create_directories(out_dir + "/times");
 
   if (!transform_file.empty()) {
-    transform_config_ = YAML::LoadFile(transform_file);
+    // transform_config_ = YAML::LoadFile(transform_file);
   }
 }
 void PointCloudCrafter::run()
@@ -183,9 +181,9 @@ void PointCloudCrafter::save(uint64_t timestamp, const pcl::PCLPointCloud2::Ptr 
   // the end of each message.
   for (size_t i = 0; i < pc->fields.size(); ++i) {
     if (pc->fields[i].count == 0) {
-    //   pcl::PointCloud<types::PointXYZIT> pc_xyzit{};
-    //   pcl::fromPCLPointCloud2(*pc, pc_xyzit);
-    //   writer_.writeBinary(make_filename(timestamp), pc_xyzit);
+      //   pcl::PointCloud<types::PointXYZIT> pc_xyzit{};
+      //   pcl::fromPCLPointCloud2(*pc, pc_xyzit);
+      //   writer_.writeBinary(make_filename(timestamp), pc_xyzit);
     } else {
       // pcl::PointCloud<pt::PointXYZITd> pc_xyzitd{};
       // pcl::fromPCLPointCloud2(*pc, pc_xyzitd);
@@ -206,7 +204,8 @@ void PointCloudCrafter::save(uint64_t timestamp, const pcl::PCLPointCloud2::Ptr 
     reader_.set_state(false);
   }
 }
-void PointCloudCrafter::transform_callback(const tools::RosbagReaderMsg<tf2_msgs::msg::TFMessage> & msg)
+void PointCloudCrafter::transform_callback(
+  const tools::RosbagReaderMsg<tf2_msgs::msg::TFMessage> & msg)
 {
   for (auto & tf : msg.ros_msg.transforms) {
     if (tf.header.frame_id == tf.child_frame_id) {
@@ -243,10 +242,8 @@ void PointCloudCrafter::transform_pc(
 {
   Eigen::Affine3d transformation(Eigen::Affine3d::Identity());
 
-  if (auto node = transform_config_["override_" + msg_in.header.frame_id]) {
-    auto entries = node.as<std::vector<double>>();
-    Eigen::Matrix<double, 4, 4, Eigen::RowMajor> override_transform(entries.data());
-    transformation = override_transform;
+  if (file_transforms_.find(msg_in.header.frame_id) != file_transforms_.end()) {
+    transformation = file_transforms_[msg_in.header.frame_id];
   } else if (!target_frame.empty()) {
     geometry_msgs::msg::Transform tf =
       tf2_buffer_.lookupTransform(target_frame, msg_in.header.frame_id, rclcpp::Time{0}).transform;
@@ -254,12 +251,6 @@ void PointCloudCrafter::transform_pc(
     Eigen::Quaterniond rot{tf.rotation.w, tf.rotation.x, tf.rotation.y, tf.rotation.z};
     transformation =
       Eigen::Translation3d(tf.translation.x, tf.translation.y, tf.translation.z) * rot;
-
-    if (auto node = transform_config_["extra_" + msg_in.header.frame_id]) {
-      auto entries = node.as<std::vector<double>>();
-      Eigen::Matrix<double, 4, 4, Eigen::RowMajor> extra_transform(entries.data());
-      transformation *= extra_transform;
-    }
   }
 
   tools::utils::transform_pointcloud2(transformation.cast<float>(), msg_in, msg_out);

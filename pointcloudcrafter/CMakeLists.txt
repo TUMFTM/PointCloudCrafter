@@ -35,7 +35,6 @@ find_package(tf2_ros REQUIRED)
 find_package(gps_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(fmt REQUIRED)
-find_package(yaml-cpp REQUIRED)
 find_package(PCL REQUIRED)
 
 include_directories(SYSTEM
@@ -47,7 +46,7 @@ add_executable(pointcloudcrafter
   src/pointcloudcrafter_main.cpp
   src/pointcloudcrafter.cpp
   src/utils.cpp)
-ament_target_dependencies(pointcloudcrafter rclcpp rosbag2_cpp gps_msgs sensor_msgs pcl_conversions tf2_ros yaml-cpp)
+ament_target_dependencies(pointcloudcrafter rclcpp rosbag2_cpp gps_msgs sensor_msgs pcl_conversions tf2_ros)
 
 target_include_directories(pointcloudcrafter
   PRIVATE 

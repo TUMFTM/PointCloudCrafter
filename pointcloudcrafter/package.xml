@@ -9,8 +9,6 @@
   <maintainer email="maxi.leitenstern@tum.de">Maximilian Leitenstern</maintainer>
   <license>LGPL 3.0</license>
 
-  <depend>novatel_oem7_msgs</depend>
-  <depend>vectornav_msgs</depend>
   <depend>nav_msgs</depend>
   <depend>sensor_msgs</depend>
   <depend>gps_msgs</depend>

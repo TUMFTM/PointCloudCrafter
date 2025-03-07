@@ -26,7 +26,6 @@
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <tf2_ros/buffer.h>
-#include <yaml-cpp/yaml.h>
 
 #include <cstdint>
 #include <gps_msgs/msg/gps_fix.hpp>
@@ -38,6 +37,7 @@
 #include <tf2_msgs/msg/detail/tf_message__struct.hpp>
 #include <tf2_msgs/msg/tf_message.hpp>
 #include <vector>
+#include <unordered_map>
 
 #include "pointcloudcrafter/rosbag_reader.hpp"
 #include "pointcloudcrafter/utils.hpp"
@@ -59,6 +59,8 @@ extern bool pie_filter;
 using ApproxSyncPolicy = message_filters::sync_policies::ApproximateTime<
   sensor_msgs::msg::PointCloud2, sensor_msgs::msg::PointCloud2, sensor_msgs::msg::PointCloud2,
   sensor_msgs::msg::PointCloud2>;
+
+// Main class
 class PointCloudCrafter
 {
   tools::RosbagReader reader_;
@@ -69,7 +71,7 @@ class PointCloudCrafter
   std::unique_ptr<message_filters::Synchronizer<ApproxSyncPolicy>> synchronizer_;
   message_filters::Connection sync_connection_{};
 
-  YAML::Node transform_config_;
+  std::unordered_map<std::string, Eigen::Affine3d> file_transforms_;
 
   size_t num_sensors_;
 
