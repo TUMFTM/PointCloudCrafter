@@ -96,7 +96,6 @@ private:
 
   // Storage
   size_t num_sensors_{};
-  std::vector<uint64_t> timestamps_lidar_{};
   int64_t loaded_frames_{0};
   int64_t stride_frames_{0};
 };

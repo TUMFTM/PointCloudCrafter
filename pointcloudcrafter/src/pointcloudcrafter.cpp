@@ -168,11 +168,12 @@ void PointCloudCrafter::process_pointclouds(
     // if the point stamps are relative to the header stamp
     uint64_t time_offset = tools::utils::timestamp_from_ros(msg.header.stamp) - base_time;
     try {
-      std::vector<std::uint64_t> global_timestamps =
-        (RELATIVE_TIME)
-          ? tools::utils::set_timestamps(
-              msg_transformed, tools::utils::timestamp_from_ros(msg.header.stamp), time_offset)
-          : tools::utils::set_timestamps(msg_transformed, 0, time_offset);
+      if (RELATIVE_TIME) {
+        tools::utils::set_timestamps(
+          msg_transformed, tools::utils::timestamp_from_ros(msg.header.stamp), time_offset);
+      } else {
+        tools::utils::set_timestamps(msg_transformed, 0, time_offset);
+      }
     } catch (std::runtime_error &) {
       // do nothing if cloud has no field t
     }
@@ -190,9 +191,6 @@ void PointCloudCrafter::process_pointclouds(
     pcl_conversions::toPCL(msg_transformed, pc);
     *merged_pc += pc;
   }
-
-  timestamps_lidar_.push_back(base_time);
-
   stride_frames_ = stride_frames_ - 1;
 
   loaded_frames_++;
