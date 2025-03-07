@@ -41,19 +41,19 @@ typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::msg::PointC
 namespace pointcloudcrafter
 {
 // Flags
-extern std::string bag_path;
-extern std::vector<std::string> topic_names;
-extern std::string out_dir;
-extern std::string target_frame;
-extern std::string sensor_number_field;
-extern std::string transform_file;
-extern int64_t max_frames;
-extern int64_t skip_frames;
-extern int64_t stride_frames;
-extern bool sequential_names;
-extern bool bag_time;
-extern std::vector<float> geometric_filtering;
-extern bool pie_filter;
+extern std::string BAG_PATH;
+extern std::vector<std::string> TOPICS;
+extern std::string OUT_DIR;
+extern std::string TARGET_FRAME;
+extern std::string SENSOR_NUMBER_FIELD;
+extern std::string TRANSFORM_FILE;
+extern int64_t MAX_FRAMES;
+extern int64_t SKIP_FRAMES;
+extern int64_t STRIDE_FRAMES;
+extern bool SEQUENTIAL_NAMES;
+extern bool BAG_TIME;
+extern std::vector<float> GEOMETRIC_FILTERING;
+extern bool PIE_FILTER;
 /**
  * @brief PointCloudCrafter class
  */
@@ -87,7 +87,7 @@ private:
   // ROS logger
   rclcpp::Logger logger_;
   // Subscribers for pointclouds
-  std::vector<std::unique_ptr<tools::BagSubscriber<sensor_msgs::msg::PointCloud2>>> subscribers_;
+  std::vector<std::unique_ptr<tools::MsgFilter<sensor_msgs::msg::PointCloud2>>> subscribers_;
   // Synchronizer for pointclouds
   std::unique_ptr<message_filters::Synchronizer<ApproxTimeSyncPolicy>> synchronizer_;
   message_filters::Connection sync_connection_{};
@@ -99,6 +99,6 @@ private:
   size_t num_sensors_{};
   std::vector<uint64_t> timestamps_lidar_{};
   int64_t loaded_frames_{0};
-  int64_t stride_frames_{0};
+  int64_t STRIDE_FRAMES_{0};
 };
 }  // namespace pointcloudcrafter

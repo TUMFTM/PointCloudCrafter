@@ -27,41 +27,41 @@ int main(int argc, char * argv[])
   CLI::App app{"rosbag_to_pcd"};
   app.option_defaults()->always_capture_default();
 
-  app.add_option("bag-path", pointcloudcrafter::bag_path, "Path to ROS2 Bag")->required();
-  app.add_option("out-dir", pointcloudcrafter::out_dir, "Output directory for .pcd files")
+  app.add_option("bag-path", pointcloudcrafter::BAG_PATH, "Path to ROS2 Bag")->required();
+  app.add_option("out-dir", pointcloudcrafter::OUT_DIR, "Output directory for .pcd files")
     ->required();
   app
     .add_option(
-      "topic-names", pointcloudcrafter::topic_names, "Name of ROS topic of type PointCloud2")
+      "topic-names", pointcloudcrafter::TOPICS, "Name of ROS topic of type PointCloud2")
     ->required();
 
   app.add_option(
-    "--target-frame, -t", pointcloudcrafter::target_frame,
+    "--target-frame, -t", pointcloudcrafter::TARGET_FRAME,
     "Target TF2 frame which all pointclouds are transformed to.");
   app.add_option(
-    "--max-frames, -m", pointcloudcrafter::max_frames,
+    "--max-frames, -m", pointcloudcrafter::MAX_FRAMES,
     "Maximum number of frames to extract. Use -1 for no limit");
   app.add_option(
-    "--skip-frames, -j", pointcloudcrafter::skip_frames,
+    "--skip-frames, -j", pointcloudcrafter::SKIP_FRAMES,
     "Number of frames to skip at the beginning");
   app.add_option(
-    "--stride-frames, -s", pointcloudcrafter::stride_frames, "Write every Nth frame to file");
+    "--stride-frames, -s", pointcloudcrafter::STRIDE_FRAMES, "Write every Nth frame to file");
   app.add_option(
-    "--sensor-number-field, -f", pointcloudcrafter::sensor_number_field,
+    "--sensor-number-field, -f", pointcloudcrafter::SENSOR_NUMBER_FIELD,
     "Field name to write the sensor number to. Leave empty to skip");
   app.add_option(
-    "--transform-file, --tf", pointcloudcrafter::transform_file,
+    "--transform-file, --tf", pointcloudcrafter::TRANSFORM_FILE,
     "Path to yaml file with extra transforms");
   app.add_option(
-    "--geometric-filtering, --gf", pointcloudcrafter::geometric_filtering,
+    "--geometric-filtering, --gf", pointcloudcrafter::GEOMETRIC_FILTERING,
     "Remove rectangular box around orgin [x_min y_min z_min x_max y_max z_max]");
   app.add_flag(
-    "--sequential-name", pointcloudcrafter::sequential_names,
+    "--sequential-name", pointcloudcrafter::SEQUENTIAL_NAMES,
     "Name files sequentially instead of based on their timestamp");
   app.add_flag(
-    "--bag-time, -b", pointcloudcrafter::bag_time, "Use bag timestamps instead of header");
+    "--bag-time, -b", pointcloudcrafter::BAG_TIME, "Use bag timestamps instead of header");
   app.add_flag(
-    "--pie-filter, --pf", pointcloudcrafter::pie_filter,
+    "--pie-filter, --pf", pointcloudcrafter::PIE_FILTER,
     "Do circle segment filtering to cut out chase vehicle");
 
   CLI11_PARSE(app, argc, argv);

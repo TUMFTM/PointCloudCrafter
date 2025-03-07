@@ -31,12 +31,21 @@
 #include "message_filters/simple_filter.h"
 namespace pointcloudcrafter::tools
 {
+/**
+ * @brief Struct to hold a ROS message and its corresponding rosbag message
+ * @tparam T - ROS message type
+ * @param bag_msg - rosbag message
+ * @param ros_msg - ROS message
+ */
 template <typename T>
 struct RosbagReaderMsg
 {
   const rosbag2_storage::SerializedBagMessage & bag_msg;
   const T & ros_msg;
 };
+/**
+ * @brief Base class for message handling
+ */
 class SerializedMessageHandlerBase
 {
 public:
@@ -44,17 +53,27 @@ public:
     const rosbag2_storage::SerializedBagMessage & bag_msg,
     const rclcpp::SerializedMessage & ser_msg) = 0;
 };
+/**
+ * @brief Class to handle serialized messages with a callback
+ * @tparam T - ROS message type
+ */
 template <typename T>
 class SerializedMessageHandler : public SerializedMessageHandlerBase
 {
-  rclcpp::Serialization<T> serialization_;
-  std::function<void(const RosbagReaderMsg<T> &)> callback_;
-
 public:
+  /**
+   * @brief Constructor from a callback function
+   * @param callback - callback function
+   */
   explicit SerializedMessageHandler(std::function<void(const RosbagReaderMsg<T> &)> callback)
   : callback_(callback)
   {
   }
+  /**
+   * @brief Deserialize the message and call the callback
+   * @param bag_msg - rosbag message
+   * @param ser_msg - serialized message
+   */
   void handle_serialized_message(
     const rosbag2_storage::SerializedBagMessage & bag_msg,
     const rclcpp::SerializedMessage & ser_msg) override
@@ -63,12 +82,19 @@ public:
     serialization_.deserialize_message(&ser_msg, &msg);
     callback_({bag_msg, msg});
   }
+
+private:
+  rclcpp::Serialization<T> serialization_;
+  std::function<void(const RosbagReaderMsg<T> &)> callback_;
 };
 class RosbagReader
 {
 public:
-  // Constructor
-  explicit RosbagReader(const std::string & bag_path) { reader_.open(bag_path); }
+  /**
+   * @brief Constructor from a bag file path
+   * @param BAG_PATH - path to the bag file
+   */
+  explicit RosbagReader(const std::string & BAG_PATH) { reader_.open(BAG_PATH); }
   /**
    * @brief Add a listener for a specific topic
    * @tparam T - ROS message type
@@ -88,12 +114,14 @@ public:
   void set_state(bool state) { running_ = state; }
   /**
    * @brief Process the bag file
+   * @brief -> to be called after all listeners are added
    */
   void process()
   {
     int64_t first_msg_time = -1;
     rclcpp::Clock wall_clock{};
 
+    // Configure the reader to only read the topics we are interested in
     std::vector<std::string> topics{};
     topics.reserve(handlers_.size());
     for (auto & entry : handlers_) {
@@ -101,13 +129,16 @@ public:
     }
     reader_.set_filter({topics});
 
+    // Initialize progress logging
     double total_duration = static_cast<double>((reader_.get_metadata().duration.count()) / 1.0e9);
     running_ = true;
 
+    // Process the bag files
     while (reader_.has_next() && rclcpp::ok() && running_) {
       auto bag_msg = reader_.read_next();
       rclcpp::SerializedMessage ser_msg{*bag_msg->serialized_data};
 
+      // Get the first message time
       if (first_msg_time < 0) {
         first_msg_time = bag_msg->time_stamp;
       }
@@ -118,6 +149,7 @@ public:
         logger_, wall_clock, 5000, "Processed %.3f sec of bag [% 5.1f%%]", time_done,
         100 * time_done / total_duration);
 
+      // Call the handlers
       auto it = handlers_.find(bag_msg->topic_name);
       if (it == handlers_.end()) {
         continue;
@@ -130,25 +162,36 @@ public:
   }
 
 private:
+  // Map to store the handlers for each topic
   std::unordered_map<std::string, std::vector<std::shared_ptr<SerializedMessageHandlerBase>>>
     handlers_;
-  bool running_{true};
-
+  // Logger to print progress
   rclcpp::Logger logger_ = rclcpp::get_logger("rosbag_reader");
+  // Reader to read the bag file
   rosbag2_cpp::Reader reader_;
+  // State flag
+  bool running_{true};
 };
+/**
+ * @brief Class to subscribe to a topic and call a callback function
+ * @tparam T - ROS message type
+ * @param topic_name - name of the topic
+ * @param reader - rosbag reader
+ * @param BAG_TIME - flag to use bag timestamps instead of header
+ */
 template <typename T>
-class BagSubscriber : public message_filters::SimpleFilter<T>
+class MsgFilter : public message_filters::SimpleFilter<T>
 {
 public:
-  BagSubscriber(const std::string & topic_name, RosbagReader & reader, bool bag_time = false)
+  MsgFilter(const std::string & topic_name, RosbagReader & reader, bool BAG_TIME = false)
   {
-    reader.add_listener<T>(topic_name, [this, bag_time](const RosbagReaderMsg<T> & msg) {
+    reader.add_listener<T>(topic_name, [this, BAG_TIME](const RosbagReaderMsg<T> & msg) {
       auto msg_ptr = std::make_shared<T>(msg.ros_msg);
 
-      if (bag_time) {
-        msg_ptr->header.stamp.sec = static_cast<int>(msg.bag_msg.time_stamp / 1000000000L);
-        msg_ptr->header.stamp.nanosec = msg.bag_msg.time_stamp % 1000000000L;
+      // Overwrite the header timestamp with the bag timestamp
+      if (BAG_TIME) {
+        msg_ptr->header.stamp.sec = static_cast<int>(msg.bag_msg.time_stamp / 1000000000);
+        msg_ptr->header.stamp.nanosec = msg.bag_msg.time_stamp % 1000000000;
       }
 
       this->signalMessage(msg_ptr);

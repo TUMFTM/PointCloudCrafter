@@ -53,41 +53,39 @@
 namespace pointcloudcrafter
 {
 // global variables that will be populated by CLI arguments
-std::string bag_path;  // NOLINT
-std::vector<std::string> topic_names;
-std::string out_dir;                // NOLINT
-std::string target_frame = "";      // NOLINT
-std::string sensor_number_field{};  // NOLINT
-std::string transform_file{};       // NOLINT
-int64_t max_frames = -1;
-int64_t skip_frames = 0;
-int64_t stride_frames = 1;
-bool sequential_names = false;
-bool bag_time = false;
-std::vector<float> geometric_filtering{};
-bool pie_filter = false;
+std::string BAG_PATH;  // NOLINT
+std::vector<std::string> TOPICS;
+std::string OUT_DIR;                // NOLINT
+std::string TARGET_FRAME = "";      // NOLINT
+std::string SENSOR_NUMBER_FIELD{};  // NOLINT
+std::string TRANSFORM_FILE{};       // NOLINT
+int64_t MAX_FRAMES = -1;
+int64_t SKIP_FRAMES = 0;
+int64_t STRIDE_FRAMES = 1;
+bool SEQUENTIAL_NAMES = false;
+bool BAG_TIME = false;
+std::vector<float> GEOMETRIC_FILTERING{};
+bool PIE_FILTER = false;
 /**
  * @brief PointCloudCrafter class
  */
 PointCloudCrafter::PointCloudCrafter()
-: reader_(bag_path),
+: reader_(BAG_PATH),
   tf2_buffer_(std::make_shared<rclcpp::Clock>()),
   logger_(rclcpp::get_logger("rosbag_to_pcd")),
-  num_sensors_(topic_names.size())
+  num_sensors_(TOPICS.size())
 {
-  if (topic_names.size() > 4) {
+  // Check for number of topics
+  if (TOPICS.size() > 4) {
     throw std::runtime_error("Only a maximum of 4 topics are supported");
   }
+  // Initialize bag subscribers to reader
   for (size_t i = 0; i < 4; i++) {
-    std::string topic = (i < num_sensors_) ? topic_names[i] : topic_names[0];
-    subscribers_.push_back(std::make_unique<tools::BagSubscriber<sensor_msgs::msg::PointCloud2>>(
-      topic, reader_, bag_time));
+    std::string topic = (i < num_sensors_) ? TOPICS[i] : TOPICS[0];
+    subscribers_.push_back(std::make_unique<tools::MsgFilter<sensor_msgs::msg::PointCloud2>>(
+      topic, reader_, BAG_TIME));
   }
-
-  auto tf_callback_bind = std::bind(&PointCloudCrafter::tf_callback, this, std::placeholders::_1);
-  reader_.add_listener<tf2_msgs::msg::TFMessage>("/tf", tf_callback_bind);
-  reader_.add_listener<tf2_msgs::msg::TFMessage>("/tf_static", tf_callback_bind);
-
+  // Initialize synchronizer for pointclouds
   synchronizer_ = std::make_unique<message_filters::Synchronizer<ApproxTimeSyncPolicy>>(
     ApproxTimeSyncPolicy(20), *subscribers_[0], *subscribers_[1], *subscribers_[2],
     *subscribers_[3]);
@@ -95,9 +93,13 @@ PointCloudCrafter::PointCloudCrafter()
     &PointCloudCrafter::pointcloud_callback_sync, this, std::placeholders::_1,
     std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 
+  // Initialize transform listener
+  reader_.add_listener<tf2_msgs::msg::TFMessage>(
+    "/tf_static", std::bind(&PointCloudCrafter::tf_callback, this, std::placeholders::_1));
   tf2_buffer_.setUsingDedicatedThread(true);
 
-  if (!transform_file.empty()) {
+  // Load transforms from file
+  if (!TRANSFORM_FILE.empty()) {
     // TODO(Maxi): Implement function to read from txt file
     // this->file_transforms_ = ...
   }
@@ -106,22 +108,22 @@ void PointCloudCrafter::run()
 {
   reader_.process();
 
-  tools::utils::save_timestamps(out_dir + "/times/lidar_timestamps.txt", timestamps_lidar_);
+  tools::utils::save_timestamps(OUT_DIR + "/times/lidar_timestamps.txt", timestamps_lidar_);
 }
 // void PointCloudCrafter::save(uint64_t timestamp, const pcl::PCLPointCloud2::Ptr & pc)
 // {
-//   if (!geometric_filtering.empty()) {
+//   if (!GEOMETRIC_FILTERING.empty()) {
 //     pcl::CropBox<pcl::PCLPointCloud2> crop_box;
 
 //     // filter points inside rectangular box
-//     crop_box.setMin({geometric_filtering[0], geometric_filtering[1],
-//     geometric_filtering[2], 1.0}); crop_box.setMax({geometric_filtering[3],
-//     geometric_filtering[4], geometric_filtering[5], 1.0}); crop_box.setInputCloud(pc);
+//     crop_box.setMin({GEOMETRIC_FILTERING[0], GEOMETRIC_FILTERING[1],
+//     GEOMETRIC_FILTERING[2], 1.0}); crop_box.setMax({GEOMETRIC_FILTERING[3],
+//     GEOMETRIC_FILTERING[4], GEOMETRIC_FILTERING[5], 1.0}); crop_box.setInputCloud(pc);
 //     crop_box.setNegative(true);
 //     crop_box.filter(*pc);
 //   }
 
-//   if (pie_filter) {
+//   if (PIE_FILTER) {
 //     pcl::PCLPointCloud2 filtered_cloud;
 //     filtered_cloud.header = pc->header;
 //     filtered_cloud.height = 1;
@@ -166,10 +168,10 @@ void PointCloudCrafter::run()
 
 //   timestamps_lidar_.push_back(timestamp);
 
-//   stride_frames_ = stride_frames - 1;
+//   STRIDE_FRAMES_ = STRIDE_FRAMES - 1;
 
 //   loaded_frames_++;
-//   if (max_frames > 0 && loaded_frames_ >= max_frames) {
+//   if (MAX_FRAMES > 0 && loaded_frames_ >= MAX_FRAMES) {
 //     reader_.set_state(false);
 //   }
 // }
@@ -188,13 +190,13 @@ void PointCloudCrafter::pointcloud_callback_sync(
   const sensor_msgs::msg::PointCloud2::ConstSharedPtr & pc3,
   const sensor_msgs::msg::PointCloud2::ConstSharedPtr & pc4)
 {
-  if (skip_frames > 0) {
-    skip_frames--;
+  if (SKIP_FRAMES > 0) {
+    SKIP_FRAMES--;
     return;
   }
 
-  if (stride_frames_ > 0) {
-    stride_frames_--;
+  if (STRIDE_FRAMES_ > 0) {
+    STRIDE_FRAMES_--;
     return;
   }
 
@@ -212,9 +214,9 @@ void PointCloudCrafter::transform_pc(
 
   if (file_transforms_.find(msg_in.header.frame_id) != file_transforms_.end()) {
     transformation = file_transforms_[msg_in.header.frame_id];
-  } else if (!target_frame.empty()) {
+  } else if (!TARGET_FRAME.empty()) {
     transformation = tools::utils::transform2eigen(
-      tf2_buffer_.lookupTransform(target_frame, msg_in.header.frame_id, rclcpp::Time{0}));
+      tf2_buffer_.lookupTransform(TARGET_FRAME, msg_in.header.frame_id, rclcpp::Time{0}));
   }
 
   tools::utils::transform_pointcloud2(transformation.cast<float>(), msg_in, msg_out);
@@ -249,8 +251,8 @@ void PointCloudCrafter::process_merge_and_save(
     }
 
     // write the sensor number if specified
-    if (!sensor_number_field.empty()) {
-      for (sensor_msgs::PointCloud2Iterator<float> it(msg_transformed, sensor_number_field);
+    if (!SENSOR_NUMBER_FIELD.empty()) {
+      for (sensor_msgs::PointCloud2Iterator<float> it(msg_transformed, SENSOR_NUMBER_FIELD);
            it != it.end(); ++it) {
         *it = tools::utils::COLORS[i % 4];
       }
