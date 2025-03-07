@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>pointcloudcrafter</name>
+  <version>0.0.1</version>
+  <description>PCD and Pose extraction tool for ROS 2.</description>
+  <author email="markus.pielmeier@tum.de">Markus Pielmeier</author>
+  <maintainer email="dominik.kulmer@tum.de">Dominik Kulmer</maintainer>
+  <maintainer email="maxi.leitenstern@tum.de">Maximilian Leitenstern</maintainer>
+  <license>LGPL 3.0</license>
+
+  <depend>novatel_oem7_msgs</depend>
+  <depend>vectornav_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>gps_msgs</depend>
+  <depend>pcl_ros</depend>
+  <depend>pcl_conversions</depend>
+  <depend>geographiclib</depend>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+
+  <!--depend>autoware_cmake</depend-->
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
