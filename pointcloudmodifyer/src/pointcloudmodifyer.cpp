@@ -22,28 +22,26 @@
 #include <pcl/cloud_iterator.h>
 #include <pcl/filters/extract_indices.h>
 
-using Point = pcl::PCLPointCloud2;
+using PointCloud = pcl::PCLPointCloud2;
 
 namespace pointcloudmodifyer {
 
-PcdModifyer::PcdModifyer()
+Modifyer::Modifyer()
     : input_cloud(new pcl::PCLPointCloud2()),
-    output_cloud(new pcl::PCLPointCloud2()),
-    mod_cloud(new pcl::PCLPointCloud2()) {}
+    output_cloud(new pcl::PCLPointCloud2()) {}
 
-PcdModifyer::~PcdModifyer() = default;
+Modifyer::~Modifyer() = default;
 
-bool PcdModifyer::loadPCD(const std::string& file_path) {
+bool Modifyer::loadPCD(const std::string& file_path) {
     pcl::PCDReader reader;
     reader.read(file_path, *input_cloud);
     
-    // Copy input to mod_cloud for processing
-    *mod_cloud = *input_cloud;
+    *output_cloud = *input_cloud;
     std::cout << "Loading completed: " << input_cloud->width * input_cloud->height << " data points" << std::endl;
     return true;
 }
 
-bool PcdModifyer::savePCD(const std::string& file_path) {
+bool Modifyer::savePCD(const std::string& file_path) {
     std::string path = file_path;
     
     // If file_path is a directory, create a filename in that directory
@@ -51,7 +49,7 @@ bool PcdModifyer::savePCD(const std::string& file_path) {
         path = file_path + "/mod_cloud.pcd";
     }
     
-    if (pcl::io::savePCDFile(path, *mod_cloud) == -1) {
+    if (pcl::io::savePCDFile(path, *output_cloud) == -1) {
         std::cerr << "Failed to save PCD file: " << path << std::endl;
         return false;
     }
@@ -60,13 +58,13 @@ bool PcdModifyer::savePCD(const std::string& file_path) {
     return true;
 }
 
-void PcdModifyer::visualize() {
+void Modifyer::visualize() {
     // Convert to PointXYZ for visualization
     pcl::PointCloud<pcl::PointXYZ>::Ptr input_xyz(new pcl::PointCloud<pcl::PointXYZ>());
     pcl::PointCloud<pcl::PointXYZ>::Ptr output_xyz(new pcl::PointCloud<pcl::PointXYZ>());
     
     pcl::fromPCLPointCloud2(*input_cloud, *input_xyz);
-    pcl::fromPCLPointCloud2(*mod_cloud, *output_xyz);
+    pcl::fromPCLPointCloud2(*output_cloud, *output_xyz);
     
     pcl::visualization::PCLVisualizer viewer("PCD Viewer");
     
@@ -90,23 +88,23 @@ void PcdModifyer::visualize() {
     viewer.spin();
 }
 
-PcdModifyer& PcdModifyer::cropBox(const std::vector<double>& box_params) {
+Modifyer& Modifyer::cropBox(const std::vector<double>& box_params) {
     if (box_params.size() < 6) {
         std::cerr << "Error: cropBox requires 6 parameters (min_x, min_y, min_z, max_x, max_y, max_z)" << std::endl;
         return *this;
     }
        
-    pcl::CropBox<Point> boxFilter;
+    pcl::CropBox<PointCloud> boxFilter;
     boxFilter.setMin(Eigen::Vector4f(box_params[0], box_params[1], box_params[2], 1.0));
     boxFilter.setMax(Eigen::Vector4f(box_params[3], box_params[4], box_params[5], 1.0));
-    boxFilter.setInputCloud(mod_cloud);
-    boxFilter.filter(*mod_cloud);
+    boxFilter.setInputCloud(output_cloud);
+    boxFilter.filter(*output_cloud);
     return *this;
 }
 
-PcdModifyer& PcdModifyer::cropSphere(const double& sphere_params) {
+Modifyer& Modifyer::cropSphere(const double& sphere_params) {
     pcl::PointCloud<pcl::PointXYZ>::Ptr tmp(new pcl::PointCloud<pcl::PointXYZ>);
-    pcl::fromPCLPointCloud2(*mod_cloud, *tmp);
+    pcl::fromPCLPointCloud2(*output_cloud, *tmp);
 
     pcl::PointIndices::Ptr inliers (new pcl::PointIndices ());
     
@@ -117,11 +115,108 @@ PcdModifyer& PcdModifyer::cropSphere(const double& sphere_params) {
     }
     
     pcl::ExtractIndices<pcl::PCLPointCloud2> extract;
-    extract.setInputCloud(mod_cloud);
+    extract.setInputCloud(output_cloud);
     extract.setIndices(inliers);
-    extract.filter(*mod_cloud);
+    extract.filter(*output_cloud);
     
     return *this;
 }
+
+Modifyer& Modifyer::cropZylinder(const double& zylinder_params) {
+    pcl::PointCloud<pcl::PointXYZ>::Ptr tmp(new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::fromPCLPointCloud2(*output_cloud, *tmp);
+
+    pcl::PointIndices::Ptr inliers (new pcl::PointIndices ());
+    
+    for (size_t i = 0; i < tmp->size(); ++i) {
+        auto point = tmp->points[i].getVector3fMap();
+        double r = std::sqrt(point.x() * point.x() + point.y() * point.y());
+        if (r < zylinder_params) {
+            inliers->indices.push_back(i);
+        }
+    }
+    
+    pcl::ExtractIndices<pcl::PCLPointCloud2> extract;
+    extract.setInputCloud(output_cloud);
+    extract.setIndices(inliers);
+    extract.filter(*output_cloud);
+    
+    return *this;
+}
+
+Modifyer& Modifyer::voxelfilter(const std::vector<double>& voxel) {
+    if (voxel.size() < 3) {
+        std::cerr << "Error: Voxel filter requires 3 parameters (voxel_x, voxel_y, voxel_z)" << std::endl;
+        return *this;
+    }
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr tmp(new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::fromPCLPointCloud2(*output_cloud, *tmp);
+
+    // Compute min_pt and max_pt
+    pcl::PointXYZ min_pt, max_pt;
+    pcl::getMinMax3D(*tmp, min_pt, max_pt);
+
+    // Figure out how many cells we’d have in each dimension
+    const auto num_x = static_cast<uint64_t>(std::floor((max_pt.x - min_pt.x) / voxel[0]));
+    const auto num_y = static_cast<uint64_t>(std::floor((max_pt.y - min_pt.y) / voxel[1]));
+    const auto num_z = static_cast<uint64_t>(std::floor((max_pt.z - min_pt.z) / voxel[2]));
+    const auto total = num_x * num_y * num_z;
+
+    // If the total # of voxels would exceed int32_t, apply subvoxel
+    if (total > static_cast<uint64_t>(INT32_MAX)) {
+        applySubVoxelfilter(voxel, output_cloud, min_pt, max_pt, num_x, num_y, num_z);
+    } else {
+        applyVoxelfilter(voxel, output_cloud);
+    }
+
+    return *this;
+}
+
+void Modifyer::applyVoxelfilter(const std::vector<double>& voxel, PointCloud::Ptr& cloud) {   
+    pcl::VoxelGrid<PointCloud> voxelFilter;
+    voxelFilter.setLeafSize(voxel[0], voxel[1], voxel[2]);
+    voxelFilter.setInputCloud(cloud);
+    voxelFilter.filter(*cloud);
+}
+
+void Modifyer::applySubVoxelfilter(const std::vector<double>& voxel, PointCloud::Ptr& cloud,
+        const pcl::PointXYZ& min_pt, const pcl::PointXYZ& max_pt, const uint64_t num_x,
+        const uint64_t num_y, const uint64_t num_z) {
+    PointCloud::Ptr tpc = std::make_shared<PointCloud>();
+    PointCloud::Ptr apc = std::make_shared<PointCloud>();
+    uint64_t num = std::floor(std::cbrt((num_x * num_y * num_z) / INT32_MAX)) + 1;
+    uint64_t iter = 0;
+
+    for (uint64_t ix = 0; ix < num; ix++) {
+        for (uint64_t iy = 0; iy < num; iy++) {
+            for (uint64_t iz = 0; iz < num; iz++) {
+                std::cout << "\rSubvoxel split: " << ++iter << " of " 
+                          << static_cast<uint64_t>(std::pow(num, 3)) << std::flush;
+                pcl::CropBox<PointCloud> box;
+                pcl::PointXYZ tmin = {min_pt.x + (ix * (max_pt.x - min_pt.x) / num),
+                                min_pt.y + (iy * (max_pt.y - min_pt.y) / num),
+                                min_pt.z + (iz * (max_pt.z - min_pt.z) / num)};
+                pcl::PointXYZ tmax = {tmin.x + (max_pt.x - min_pt.x) / num, tmin.y + (max_pt.y - min_pt.y) / num,
+                                tmin.z + (max_pt.z - min_pt.z) / num};
+
+                box.setMin(Eigen::Vector4f(tmin.x, tmin.y, tmin.z, 1.0));
+                box.setMax(Eigen::Vector4f(tmax.x, tmax.y, tmax.z, 1.0));
+                box.setInputCloud(cloud);
+                box.filter(*tpc);
+
+                pcl::VoxelGrid<PointCloud> grid;
+                grid.setInputCloud(tpc);
+                grid.setLeafSize(voxel[0], voxel[1], voxel[2]);
+                grid.filter(*tpc);
+
+                *apc += *tpc;
+            }
+        }
+    }
+    std::cout << std::endl;
+    *output_cloud = *apc;
+}
+
 
 }  // namespace pointcloudmodifyer
