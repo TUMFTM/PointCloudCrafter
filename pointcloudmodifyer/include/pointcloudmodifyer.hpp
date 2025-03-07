@@ -69,7 +69,7 @@ private:
 
     void applyVoxelFilter(const std::vector<double>& voxel, PointCloud::Ptr& cloud);
 
-    bool saveTimestamps(const std::vector<uint64_t>& timestamps, const std::string& output_path);
-    bool saveTimestamps(const std::vector<double>& timestamps, const std::string& output_path);
+    template <typename T>
+    bool saveTimestamps(const std::vector<T>& timestamps, const std::string& output_path);
 };
 }  // namespace pointcloudmodifyer
