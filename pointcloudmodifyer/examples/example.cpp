@@ -31,19 +31,18 @@ int main(int argc, char * argv[])
   }
 
   // Example of applying multiple filters using the fluent interface
-  modifier.voxelfilter({0.01, 0.01, 0.01}).cropBox({-30.0, -30.0, -30.0, 30.0, 30.0, 30.0});
+  modifier.voxelFilter({0.01, 0.01, 0.01}).cropBox({-30.0, -30.0, -30.0, 30.0, 30.0, 30.0});
 
   auto out = modifier.getOutputCloud();
   modifier.setCloud(out);
 
-  modifier.cropSphere(10.0);
+  modifier.cropSphere(10.0).timestampAnalyzer("time.txt");
 
   auto check = modifier.getOutputCloud();
   std::cout << "Output cloud size: " << check->width * check->height << std::endl;
 
   // Save the result
-  std::string output_file = "output.pcd";
-  if (!modifier.savePCD(output_file)) {
+  if (!modifier.savePCD(input_file)) {
     return 1;
   }
 

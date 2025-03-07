@@ -15,18 +15,23 @@
 
 #include <math.h>
 
+#include <algorithm>
 #include <filesystem>  // NOLINT
+#include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <limits>
 #include <memory>
-#include <vector>
 #include <string>
+#include <vector>
 
 // PCL
-#include <pcl/io/pcd_io.h>
-#include <pcl/filters/extract_indices.h>
 #include <pcl/filters/crop_box.h>
+#include <pcl/filters/extract_indices.h>
+#include <pcl/filters/radius_outlier_removal.h>
+#include <pcl/filters/statistical_outlier_removal.h>
 #include <pcl/filters/voxel_grid.h>
+#include <pcl/io/pcd_io.h>
 #include <pcl/visualization/pcl_visualizer.h>
 
 using PointCloud = pcl::PCLPointCloud2;
@@ -49,12 +54,20 @@ bool Modifyer::loadPCD(const std::string & file_path)
 }
 bool Modifyer::savePCD(const std::string & file_path)
 {
-  std::string path = file_path;
+  std::string path = file_path.substr(0, file_path.find_last_of("\\/")) + "/mod_" +
+                     file_path.substr(file_path.find_last_of("/\\") + 1);
 
-  // If file_path is a directory, create a filename in that directory
-  if (std::filesystem::is_directory(file_path)) {
-    path = file_path + "/mod_cloud.pcd";
+  if (pcl::io::savePCDFile(path, *output_cloud) == -1) {
+    std::cerr << "Failed to save PCD file: " << path << std::endl;
+    return false;
   }
+
+  std::cout << "PCD file saved to: " << path << std::endl;
+  return true;
+}
+bool Modifyer::savePCD()
+{
+  std::string path = "output.pcd";
 
   if (pcl::io::savePCDFile(path, *output_cloud) == -1) {
     std::cerr << "Failed to save PCD file: " << path << std::endl;
@@ -155,7 +168,7 @@ Modifyer & Modifyer::cropZylinder(const double & zylinder_params)
 
   return *this;
 }
-Modifyer & Modifyer::voxelfilter(const std::vector<double> & voxel)
+Modifyer & Modifyer::voxelFilter(const std::vector<double> & voxel)
 {
   if (voxel.size() < 3) {
     std::cerr << "Error: Voxel filter requires 3 parameters (voxel_x, voxel_y, voxel_z)"
@@ -178,21 +191,21 @@ Modifyer & Modifyer::voxelfilter(const std::vector<double> & voxel)
 
   // If the total # of voxels would exceed int32_t, apply subvoxel
   if (total > static_cast<uint64_t>(INT32_MAX)) {
-    applySubVoxelfilter(voxel, output_cloud, min_pt, max_pt, num_x, num_y, num_z);
+    applySubVoxelFilter(voxel, output_cloud, min_pt, max_pt, num_x, num_y, num_z);
   } else {
-    applyVoxelfilter(voxel, output_cloud);
+    applyVoxelFilter(voxel, output_cloud);
   }
 
   return *this;
 }
-void Modifyer::applyVoxelfilter(const std::vector<double> & voxel, PointCloud::Ptr & cloud)
+void Modifyer::applyVoxelFilter(const std::vector<double> & voxel, PointCloud::Ptr & cloud)
 {
   pcl::VoxelGrid<PointCloud> voxelFilter;
   voxelFilter.setLeafSize(voxel[0], voxel[1], voxel[2]);
   voxelFilter.setInputCloud(cloud);
   voxelFilter.filter(*cloud);
 }
-void Modifyer::applySubVoxelfilter(
+void Modifyer::applySubVoxelFilter(
   const std::vector<double> & voxel, PointCloud::Ptr & cloud, const pcl::PointXYZ & min_pt,
   const pcl::PointXYZ & max_pt, const uint64_t num_x, const uint64_t num_y, const uint64_t num_z)
 {
@@ -232,5 +245,130 @@ void Modifyer::applySubVoxelfilter(
   std::cout << std::endl;
   *output_cloud = *apc;
 }
+Modifyer & Modifyer::outlierRadiusFilter(const double & radius, const int & min_neighbors)
+{
+  pcl::RadiusOutlierRemoval<PointCloud> radiusFilter;
+  radiusFilter.setRadiusSearch(radius);
+  radiusFilter.setMinNeighborsInRadius(min_neighbors);
+  radiusFilter.setInputCloud(output_cloud);
+  radiusFilter.filter(*output_cloud);
+  return *this;
+}
+Modifyer & Modifyer::outlierStatFilter(const double & threshold, const int & mean)
+{
+  pcl::StatisticalOutlierRemoval<PointCloud> statFilter;
+  statFilter.setMeanK(mean);
+  statFilter.setStddevMulThresh(threshold);
+  statFilter.setInputCloud(output_cloud);
+  statFilter.filter(*output_cloud);
+  return *this;
+}
+Modifyer & Modifyer::timestampAnalyzer(const std::string & file_path)
+{
+  std::vector<double> time_float{};
+  std::vector<size_t> time_int{};
+  for (size_t i = 0; i < output_cloud->data.size(); i += output_cloud->point_step) {
+    for (size_t j = 0; j < output_cloud->fields.size(); ++j) {
+      double tf{0.0};
+      size_t ti{0};
+      pcl::PCLPointField & field = output_cloud->fields[j];
+      size_t point_offset = i + field.offset;
+      if (field.name == "timestamp" || field.name == "time_stamp" || field.name == "t") {
+        if (field.datatype == pcl::PCLPointField::FLOAT32) {
+          float tmp_stamp;
+          memcpy(&tmp_stamp, &output_cloud->data[point_offset], sizeof(float));
+          tf = static_cast<double>(tmp_stamp);
+        } else if (field.datatype == pcl::PCLPointField::FLOAT64) {
+          memcpy(&tf, &output_cloud->data[point_offset], sizeof(double));
+        } else if (field.datatype == pcl::PCLPointField::UINT32) {
+          memcpy(&ti, &output_cloud->data[point_offset], sizeof(uint32_t));
+        } else if (field.datatype == pcl::PCLPointField::UINT8 && field.count == 8) {
+          ti = 0;
+          for (size_t k = 0; k < 8; ++k) {
+            ti |= static_cast<uint64_t>(output_cloud->data[point_offset + k]) << (8 * k);
+          }
+        } else if (field.datatype == pcl::PCLPointField::UINT8 && field.count == 4) {
+          ti = 0;
+          for (size_t k = 0; k < 4; ++k) {
+            ti |= static_cast<uint32_t>(output_cloud->data[point_offset + k]) << (8 * k);
+          }
+        } else {
+          std::cerr << "Error: Unknown datatype for timestamp field" << std::endl;
+          return *this;
+        }
+      }
+      if (tf > 0.0) {
+        time_float.push_back(tf);
+      } else if (ti > 0) {
+        time_int.push_back(ti);
+      }
+    }
+  }
 
+  if (!time_float.empty()) {
+    saveTimestamps(time_float, file_path);
+
+    // Basic statistics
+    std::cout << "Float timestamps: " << time_float.size() << " entries" << std::endl;
+    if (time_float.size() > 1) {
+      double min_ts = *std::min_element(time_float.begin(), time_float.end());
+      double max_ts = *std::max_element(time_float.begin(), time_float.end());
+      std::cout << "  Min: " << min_ts << "\n  Max: " << max_ts
+                << "\n  Duration: " << (max_ts - min_ts) << std::endl;
+    }
+  }
+
+  if (!time_int.empty()) {
+    saveTimestamps(time_int, file_path);
+
+    // Basic statistics
+    std::cout << "Integer timestamps: " << time_int.size() << " entries" << std::endl;
+    if (time_int.size() > 1) {
+      uint64_t min_ts = *std::min_element(time_int.begin(), time_int.end());
+      uint64_t max_ts = *std::max_element(time_int.begin(), time_int.end());
+      std::cout << "  Min: " << min_ts << "\n  Max: " << max_ts
+                << "\n  Duration: " << (max_ts - min_ts) << std::endl;
+    }
+  }
+
+  return *this;
+}
+bool Modifyer::saveTimestamps(
+  const std::vector<uint64_t> & timestamps, const std::string & output_path)
+{
+  std::ofstream outfile;
+  outfile.open(output_path);
+
+  if (!outfile.is_open()) {
+    std::cerr << "Failed to open file for writing: " << output_path << std::endl;
+    return false;
+  }
+
+  for (const auto & ts : timestamps) {
+    outfile << ts << std::endl;
+  }
+
+  outfile.close();
+  std::cout << "Timestamps saved to: " << output_path << std::endl;
+  return true;
+}
+bool Modifyer::saveTimestamps(
+  const std::vector<double> & timestamps, const std::string & output_path)
+{
+  std::ofstream outfile;
+  outfile.open(output_path);
+
+  if (!outfile.is_open()) {
+    std::cerr << "Failed to open file for writing: " << output_path << std::endl;
+    return false;
+  }
+
+  for (const auto & ts : timestamps) {
+    outfile << std::fixed << std::setprecision(9) << ts << std::endl;
+  }
+
+  outfile.close();
+  std::cout << "Timestamps saved to: " << output_path << std::endl;
+  return true;
+}
 }  // namespace pointcloudmodifyer
