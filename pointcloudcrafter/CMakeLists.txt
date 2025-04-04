@@ -70,8 +70,9 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 # Installation rules
 install(TARGETS ${PROJECT_NAME}
     LIBRARY DESTINATION lib
-    INCLUDES DESTINATION include
+    PUBLIC_HEADER DESTINATION include
 )
+
 
 # Executable
 add_executable(crafter
