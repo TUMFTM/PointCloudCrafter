@@ -36,7 +36,10 @@ set(LIBRARY_HEADERS
 
 # Create shared library
 add_library(${PROJECT_NAME} SHARED ${LIBRARY_SOURCES})
-
+target_include_directories(${PROJECT_NAME}
+  PUBLIC 
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
 # Link PCL libraries
 target_link_libraries(${PROJECT_NAME} ${PCL_LIBRARIES})
 

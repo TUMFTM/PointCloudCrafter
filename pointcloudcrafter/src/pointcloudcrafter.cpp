@@ -46,6 +46,7 @@
 #include <vector>
 
 #include "pointcloudcrafter/utils.hpp"
+#include "pointcloudmodifyer.hpp"
 namespace pointcloudcrafter
 {
 // global variables that will be populated by CLI arguments
@@ -194,7 +195,9 @@ void PointCloudCrafter::process_pointclouds(
   }
 
   // Modify the merged pointcloud with pointcloudmodifier
-  // TODO(Maxi): Call pointcloudmodifier here
+  // Pointcloud modifyer
+  pointcloudmodifyer::Modifyer modifier;
+  modifier.setCloud(merged_pc);
 }
 void PointCloudCrafter::transform_pc(
   const sensor_msgs::msg::PointCloud2 & msg_in, sensor_msgs::msg::PointCloud2 & msg_out)
