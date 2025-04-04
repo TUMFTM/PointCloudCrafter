@@ -68,9 +68,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 # Installation rules
 install(TARGETS ${PROJECT_NAME}
     LIBRARY DESTINATION lib
-    PUBLIC_HEADER DESTINATION include
+    INCLUDES DESTINATION include
 )
-
 
 # Executable
 add_executable(crafter
@@ -81,6 +80,7 @@ target_link_libraries(crafter
 
 target_compile_features(crafter PRIVATE cxx_std_20)
 
-install(TARGETS crafter RUNTIME DESTINATION bin)
+install(TARGETS crafter
+  RUNTIME DESTINATION lib/${PROJECT_NAME})
 
 ament_package()
