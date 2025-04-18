@@ -32,6 +32,7 @@ find_package(pcl_ros REQUIRED)
 find_package(pcl_conversions REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(PCL REQUIRED)
+find_package(fmt REQUIRED)
 
 include_directories(SYSTEM
   ${PCL_INCLUDE_DIRS}
@@ -63,6 +64,7 @@ ament_target_dependencies(${PROJECT_NAME} PUBLIC
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
   ${PCL_LIBRARIES}
+  fmt::fmt
   pointcloudmodifyer)
 
 # Installation rules

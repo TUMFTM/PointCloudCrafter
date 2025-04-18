@@ -44,6 +44,8 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <filesystem>
+#include <fmt/core.h>
 
 #include "pointcloudcrafter/utils.hpp"
 #include "pointcloudmodifyer.hpp"
@@ -100,6 +102,14 @@ PointCloudCrafter::PointCloudCrafter()
   // Load transforms from file
   if (!TRANSFORM_FILE.empty()) {
     this->file_transforms_ = tools::utils::load_transforms_from_file(TRANSFORM_FILE);
+  }
+
+  // Init out directory
+  if (OUT_DIR.empty()) {
+    throw std::runtime_error("Output directory not specified");
+  }
+  if (!std::filesystem::exists(OUT_DIR)) {
+    std::filesystem::create_directories(OUT_DIR);
   }
 }
 void PointCloudCrafter::run() { reader_.process(); }
@@ -198,6 +208,15 @@ void PointCloudCrafter::process_pointclouds(
   // Pointcloud modifyer
   pointcloudmodifyer::Modifyer modifier;
   modifier.setCloud(merged_pc);
+  // Apply filters
+
+  // Save output cloud
+  auto ts = tools::utils::timestamp_to_ros(base_time);
+  std::string name = fmt::format("{}_{:09}", ts.sec, ts.nanosec);
+  if (!modifier.savePCD(OUT_DIR + "/" + name + ".pcd")) {
+    RCLCPP_ERROR(logger_, "Failed to save pointcloud to %s", name.c_str());
+    return;
+  }
 }
 void PointCloudCrafter::transform_pc(
   const sensor_msgs::msg::PointCloud2 & msg_in, sensor_msgs::msg::PointCloud2 & msg_out)

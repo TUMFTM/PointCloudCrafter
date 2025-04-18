@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
     make \
     apt-utils \
     libpcl-dev \
+    libfmt-dev \
     ros-${ROS_DISTRO}-pcl-conversions \
     ros-${ROS_DISTRO}-rviz2 \
     ros-${ROS_DISTRO}-rosbag2-cpp \
