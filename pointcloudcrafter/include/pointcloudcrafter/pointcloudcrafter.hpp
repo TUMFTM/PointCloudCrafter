@@ -53,7 +53,10 @@ extern int64_t STRIDE_FRAMES;
 extern bool SEQUENTIAL_NAMES;
 extern bool BAG_TIME;
 extern bool RELATIVE_TIME;
-extern std::vector<float> GEOMETRIC_FILTERING;
+extern std::vector<double> CROPBOX;
+extern double CROPSPHERE;
+extern double CROPCYLINDER;
+extern std::vector<double> VOXELFILTER;
 extern bool PIE_FILTER;
 /**
  * @brief PointCloudCrafter class

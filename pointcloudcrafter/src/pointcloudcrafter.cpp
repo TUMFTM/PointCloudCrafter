@@ -19,6 +19,7 @@
 
 #include <Eigen/src/Core/Matrix.h>
 #include <Eigen/src/Core/util/Constants.h>
+#include <fmt/core.h>
 #include <message_filters/subscriber.h>
 #include <message_filters/time_synchronizer.h>
 #include <pcl/PCLPointCloud2.h>
@@ -32,6 +33,7 @@
 #include <tf2_ros/buffer.h>
 
 #include <Eigen/Eigen>
+#include <filesystem>
 #include <functional>
 #include <limits>
 #include <memory>
@@ -44,8 +46,6 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
-#include <filesystem>
-#include <fmt/core.h>
 
 #include "pointcloudcrafter/utils.hpp"
 #include "pointcloudmodifyer.hpp"
@@ -54,17 +54,19 @@ namespace pointcloudcrafter
 // global variables that will be populated by CLI arguments
 std::string BAG_PATH;  // NOLINT
 std::vector<std::string> TOPICS;
-std::string OUT_DIR;                // NOLINT
-std::string TARGET_FRAME = "";      // NOLINT
-std::string SENSOR_NUMBER_FIELD{};  // NOLINT
-std::string TRANSFORM_FILE{};       // NOLINT
+std::string OUT_DIR;            // NOLINT
+std::string TARGET_FRAME = "";  // NOLINT
+std::string TRANSFORM_FILE{};   // NOLINT
 int64_t MAX_FRAMES = -1;
 int64_t SKIP_FRAMES = 0;
 int64_t STRIDE_FRAMES = 1;
 bool SEQUENTIAL_NAMES = false;
 bool BAG_TIME = false;
 bool RELATIVE_TIME = false;
-std::vector<float> GEOMETRIC_FILTERING{};
+std::vector<double> CROPBOX{};
+double CROPSPHERE{0.0};
+double CROPCYLINDER{0.0};
+std::vector<double> VOXELFILTER{};
 bool PIE_FILTER = false;
 /**
  * @brief PointCloudCrafter class
@@ -184,14 +186,6 @@ void PointCloudCrafter::process_pointclouds(
       // do nothing if cloud has no field t
     }
 
-    // write the sensor number if specified
-    if (!SENSOR_NUMBER_FIELD.empty()) {
-      for (sensor_msgs::PointCloud2Iterator<float> it(msg_transformed, SENSOR_NUMBER_FIELD);
-           it != it.end(); ++it) {
-        *it = tools::utils::COLORS[i % 4];
-      }
-    }
-
     // Convert the pointcloud to PCL format and concatenate
     pcl::PCLPointCloud2 pc;
     pcl_conversions::toPCL(msg_transformed, pc);
@@ -209,6 +203,22 @@ void PointCloudCrafter::process_pointclouds(
   pointcloudmodifyer::Modifyer modifier;
   modifier.setCloud(merged_pc);
   // Apply filters
+  // Cropbox filtering
+  if (!CROPBOX.empty()) {
+    modifier.cropBox(CROPBOX);
+  }
+  // Sphere filtering
+  if (CROPSPHERE > 0.0) {
+    modifier.cropSphere(CROPSPHERE);
+  }
+  // Cylinder filtering
+  if (CROPCYLINDER > 0.0) {
+    modifier.cropCylinder(CROPCYLINDER);
+  }
+  // Voxelization
+  if (!VOXELFILTER.empty()) {
+    modifier.voxelfilter(VOXELFILTER);
+  }
 
   // Save output cloud
   auto ts = tools::utils::timestamp_to_ros(base_time);

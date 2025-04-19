@@ -19,14 +19,14 @@
 #include <iostream>
 #include <limits>
 #include <memory>
-#include <vector>
 #include <string>
+#include <vector>
 
 // PCL
-#include <pcl/io/pcd_io.h>
-#include <pcl/filters/extract_indices.h>
 #include <pcl/filters/crop_box.h>
+#include <pcl/filters/extract_indices.h>
 #include <pcl/filters/voxel_grid.h>
+#include <pcl/io/pcd_io.h>
 #include <pcl/visualization/pcl_visualizer.h>
 
 using PointCloud = pcl::PCLPointCloud2;
@@ -60,8 +60,8 @@ bool Modifyer::savePCD(const std::string & file_path)
     std::cerr << "Failed to save PCD file: " << path << std::endl;
     return false;
   }
-
   std::cout << "PCD file saved to: " << path << std::endl;
+
   return true;
 }
 void Modifyer::visualize()
@@ -133,7 +133,7 @@ Modifyer & Modifyer::cropSphere(const double & sphere_params)
 
   return *this;
 }
-Modifyer & Modifyer::cropZylinder(const double & zylinder_params)
+Modifyer & Modifyer::cropCylinder(const double & zylinder_params)
 {
   pcl::PointCloud<pcl::PointXYZ>::Ptr tmp(new pcl::PointCloud<pcl::PointXYZ>);
   pcl::fromPCLPointCloud2(*output_cloud, *tmp);
@@ -232,5 +232,4 @@ void Modifyer::applySubVoxelfilter(
   std::cout << std::endl;
   *output_cloud = *apc;
 }
-
 }  // namespace pointcloudmodifyer
