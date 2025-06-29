@@ -40,7 +40,7 @@ int main(int argc, char * argv[])
   auto out = modifier.getOutputCloud();
   modifier.setCloud(out);
 
-  // modifier.cropSphere(10.0).timestampAnalyzer("time.txt");
+  modifier.cropSphere(10.0).timestampAnalyzer("time.txt");
 
   auto check = modifier.getOutputCloud();
   std::cout << "Output cloud size: " << check->width * check->height << std::endl;

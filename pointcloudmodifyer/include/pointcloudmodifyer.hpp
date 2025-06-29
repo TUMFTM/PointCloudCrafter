@@ -39,7 +39,6 @@ public:
 
     // Loading/saving functions
     bool loadPCD(const std::string& file_path);
-    bool savePCD();
     bool savePCD(const std::string& file_path);
 
     // Filter functions - all return reference to allow chaining

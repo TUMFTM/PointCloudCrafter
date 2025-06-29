@@ -69,18 +69,6 @@ bool Modifyer::savePCD(const std::string & file_path)
   std::cout << "PCD file saved to: " << path << std::endl;
   return true;
 }
-bool Modifyer::savePCD()
-{
-  std::string path = "output.pcd";
-
-  if (pcl::io::savePCDFile(path, *output_cloud) == -1) {
-    std::cerr << "Failed to save PCD file: " << path << std::endl;
-    return false;
-  }
-  std::cout << "PCD file saved to: " << path << std::endl;
-
-  return true;
-}
 void Modifyer::visualize()
 {
   // Convert to PointXYZ for visualization
@@ -93,6 +81,7 @@ void Modifyer::visualize()
   pcl::visualization::PCLVisualizer viewer("PCD Viewer");
 
   // Add input cloud with white color
+
   pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> input_color(
     input_xyz, 255, 255, 255);
   viewer.addPointCloud(input_xyz, input_color, "input_cloud");
