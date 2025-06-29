@@ -45,6 +45,7 @@
 #include <sensor_msgs/point_cloud2_iterator.hpp>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "pointcloudcrafter/utils.hpp"
