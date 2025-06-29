@@ -32,6 +32,7 @@
 #include <tf2_msgs/msg/tf_message.hpp>
 #include <unordered_map>
 #include <vector>
+#include <utility>
 
 #include "pointcloudcrafter/rosbag_reader.hpp"
 
@@ -57,6 +58,8 @@ extern std::vector<double> CROPBOX;
 extern double CROPSPHERE;
 extern double CROPCYLINDER;
 extern std::vector<double> VOXELFILTER;
+extern std::pair<double, int> OUTLIERRADIUSFILTER;
+extern std::pair<double, int> OUTLIERSTATFILTER;
 extern bool PIE_FILTER;
 /**
  * @brief PointCloudCrafter class

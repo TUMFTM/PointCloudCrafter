@@ -67,6 +67,8 @@ std::vector<double> CROPBOX{};
 double CROPSPHERE{0.0};
 double CROPCYLINDER{0.0};
 std::vector<double> VOXELFILTER{};
+std::pair<double, int> OUTLIERRADIUSFILTER{};
+std::pair<double, int> OUTLIERSTATFILTER{};
 bool PIE_FILTER = false;
 /**
  * @brief PointCloudCrafter class
@@ -218,6 +220,14 @@ void PointCloudCrafter::process_pointclouds(
   // Voxelization
   if (!VOXELFILTER.empty()) {
     modifier.voxelFilter(VOXELFILTER);
+  }
+  // Outlier radius filtering
+  if (!OUTLIERRADIUSFILTER.first > 0.0) {
+    modifier.outlierRadiusFilter(OUTLIERRADIUSFILTER.first, OUTLIERRADIUSFILTER.second);
+  }
+  // Outlier statistical filtering
+  if (!OUTLIERSTATFILTER.first > 0.0) {
+    modifier.outlierStatFilter(OUTLIERSTATFILTER.first, OUTLIERSTATFILTER.second);
   }
 
   // Save output cloud

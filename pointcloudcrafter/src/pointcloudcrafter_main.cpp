@@ -64,6 +64,13 @@ int main(int argc, char * argv[])
   app.add_option(
     "--voxel-filter, --vf", pointcloudcrafter::VOXELFILTER,
     "Voxelize clouds with [voxel_size_x, voxel_size_y, voxel_size_z]");
+  app.add_option(
+    "--outlier-radius-filter, --orf", pointcloudcrafter::OUTLIERRADIUSFILTER,
+    "Remove outliers with a given radius and minimum number of neighbors [radius, min_neighbors]"
+  );
+  app.add_option(
+    "--outlier-stat-filter, --osf", pointcloudcrafter::OUTLIERSTATFILTER,
+    "Remove outliers with a given threshold and mean [threshold, mean]");
 
   app.add_flag(
     "--pie-filter, --pf", pointcloudcrafter::PIE_FILTER,
