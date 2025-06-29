@@ -42,7 +42,6 @@ WORKDIR /ros_ws
 
 COPY . /ros_ws/src/PointCloudCrafter
 
-# Install flexcloud
 RUN /bin/bash -c '. /opt/ros/$ROS_DISTRO/setup.bash && \
     colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release'
 
