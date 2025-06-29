@@ -217,7 +217,7 @@ void PointCloudCrafter::process_pointclouds(
   }
   // Voxelization
   if (!VOXELFILTER.empty()) {
-    modifier.voxelfilter(VOXELFILTER);
+    modifier.voxelFilter(VOXELFILTER);
   }
 
   // Save output cloud

@@ -45,7 +45,7 @@ public:
     // Filter functions - all return reference to allow chaining
     Modifyer& cropBox(const std::vector<double>& box_params);
     Modifyer& cropSphere(const double& sphere_params);
-    Modifyer& cropZylinder(const double& zylinder_params);
+    Modifyer& cropCylinder(const double& zylinder_params);
     Modifyer& voxelFilter(const std::vector<double>& voxel);
     Modifyer& outlierRadiusFilter(const double& radius, const int& min_neighbors);
     Modifyer& outlierStatFilter(const double& threshold, const int& mean);
