@@ -61,11 +61,13 @@ int main(int argc, char * argv[])
     "Voxelize clouds with [voxel_size_x, voxel_size_y, voxel_size_z]");
   app.add_option(
     "--outlier-radius-filter, --orf", pointcloudcrafter::OUTLIERRADIUSFILTER,
-    "Remove outliers with a given radius and minimum number of neighbors [radius, min_neighbors]"
-  );
+    "Remove outliers with a given radius and minimum number of neighbors [radius, min_neighbors]");
   app.add_option(
     "--outlier-stat-filter, --osf", pointcloudcrafter::OUTLIERSTATFILTER,
     "Remove outliers with a given threshold and mean [threshold, mean]");
+  app.add_flag(
+    "--timestamps", pointcloudcrafter::TIMESTAMPS,
+    "Save the timestamps of the pointclouds to a .txt file.");
 
   CLI11_PARSE(app, argc, argv);
 

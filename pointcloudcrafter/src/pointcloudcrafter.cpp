@@ -67,6 +67,7 @@ double CROPCYLINDER{0.0};
 std::vector<double> VOXELFILTER{};
 std::pair<double, int> OUTLIERRADIUSFILTER{};
 std::pair<double, int> OUTLIERSTATFILTER{};
+bool TIMESTAMPS = false;
 /**
  * @brief PointCloudCrafter class
  */
@@ -218,6 +219,11 @@ void PointCloudCrafter::process_pointclouds(
   if (!modifier.savePCD(OUT_DIR + "/" + name + ".pcd")) {
     RCLCPP_ERROR(logger_, "Failed to save pointcloud to %s", name.c_str());
     return;
+  }
+
+  // Save timestamps if enabled
+  if (TIMESTAMPS) {
+    modifier.timestampAnalyzer(OUT_DIR + "/" + name + "_stamps.txt");
   }
 }
 void PointCloudCrafter::transform_pc(

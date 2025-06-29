@@ -58,6 +58,7 @@ extern double CROPCYLINDER;
 extern std::vector<double> VOXELFILTER;
 extern std::pair<double, int> OUTLIERRADIUSFILTER;
 extern std::pair<double, int> OUTLIERSTATFILTER;
+extern bool TIMESTAMPS;
 /**
  * @brief PointCloudCrafter class
  */
