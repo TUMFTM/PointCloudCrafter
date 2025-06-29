@@ -47,11 +47,6 @@ int main(int argc, char * argv[])
   app.add_flag(
     "--sequential-name", pointcloudcrafter::SEQUENTIAL_NAMES,
     "Name files sequentially instead of based on their timestamp");
-  app.add_flag(
-    "--bag-time, -b", pointcloudcrafter::BAG_TIME, "Use bag timestamps instead of header");
-  app.add_flag(
-    "--relative-time, -r", pointcloudcrafter::RELATIVE_TIME,
-    "Use relative time to header instead of absolute point timestamps");
   app.add_option(
     "--crop-box, --cb", pointcloudcrafter::CROPBOX,
     "Set crop box parmas around orgin [x_min y_min z_min x_max y_max z_max]");
@@ -71,10 +66,6 @@ int main(int argc, char * argv[])
   app.add_option(
     "--outlier-stat-filter, --osf", pointcloudcrafter::OUTLIERSTATFILTER,
     "Remove outliers with a given threshold and mean [threshold, mean]");
-
-  app.add_flag(
-    "--pie-filter, --pf", pointcloudcrafter::PIE_FILTER,
-    "Do circle segment filtering to cut out chase vehicle");
 
   CLI11_PARSE(app, argc, argv);
 

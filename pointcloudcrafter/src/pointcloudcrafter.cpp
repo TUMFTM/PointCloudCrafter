@@ -61,15 +61,12 @@ int64_t MAX_FRAMES = -1;
 int64_t SKIP_FRAMES = 0;
 int64_t STRIDE_FRAMES = 1;
 bool SEQUENTIAL_NAMES = false;
-bool BAG_TIME = false;
-bool RELATIVE_TIME = false;
 std::vector<double> CROPBOX{};
 double CROPSPHERE{0.0};
 double CROPCYLINDER{0.0};
 std::vector<double> VOXELFILTER{};
 std::pair<double, int> OUTLIERRADIUSFILTER{};
 std::pair<double, int> OUTLIERSTATFILTER{};
-bool PIE_FILTER = false;
 /**
  * @brief PointCloudCrafter class
  */
@@ -87,7 +84,7 @@ PointCloudCrafter::PointCloudCrafter()
   for (size_t i = 0; i < 4; i++) {
     std::string topic = (i < num_sensors_) ? TOPICS[i] : TOPICS[0];
     subscribers_.push_back(
-      std::make_unique<tools::MsgFilter<sensor_msgs::msg::PointCloud2>>(topic, reader_, BAG_TIME));
+      std::make_unique<tools::MsgFilter<sensor_msgs::msg::PointCloud2>>(topic, reader_));
   }
   // Initialize synchronizer for pointclouds
   synchronizer_ = std::make_unique<message_filters::Synchronizer<ApproxTimeSyncPolicy>>(
@@ -172,21 +169,6 @@ void PointCloudCrafter::process_pointclouds(
     const sensor_msgs::msg::PointCloud2 & msg = *pc_msgs[i];
     sensor_msgs::msg::PointCloud2 msg_transformed;
     transform_pc(msg, msg_transformed);
-
-    // adjust time information to have correct offset to base time
-    uint64_t time_offset = tools::utils::timestamp_from_ros(msg.header.stamp) - base_time;
-    try {
-      if (RELATIVE_TIME) {
-        // Point timestamps are relative to the header timestamp of each message
-        tools::utils::set_timestamps(
-          msg_transformed, tools::utils::timestamp_from_ros(msg.header.stamp), time_offset);
-      } else {
-        // Point timestamps are absolute timestamps
-        tools::utils::set_timestamps(msg_transformed, 0, time_offset);
-      }
-    } catch (std::runtime_error &) {
-      // do nothing if cloud has no field t
-    }
 
     // Convert the pointcloud to PCL format and concatenate
     pcl::PCLPointCloud2 pc;

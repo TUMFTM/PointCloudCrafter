@@ -52,15 +52,12 @@ extern int64_t MAX_FRAMES;
 extern int64_t SKIP_FRAMES;
 extern int64_t STRIDE_FRAMES;
 extern bool SEQUENTIAL_NAMES;
-extern bool BAG_TIME;
-extern bool RELATIVE_TIME;
 extern std::vector<double> CROPBOX;
 extern double CROPSPHERE;
 extern double CROPCYLINDER;
 extern std::vector<double> VOXELFILTER;
 extern std::pair<double, int> OUTLIERRADIUSFILTER;
 extern std::pair<double, int> OUTLIERSTATFILTER;
-extern bool PIE_FILTER;
 /**
  * @brief PointCloudCrafter class
  */
