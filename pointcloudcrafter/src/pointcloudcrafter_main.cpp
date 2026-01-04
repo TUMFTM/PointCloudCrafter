@@ -33,17 +33,17 @@ int main(int argc, char * argv[])
   app.add_option("bag-path", pointcloudcrafter::BAG_PATH,
                  "Path to ROS 2 bag")
     ->required()
-    ->group("Input");
-
-  app.add_option("topic-names", pointcloudcrafter::TOPICS,
-                 "PointCloud2 topic names")
-    ->required()
-    ->group("Input");
+    ->group("Required");
 
   app.add_option("out-dir", pointcloudcrafter::OUT_DIR,
                  "Output directory for .pcd files")
     ->required()
-    ->group("Output");
+    ->group("Required");
+
+  app.add_option("topic-names", pointcloudcrafter::TOPICS,
+                 "PointCloud2 topic names")
+    ->required()
+    ->group("Required");
 
   /* =========================
    * Output control
@@ -123,7 +123,7 @@ int main(int argc, char * argv[])
 
   app.footer(
     "\nExample:\n"
-    "  ros2 run pointcloudcrafter crafter bag.mcap /points_raw out/ \n"
+    "  ros2 run pointcloudcrafter crafter bag.mcap out/ /points_raw \n"
     "    --voxel-filter 0.1 0.1 0.1 --stride-frames 5\n");
 
   CLI11_PARSE(app, argc, argv);
