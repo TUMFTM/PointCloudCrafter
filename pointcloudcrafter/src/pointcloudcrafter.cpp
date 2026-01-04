@@ -206,11 +206,11 @@ void PointCloudCrafter::process_pointclouds(
     modifier.voxelFilter(VOXELFILTER);
   }
   // Outlier radius filtering
-  if (!OUTLIERRADIUSFILTER.first > 0.0) {
+  if (OUTLIERRADIUSFILTER.first > 0.0) {
     modifier.outlierRadiusFilter(OUTLIERRADIUSFILTER.first, OUTLIERRADIUSFILTER.second);
   }
   // Outlier statistical filtering
-  if (!OUTLIERSTATFILTER.first > 0.0) {
+  if (OUTLIERSTATFILTER.first > 0.0) {
     modifier.outlierStatFilter(OUTLIERSTATFILTER.first, OUTLIERSTATFILTER.second);
   }
 
