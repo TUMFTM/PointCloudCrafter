@@ -31,8 +31,8 @@
 #include <tf2_msgs/msg/detail/tf_message__struct.hpp>
 #include <tf2_msgs/msg/tf_message.hpp>
 #include <unordered_map>
-#include <vector>
 #include <utility>
+#include <vector>
 
 #include "pointcloudcrafter/rosbag_reader.hpp"
 

@@ -64,7 +64,10 @@ bool Modifyer::savePCD(const std::string & file_path)
   std::filesystem::path output_path = dir / ("mod_" + filename);
 
   pcl::PCDWriter writer;
-  if (writer.write(output_path.string(), output_cloud, Eigen::Vector4f::Zero(), Eigen::Quaternionf::Identity(), true) == -1) {
+  if (
+    writer.write(
+      output_path.string(), output_cloud, Eigen::Vector4f::Zero(), Eigen::Quaternionf::Identity(),
+      true) == -1) {
     std::cerr << "Failed to save PCD file: " << output_path.string() << std::endl;
     return false;
   }
