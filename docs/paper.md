@@ -15,7 +15,7 @@ authors:
 affiliations:
  - name: Institute of Automotive Technology, Department of Mobility System Engineering, School of Engineering and Design, Technical University of Munich, Germany
    index: 1
-date: 16.November 2024  
+date: 19.November 2025  
 bibliography: paper.bib
 
 # Optional fields if submitting to a AAS journal too, see this blog post:
@@ -37,20 +37,18 @@ A toolkit for extracting, manipulating, and evaluating point clouds and 3D spati
 PointClouCrafter comprises the following tools and functionalities:
 - ROS2 tools
   - pointcloudcrafter
-  This package provides two executables to handle `sensor_msgs::msg::PointCloud2` and `nav_msgs::msg::Odometry` within rosbags:
+  This package provides two executables to handle `sensor_msgs::msg::PointCloud2` within rosbags:
     1. Transform and/or concatenate single pointclouds based on their timestamp and extract them to `.pcd` files.
-    2. Transform odometry messages into another frame and write them to `.txt` files
-  - tum_pcd_modifyer
-  Pointclouds massieren
+  - tum_pcd_modifyer using PCL [@Rusu2011]
   - tum_rosbag_analyzer
   A package to process rosbags and analyze various values. Currently, the following modes are implemented:
     1. timestamps: Analyze the header timestamp and the individual points timestamps of pointcloud2 messages.
 
 # Citations
 
-Citations to entries in paper.bib should be in
+<!-- Citations to entries in paper.bib should be in
 [rMarkdown](http://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html)
-format.
+format. -->
 
 If you want to cite a software repository URL (e.g. something on GitHub without a preferred
 citation) then you can do it with the example BibTeX entry below for @fidgit.

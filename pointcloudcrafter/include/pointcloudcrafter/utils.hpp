@@ -20,12 +20,12 @@
 #include <Eigen/Eigen>
 #include <builtin_interfaces/msg/time.hpp>
 #include <fstream>
+#include <iostream>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <iostream>
 namespace pointcloudcrafter::tools::utils
 {
 constexpr std::uint64_t BILLION = 1000000000;
@@ -92,65 +92,6 @@ void transform_pointcloud2(
     *it_y_out = point_out.y();
     *it_z_out = point_out.z();
   }
-}
-/**
- * @brief extract timestamps from pointcloud message
- * @param [in]          sensor_msgs::msg::PointCloud2
- *                      input pointcloud message
- * @param [out]         std::vector<std::uint64_t>
- *                      timestamps
- */
-void set_timestamps(
-  sensor_msgs::msg::PointCloud2 & msg, const std::uint64_t header_stamp = 0,
-  const std::uint64_t offset = 0)
-{
-  // Get number of points
-  const size_t n_points = msg.height * msg.width;
-
-  // Search for timestamp field
-  sensor_msgs::msg::PointField timestamp_field;
-  for (const auto & field : msg.fields) {
-    if (field.name == "timestamp" || field.name == "time_stamp" || field.name == "t") {
-      timestamp_field = field;
-    }
-  }
-  if (timestamp_field.count) {
-    // Timestamps are doubles -> time in sec as offset to center time
-    if (timestamp_field.datatype == pcl::PCLPointField::FLOAT32) {  // type 7
-      sensor_msgs::PointCloud2ConstIterator<float> msg_t(msg, timestamp_field.name);
-      for (size_t i = 0; i < n_points; ++i, ++msg_t) {
-        // TODO(Maxi): Modify stamp in cloud based on header stamp + offset
-        // timestamps.emplace_back(static_cast<std::uint64_t>(*msg_t * BILLION));
-      }
-    } else if (timestamp_field.datatype == pcl::PCLPointField::FLOAT64) {  // type 8
-      sensor_msgs::PointCloud2ConstIterator<double> msg_t(msg, timestamp_field.name);
-      for (size_t i = 0; i < n_points; ++i, ++msg_t) {
-        // TODO(Maxi): Modify stamp in cloud based on header stamp + offset
-        // timestamps.emplace_back(static_cast<std::uint64_t>(*msg_t * BILLION));
-      }
-    } else if (timestamp_field.datatype == pcl::PCLPointField::UINT32) {  // type 6
-      sensor_msgs::PointCloud2ConstIterator<uint32_t> msg_t(msg, timestamp_field.name);
-      for (size_t i = 0; i < n_points; ++i, ++msg_t) {
-        // TODO(Maxi): Modify stamp in cloud based on header stamp + offset
-        // timestamps.emplace_back(static_cast<std::uint64_t>(*msg_t * BILLION));
-      }
-    } else if (timestamp_field.datatype == pcl::PCLPointField::UINT8) {  // type 2 - array of 8
-                                                                         // uint8
-      sensor_msgs::PointCloud2ConstIterator<uint8_t> msg_t(msg, timestamp_field.name);
-      for (size_t i = 0; i < n_points; ++i, ++msg_t) {
-        std::uint64_t stamp;
-        std::memcpy(&stamp, &*msg_t, sizeof(std::uint64_t));
-        // TODO(Maxi): Modify stamp in cloud based on header stamp + offset
-        // timestamps.emplace_back(stamp);
-      }
-    } else {
-      std::cout << "Time field of type != 2,6,7,8" << std::endl;
-      exit(EXIT_FAILURE);
-    }
-  } else {
-    std::cerr << "Warning: No timestamp field found in pointcloud message" << std::endl;
-  }
-  return;
 }
 std::unordered_map<std::string, Eigen::Affine3d> load_transforms_from_file(
   const std::string & filename)

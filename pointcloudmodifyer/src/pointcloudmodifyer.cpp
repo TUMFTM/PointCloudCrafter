@@ -58,27 +58,21 @@ bool Modifyer::loadPCD(const std::string & file_path)
 }
 bool Modifyer::savePCD(const std::string & file_path)
 {
-  std::string path = file_path.substr(0, file_path.find_last_of("\\/")) + "/mod_" +
-                     file_path.substr(file_path.find_last_of("/\\") + 1);
+  std::filesystem::path p(file_path);
+  std::filesystem::path dir = p.parent_path();
+  std::string filename = p.filename().string();
+  std::filesystem::path output_path = dir / ("mod_" + filename);
 
-  if (pcl::io::savePCDFile(path, *output_cloud) == -1) {
-    std::cerr << "Failed to save PCD file: " << path << std::endl;
+  pcl::PCDWriter writer;
+  if (
+    writer.write(
+      output_path.string(), output_cloud, Eigen::Vector4f::Zero(), Eigen::Quaternionf::Identity(),
+      true) == -1) {
+    std::cerr << "Failed to save PCD file: " << output_path.string() << std::endl;
     return false;
   }
 
-  std::cout << "PCD file saved to: " << path << std::endl;
-  return true;
-}
-bool Modifyer::savePCD()
-{
-  std::string path = "output.pcd";
-
-  if (pcl::io::savePCDFile(path, *output_cloud) == -1) {
-    std::cerr << "Failed to save PCD file: " << path << std::endl;
-    return false;
-  }
-
-  std::cout << "PCD file saved to: " << path << std::endl;
+  std::cout << "PCD file saved to: " << output_path.string() << std::endl;
   return true;
 }
 void Modifyer::visualize()
@@ -93,6 +87,7 @@ void Modifyer::visualize()
   pcl::visualization::PCLVisualizer viewer("PCD Viewer");
 
   // Add input cloud with white color
+
   pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> input_color(
     input_xyz, 255, 255, 255);
   viewer.addPointCloud(input_xyz, input_color, "input_cloud");
@@ -150,7 +145,7 @@ Modifyer & Modifyer::cropSphere(const double & sphere_params)
 
   return *this;
 }
-Modifyer & Modifyer::cropZylinder(const double & zylinder_params)
+Modifyer & Modifyer::cropCylinder(const double & zylinder_params)
 {
   pcl::PointCloud<pcl::PointXYZ>::Ptr tmp(new pcl::PointCloud<pcl::PointXYZ>);
   pcl::fromPCLPointCloud2(*output_cloud, *tmp);

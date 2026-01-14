@@ -13,11 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.10)
 project(pointcloudcrafter)
 
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
+if(POLICY CMP0074)
+  cmake_policy(SET CMP0074 NEW)
+endif()
+
+# Set C++ standard
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Release")
 endif()
 
 find_package(ament_cmake REQUIRED)
@@ -25,61 +32,61 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rosbag2_cpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
-find_package(pcl_ros REQUIRED)
 find_package(pcl_conversions REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(PCL REQUIRED)
+find_package(fmt REQUIRED)
 
 include_directories(SYSTEM
   ${PCL_INCLUDE_DIRS}
 )
 
+# Subdirectory for cpp library
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../pointcloudmodifyer/)
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../pointcloudmodifyer ${CMAKE_CURRENT_BINARY_DIR}/pointcloudcrafter)
+else()
+  message(FATAL_ERROR "pointcloudmodifyer directory not found by cmake")
+endif()
+
+
 # Library
-add_library(pointcloudcrafter_lib SHARED
+add_library(${PROJECT_NAME} SHARED
   src/pointcloudcrafter.cpp)
 
-target_include_directories(pointcloudcrafter_lib
+target_include_directories(${PROJECT_NAME}
   PUBLIC 
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
-target_compile_features(pointcloudcrafter_lib PRIVATE cxx_std_20)
-ament_target_dependencies(pointcloudcrafter_lib PUBLIC
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
+ament_target_dependencies(${PROJECT_NAME} PUBLIC
   rclcpp
   rosbag2_cpp
   sensor_msgs
   pcl_conversions
   tf2_ros)
 
-target_link_libraries(pointcloudcrafter_lib PRIVATE
-  ${PCL_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PUBLIC
+  ${PCL_LIBRARIES}
+  fmt::fmt
+  pointcloudmodifyer)
 
-install(
-  TARGETS pointcloudcrafter_lib
-  EXPORT export_pointcloudcrafter_lib
-  DESTINATION lib/pointcloudcrafter_lib
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib
-  RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
+# Installation rules
+install(TARGETS ${PROJECT_NAME}
+    LIBRARY DESTINATION lib
+    PUBLIC_HEADER DESTINATION include
 )
 
-ament_export_targets(export_pointcloudcrafter_lib HAS_LIBRARY_TARGET)
-ament_export_dependencies(
-  rclcpp
-  rosbag2_cpp
-  sensor_msgs
-  pcl_conversions
-  tf2_ros)
 
 # Executable
-add_executable(pointcloudcrafter
+add_executable(crafter
   src/pointcloudcrafter_main.cpp)
 
-target_link_libraries(pointcloudcrafter
-  pointcloudcrafter_lib)
+target_link_libraries(crafter
+  ${PROJECT_NAME})
 
-target_compile_features(pointcloudcrafter PRIVATE cxx_std_20)
+target_compile_features(crafter PRIVATE cxx_std_20)
 
-install(TARGETS pointcloudcrafter RUNTIME DESTINATION lib/${PROJECT_NAME})
+install(TARGETS crafter
+  RUNTIME DESTINATION lib/${PROJECT_NAME})
 
 ament_package()

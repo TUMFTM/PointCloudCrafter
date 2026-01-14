@@ -19,10 +19,11 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
     make \
     apt-utils \
     libpcl-dev \
+    libfmt-dev \
     ros-${ROS_DISTRO}-pcl-conversions \
     ros-${ROS_DISTRO}-rviz2 \
     ros-${ROS_DISTRO}-rosbag2-cpp \
-    ros-$ROS_DISTRO-rosbag2-storage-mcap \
+    ros-${ROS_DISTRO}-rosbag2-storage-mcap \
     && rm -rf /var/lib/apt/lists/*
 
 # GeographicLib
@@ -41,7 +42,6 @@ WORKDIR /ros_ws
 
 COPY . /ros_ws/src/PointCloudCrafter
 
-# Install flexcloud
 RUN /bin/bash -c '. /opt/ros/$ROS_DISTRO/setup.bash && \
     colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release'
 

@@ -19,6 +19,7 @@
 
 #include <Eigen/src/Core/Matrix.h>
 #include <Eigen/src/Core/util/Constants.h>
+#include <fmt/core.h>
 #include <message_filters/subscriber.h>
 #include <message_filters/time_synchronizer.h>
 #include <pcl/PCLPointCloud2.h>
@@ -32,6 +33,7 @@
 #include <tf2_ros/buffer.h>
 
 #include <Eigen/Eigen>
+#include <filesystem>  // NOLINT
 #include <functional>
 #include <limits>
 #include <memory>
@@ -43,26 +45,30 @@
 #include <sensor_msgs/point_cloud2_iterator.hpp>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "pointcloudcrafter/utils.hpp"
+#include "pointcloudmodifyer.hpp"
 namespace pointcloudcrafter
 {
 // global variables that will be populated by CLI arguments
 std::string BAG_PATH;  // NOLINT
 std::vector<std::string> TOPICS;
-std::string OUT_DIR;                // NOLINT
-std::string TARGET_FRAME = "";      // NOLINT
-std::string SENSOR_NUMBER_FIELD{};  // NOLINT
-std::string TRANSFORM_FILE{};       // NOLINT
+std::string OUT_DIR;            // NOLINT
+std::string TARGET_FRAME = "";  // NOLINT
+std::string TRANSFORM_FILE{};   // NOLINT
 int64_t MAX_FRAMES = -1;
 int64_t SKIP_FRAMES = 0;
 int64_t STRIDE_FRAMES = 1;
 bool SEQUENTIAL_NAMES = false;
-bool BAG_TIME = false;
-bool RELATIVE_TIME = false;
-std::vector<float> GEOMETRIC_FILTERING{};
-bool PIE_FILTER = false;
+std::vector<double> CROPBOX{};
+double CROPSPHERE{0.0};
+double CROPCYLINDER{0.0};
+std::vector<double> VOXELFILTER{};
+std::pair<double, int> OUTLIERRADIUSFILTER{};
+std::pair<double, int> OUTLIERSTATFILTER{};
+bool TIMESTAMPS = false;
 /**
  * @brief PointCloudCrafter class
  */
@@ -80,7 +86,7 @@ PointCloudCrafter::PointCloudCrafter()
   for (size_t i = 0; i < 4; i++) {
     std::string topic = (i < num_sensors_) ? TOPICS[i] : TOPICS[0];
     subscribers_.push_back(
-      std::make_unique<tools::MsgFilter<sensor_msgs::msg::PointCloud2>>(topic, reader_, BAG_TIME));
+      std::make_unique<tools::MsgFilter<sensor_msgs::msg::PointCloud2>>(topic, reader_));
   }
   // Initialize synchronizer for pointclouds
   synchronizer_ = std::make_unique<message_filters::Synchronizer<ApproxTimeSyncPolicy>>(
@@ -99,6 +105,14 @@ PointCloudCrafter::PointCloudCrafter()
   // Load transforms from file
   if (!TRANSFORM_FILE.empty()) {
     this->file_transforms_ = tools::utils::load_transforms_from_file(TRANSFORM_FILE);
+  }
+
+  // Init out directory
+  if (OUT_DIR.empty()) {
+    throw std::runtime_error("Output directory not specified");
+  }
+  if (!std::filesystem::exists(OUT_DIR)) {
+    std::filesystem::create_directories(OUT_DIR);
   }
 }
 void PointCloudCrafter::run() { reader_.process(); }
@@ -158,29 +172,6 @@ void PointCloudCrafter::process_pointclouds(
     sensor_msgs::msg::PointCloud2 msg_transformed;
     transform_pc(msg, msg_transformed);
 
-    // adjust time information to have correct offset to base time
-    uint64_t time_offset = tools::utils::timestamp_from_ros(msg.header.stamp) - base_time;
-    try {
-      if (RELATIVE_TIME) {
-        // Point timestamps are relative to the header timestamp of each message
-        tools::utils::set_timestamps(
-          msg_transformed, tools::utils::timestamp_from_ros(msg.header.stamp), time_offset);
-      } else {
-        // Point timestamps are absolute timestamps
-        tools::utils::set_timestamps(msg_transformed, 0, time_offset);
-      }
-    } catch (std::runtime_error &) {
-      // do nothing if cloud has no field t
-    }
-
-    // write the sensor number if specified
-    if (!SENSOR_NUMBER_FIELD.empty()) {
-      for (sensor_msgs::PointCloud2Iterator<float> it(msg_transformed, SENSOR_NUMBER_FIELD);
-           it != it.end(); ++it) {
-        *it = tools::utils::COLORS[i % 4];
-      }
-    }
-
     // Convert the pointcloud to PCL format and concatenate
     pcl::PCLPointCloud2 pc;
     pcl_conversions::toPCL(msg_transformed, pc);
@@ -194,7 +185,47 @@ void PointCloudCrafter::process_pointclouds(
   }
 
   // Modify the merged pointcloud with pointcloudmodifier
-  // TODO(Maxi): Call pointcloudmodifier here
+  // Pointcloud modifyer
+  pointcloudmodifyer::Modifyer modifier;
+  modifier.setCloud(merged_pc);
+  // Apply filters
+  // Cropbox filtering
+  if (!CROPBOX.empty()) {
+    modifier.cropBox(CROPBOX);
+  }
+  // Sphere filtering
+  if (CROPSPHERE > 0.0) {
+    modifier.cropSphere(CROPSPHERE);
+  }
+  // Cylinder filtering
+  if (CROPCYLINDER > 0.0) {
+    modifier.cropCylinder(CROPCYLINDER);
+  }
+  // Voxelization
+  if (!VOXELFILTER.empty()) {
+    modifier.voxelFilter(VOXELFILTER);
+  }
+  // Outlier radius filtering
+  if (OUTLIERRADIUSFILTER.first > 0.0) {
+    modifier.outlierRadiusFilter(OUTLIERRADIUSFILTER.first, OUTLIERRADIUSFILTER.second);
+  }
+  // Outlier statistical filtering
+  if (OUTLIERSTATFILTER.first > 0.0) {
+    modifier.outlierStatFilter(OUTLIERSTATFILTER.first, OUTLIERSTATFILTER.second);
+  }
+
+  // Save output cloud
+  auto ts = tools::utils::timestamp_to_ros(base_time);
+  std::string name = fmt::format("{}_{:09}", ts.sec, ts.nanosec);
+  if (!modifier.savePCD(OUT_DIR + "/" + name + ".pcd")) {
+    RCLCPP_ERROR(logger_, "Failed to save pointcloud to %s", name.c_str());
+    return;
+  }
+
+  // Save timestamps if enabled
+  if (TIMESTAMPS) {
+    modifier.timestampAnalyzer(OUT_DIR + "/" + name + "_stamps.txt");
+  }
 }
 void PointCloudCrafter::transform_pc(
   const sensor_msgs::msg::PointCloud2 & msg_in, sensor_msgs::msg::PointCloud2 & msg_out)

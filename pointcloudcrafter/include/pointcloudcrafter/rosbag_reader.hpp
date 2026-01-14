@@ -177,23 +177,15 @@ private:
  * @tparam T - ROS message type
  * @param topic_name - name of the topic
  * @param reader - rosbag reader
- * @param BAG_TIME - flag to use bag timestamps instead of header
  */
 template <typename T>
 class MsgFilter : public message_filters::SimpleFilter<T>
 {
 public:
-  MsgFilter(const std::string & topic_name, RosbagReader & reader, bool BAG_TIME = false)
+  MsgFilter(const std::string & topic_name, RosbagReader & reader)
   {
-    reader.add_listener<T>(topic_name, [this, BAG_TIME](const RosbagReaderMsg<T> & msg) {
+    reader.add_listener<T>(topic_name, [this](const RosbagReaderMsg<T> & msg) {
       auto msg_ptr = std::make_shared<T>(msg.ros_msg);
-
-      // Overwrite the header timestamp with the bag timestamp
-      if (BAG_TIME) {
-        msg_ptr->header.stamp.sec = static_cast<int>(msg.bag_msg.time_stamp / 1000000000);
-        msg_ptr->header.stamp.nanosec = msg.bag_msg.time_stamp % 1000000000;
-      }
-
       this->signalMessage(msg_ptr);
     });
   }

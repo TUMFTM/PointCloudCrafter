@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 2024 Markus Pielmeier, Florian Sauerbeck,
+ * Copyright 2024 Markus Pielmeier, Florian Sauerbeck,
  * Dominik Kulmer, Maximilian Leitenstern
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,57 +19,126 @@
 
 #include "CLI11.hpp"
 #include "pointcloudcrafter/pointcloudcrafter.hpp"
-
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
 
   CLI::App app{"rosbag_to_pcd"};
-  app.option_defaults()->always_capture_default();
+  app.name("ros2 run pointcloudcrafter crafter");
 
-  app.add_option("bag-path", pointcloudcrafter::BAG_PATH, "Path to ROS2 Bag")->required();
+  /* =========================
+   * Positional arguments
+   * ========================= */
+  app.add_option("bag-path", pointcloudcrafter::BAG_PATH, "Path to ROS 2 bag")
+    ->required()
+    ->group("Required");
+
   app.add_option("out-dir", pointcloudcrafter::OUT_DIR, "Output directory for .pcd files")
-    ->required();
+    ->required()
+    ->group("Required");
+
+  app.add_option("topic-names", pointcloudcrafter::TOPICS, "PointCloud2 topic names")
+    ->required()
+    ->group("Required");
+
+  /* =========================
+   * Output control
+   * ========================= */
+  app
+    .add_flag(
+      "--sequential-name", pointcloudcrafter::SEQUENTIAL_NAMES,
+      "Use sequential file names instead of timestamps")
+    ->group("Output");
+
+  app
+    .add_flag(
+      "--timestamps", pointcloudcrafter::TIMESTAMPS, "Save point cloud timestamps to a text file")
+    ->group("Output");
+
+  /* =========================
+   * Frame selection
+   * ========================= */
   app
     .add_option(
-      "topic-names", pointcloudcrafter::TOPICS, "Name of ROS topic of type PointCloud2")
-    ->required();
+      "-m,--max-frames", pointcloudcrafter::MAX_FRAMES,
+      "Maximum number of frames to extract (-1 = unlimited)")
+    ->group("General");
 
-  app.add_option(
-    "--target-frame, -t", pointcloudcrafter::TARGET_FRAME,
-    "Target TF2 frame which all pointclouds are transformed to.");
-  app.add_option(
-    "--max-frames, -m", pointcloudcrafter::MAX_FRAMES,
-    "Maximum number of frames to extract. Use -1 for no limit");
-  app.add_option(
-    "--skip-frames, -j", pointcloudcrafter::SKIP_FRAMES,
-    "Number of frames to skip at the beginning");
-  app.add_option(
-    "--stride-frames, -s", pointcloudcrafter::STRIDE_FRAMES, "Write every Nth frame to file");
-  app.add_option(
-    "--sensor-number-field, -f", pointcloudcrafter::SENSOR_NUMBER_FIELD,
-    "Field name to write the sensor number to. Leave empty to skip");
-  app.add_option(
-    "--transform-file, --tf", pointcloudcrafter::TRANSFORM_FILE,
-    "Path to yaml file with extra transforms");
-  app.add_option(
-    "--geometric-filtering, --gf", pointcloudcrafter::GEOMETRIC_FILTERING,
-    "Remove rectangular box around orgin [x_min y_min z_min x_max y_max z_max]");
-  app.add_flag(
-    "--sequential-name", pointcloudcrafter::SEQUENTIAL_NAMES,
-    "Name files sequentially instead of based on their timestamp");
-  app.add_flag(
-    "--bag-time, -b", pointcloudcrafter::BAG_TIME, "Use bag timestamps instead of header");
-  app.add_flag(
-    "--relative-time, -r", pointcloudcrafter::RELATIVE_TIME,
-    "Use relative time to header instead of absolute point timestamps");
-  app.add_flag(
-    "--pie-filter, --pf", pointcloudcrafter::PIE_FILTER,
-    "Do circle segment filtering to cut out chase vehicle");
+  app
+    .add_option(
+      "-j,--skip-frames", pointcloudcrafter::SKIP_FRAMES,
+      "Number of frames to skip at the beginning")
+    ->group("General");
+
+  app.add_option("-s,--stride-frames", pointcloudcrafter::STRIDE_FRAMES, "Write every Nth frame")
+    ->group("General");
+
+  /* =========================
+   * Transform options
+   * ========================= */
+  app
+    .add_option(
+      "-t,--target-frame", pointcloudcrafter::TARGET_FRAME, "Target TF frame for all point clouds")
+    ->group("Transforms");
+
+  app
+    .add_option(
+      "--transform-file,--tf", pointcloudcrafter::TRANSFORM_FILE,
+      "YAML file with additional transforms")
+    ->group("Transforms");
+
+  /* =========================
+   * Filtering
+   * ========================= */
+  app
+    .add_option(
+      "--crop-box,--cb", pointcloudcrafter::CROPBOX, "Crop box [xmin ymin zmin xmax ymax zmax]")
+    ->expected(6)
+    ->type_name("FLOAT FLOAT FLOAT FLOAT FLOAT FLOAT")
+    ->group("Filtering");
+
+  app
+    .add_option(
+      "--crop-sphere,--cs", pointcloudcrafter::CROPSPHERE, "Crop to sphere with given radius")
+    ->type_name("FLOAT")
+    ->group("Filtering");
+
+  app
+    .add_option(
+      "--crop-cylinder,--cc", pointcloudcrafter::CROPCYLINDER, "Crop to cylinder with given radius")
+    ->type_name("FLOAT")
+    ->group("Filtering");
+
+  app.add_option("--voxel-filter,--vf", pointcloudcrafter::VOXELFILTER, "Voxel size [x y z]")
+    ->expected(3)
+    ->type_name("FLOAT FLOAT FLOAT")
+    ->group("Filtering");
+
+  app
+    .add_option(
+      "--outlier-radius-filter,--orf", pointcloudcrafter::OUTLIERRADIUSFILTER,
+      "Radius outlier removal [radius min_neighbors]")
+    ->expected(2)
+    ->type_name("FLOAT INT")
+    ->group("Filtering");
+
+  app
+    .add_option(
+      "--outlier-stat-filter,--osf", pointcloudcrafter::OUTLIERSTATFILTER,
+      "Statistical outlier removal [threshold mean_k]")
+    ->expected(2)
+    ->type_name("FLOAT INT")
+    ->group("Filtering");
+
+  app.footer(
+    "\nExample:\n"
+    "  ros2 run pointcloudcrafter crafter bag.mcap out/ /points_raw \n"
+    "    --voxel-filter 0.1 0.1 0.1 --stride-frames 5\n");
 
   CLI11_PARSE(app, argc, argv);
 
   pointcloudcrafter::PointCloudCrafter().run();
+
   rclcpp::shutdown();
   return 0;
 }

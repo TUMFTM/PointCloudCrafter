@@ -12,7 +12,6 @@
   <depend>nav_msgs</depend>
   <depend>sensor_msgs</depend>
   <depend>gps_msgs</depend>
-  <depend>pcl_ros</depend>
   <depend>pcl_conversions</depend>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
