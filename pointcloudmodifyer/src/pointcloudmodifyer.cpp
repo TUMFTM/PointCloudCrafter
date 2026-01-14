@@ -58,15 +58,21 @@ bool Modifyer::loadPCD(const std::string & file_path)
 }
 bool Modifyer::savePCD(const std::string & file_path)
 {
-  std::string path = file_path.substr(0, file_path.find_last_of("\\/")) + "/mod_" +
-                     file_path.substr(file_path.find_last_of("/\\") + 1);
+  std::filesystem::path p(file_path);
+  std::filesystem::path dir = p.parent_path();
+  std::string filename = p.filename().string();
+  std::filesystem::path output_path = dir / ("mod_" + filename);
 
-  if (pcl::io::savePCDFile(path, *output_cloud) == -1) {
-    std::cerr << "Failed to save PCD file: " << path << std::endl;
+  pcl::PCDWriter writer;
+  if (
+    writer.write(
+      output_path.string(), output_cloud, Eigen::Vector4f::Zero(), Eigen::Quaternionf::Identity(),
+      true) == -1) {
+    std::cerr << "Failed to save PCD file: " << output_path.string() << std::endl;
     return false;
   }
 
-  std::cout << "PCD file saved to: " << path << std::endl;
+  std::cout << "PCD file saved to: " << output_path.string() << std::endl;
   return true;
 }
 void Modifyer::visualize()

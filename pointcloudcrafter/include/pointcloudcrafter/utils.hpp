@@ -20,12 +20,12 @@
 #include <Eigen/Eigen>
 #include <builtin_interfaces/msg/time.hpp>
 #include <fstream>
+#include <iostream>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <iostream>
 namespace pointcloudcrafter::tools::utils
 {
 constexpr std::uint64_t BILLION = 1000000000;
