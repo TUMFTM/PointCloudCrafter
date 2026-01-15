@@ -115,7 +115,6 @@ PointCloudCrafter::PointCloudCrafter()
     std::filesystem::create_directories(OUT_DIR);
   }
 }
-void PointCloudCrafter::run() { reader_.process(); }
 void PointCloudCrafter::tf_callback(const tools::RosbagReaderMsg<tf2_msgs::msg::TFMessage> & msg)
 {
   for (auto & tf : msg.ros_msg.transforms) {
