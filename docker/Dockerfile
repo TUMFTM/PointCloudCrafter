@@ -26,18 +26,6 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
     ros-${ROS_DISTRO}-rosbag2-storage-mcap \
     && rm -rf /var/lib/apt/lists/*
 
-# GeographicLib
-RUN bash -c "wget https://github.com/geographiclib/geographiclib/archive/refs/tags/v2.3.tar.gz && \
-    tar xfpz v2.3.tar.gz && \
-    mkdir -p geographiclib-2.3/BUILD &&\
-    cd geographiclib-2.3/BUILD && cmake .. && make && make install && rm -rf /dev_ws/geographiclib-2.3"
-
-# Remove the zip file after download
-RUN rm v2.3.tar.gz
-
-# Get geoid dataset from GeographicLib
-RUN geographiclib-get-geoids good
-
 WORKDIR /ros_ws
 
 COPY . /ros_ws/src/PointCloudCrafter

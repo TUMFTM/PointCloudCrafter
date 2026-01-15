@@ -84,7 +84,7 @@ int main(int argc, char * argv[])
   app
     .add_option(
       "--transform-file,--tf", pointcloudcrafter::TRANSFORM_FILE,
-      "YAML file with additional transforms")
+      "TXT file with additional transforms (frame_id r1 r2 r3 x r4 r5 r6 y r7 r8 r9 z)")
     ->group("Transforms");
 
   /* =========================

@@ -93,6 +93,11 @@ void transform_pointcloud2(
     *it_z_out = point_out.z();
   }
 }
+/**
+ * @brief Load transforms from a text file
+ * @param filename - name of the file
+ * @return map of transforms
+ */
 std::unordered_map<std::string, Eigen::Affine3d> load_transforms_from_file(
   const std::string & filename)
 {

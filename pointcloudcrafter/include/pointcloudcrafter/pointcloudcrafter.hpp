@@ -65,20 +65,45 @@ extern bool TIMESTAMPS;
 class PointCloudCrafter
 {
 public:
+  /**
+   * @brief Constructor
+   */
   PointCloudCrafter();
-  void run();
+  /**
+   * @brief Run the pointcloud crafter
+   */
+  void run() { reader_.process(); }
 
 protected:
+  /**
+   * @brief Callback for TF messages
+   * @param msg - TF message
+   */
   void tf_callback(const tools::RosbagReaderMsg<tf2_msgs::msg::TFMessage> & msg);
-
+  /**
+   * @brief Callback for synchronized pointclouds
+   * @param pc1 - first pointcloud
+   * @param pc2 - second pointcloud
+   * @param pc3 - third pointcloud
+   * @param pc4 - fourth pointcloud
+   */
   void pointcloud_sync_callback(
     const sensor_msgs::msg::PointCloud2::ConstSharedPtr & pc1,
     const sensor_msgs::msg::PointCloud2::ConstSharedPtr & pc2,
     const sensor_msgs::msg::PointCloud2::ConstSharedPtr & pc3,
     const sensor_msgs::msg::PointCloud2::ConstSharedPtr & pc4);
-
+  /**
+   * @brief Process the pointclouds once all pointclouds are synchronized
+   * @brief -> to be called after all pointclouds are synchronized
+   * @brief -> apply filters and save the pointcloud
+   * @param pc_msgs - vector of pointclouds
+   */
   void process_pointclouds(std::vector<sensor_msgs::msg::PointCloud2::ConstSharedPtr> & pc_msgs);
-
+  /**
+   * @brief Transform a pointcloud given the transform from either the file or the TF buffer
+   * @param msg_in - input pointcloud
+   * @param msg_out - output pointcloud
+   */
   void transform_pc(
     const sensor_msgs::msg::PointCloud2 & msg_in, sensor_msgs::msg::PointCloud2 & msg_out);
 
@@ -94,9 +119,8 @@ private:
   // Synchronizer for pointclouds
   std::unique_ptr<message_filters::Synchronizer<ApproxTimeSyncPolicy>> synchronizer_;
   message_filters::Connection sync_connection_{};
-
   // Map to store transforms given by file
-  std::unordered_map<std::string, Eigen::Affine3d> file_transforms_;
+  std::unordered_map<std::string, Eigen::Affine3d> file_transforms_{};
 
   // Storage
   size_t num_sensors_{};

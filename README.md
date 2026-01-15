@@ -58,7 +58,7 @@ General:
 
 Transforms:
   -t,--target-frame TEXT      Target TF frame for all point clouds
-  --transform-file,--tf TEXT  YAML file with additional transforms
+  --transform-file,--tf TEXT  TXT file with additional transforms (frame_id r1 r2 r3 x r4 r5 r6 y r7 r8 r9 z)
 
 
 Filtering:
