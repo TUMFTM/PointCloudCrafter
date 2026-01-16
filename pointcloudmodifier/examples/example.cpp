@@ -18,7 +18,7 @@
 #include <iostream>
 #include <string>
 
-#include "pointcloudmodifyer.hpp"
+#include "pointcloudmodifier.hpp"
 int main(int argc, char * argv[])
 {
   if (argc < 2) {
@@ -27,7 +27,7 @@ int main(int argc, char * argv[])
   }
 
   std::string input_file = argv[1];
-  pointcloudmodifyer::Modifyer modifier;
+  pointcloudmodifier::Modifier modifier;
 
   // Load the PCD file
   if (!modifier.loadPCD(input_file)) {

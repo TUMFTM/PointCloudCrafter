@@ -14,7 +14,7 @@
 # limitations under the License.
 
 cmake_minimum_required(VERSION 3.10)
-project(pointcloudcrafter)
+project(pointcloudcrafter VERSION 1.0.0)
 
 if(POLICY CMP0074)
   cmake_policy(SET CMP0074 NEW)
@@ -37,15 +37,11 @@ find_package(tf2_ros REQUIRED)
 find_package(PCL REQUIRED)
 find_package(fmt REQUIRED)
 
-include_directories(SYSTEM
-  ${PCL_INCLUDE_DIRS}
-)
-
 # Subdirectory for cpp library
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../pointcloudmodifyer/)
-  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../pointcloudmodifyer ${CMAKE_CURRENT_BINARY_DIR}/pointcloudcrafter)
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../pointcloudmodifier/)
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../pointcloudmodifier ${CMAKE_CURRENT_BINARY_DIR}/pointcloudcrafter)
 else()
-  message(FATAL_ERROR "pointcloudmodifyer directory not found by cmake")
+  message(FATAL_ERROR "pointcloudmodifier directory not found by cmake")
 endif()
 
 
@@ -56,7 +52,9 @@ add_library(${PROJECT_NAME} SHARED
 target_include_directories(${PROJECT_NAME}
   PUBLIC 
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>)
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../utils>
+    $<INSTALL_INTERFACE:include>
+    ${PCL_INCLUDE_DIRS})
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
 ament_target_dependencies(${PROJECT_NAME} PUBLIC
   rclcpp
@@ -68,7 +66,7 @@ ament_target_dependencies(${PROJECT_NAME} PUBLIC
 target_link_libraries(${PROJECT_NAME} PUBLIC
   ${PCL_LIBRARIES}
   fmt::fmt
-  pointcloudmodifyer)
+  pointcloudmodifier)
 
 # Installation rules
 install(TARGETS ${PROJECT_NAME}

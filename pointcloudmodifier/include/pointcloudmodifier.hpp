@@ -29,26 +29,26 @@
 #include <pcl/point_types.h>
 
 using PointCloud = pcl::PCLPointCloud2;
-namespace pointcloudmodifyer
+namespace pointcloudmodifier
 {
-class Modifyer
+class Modifier
 {
 public:
-  Modifyer();
-  ~Modifyer();
+  Modifier();
+  ~Modifier();
 
   // Loading/saving functions
   bool loadPCD(const std::string & file_path);
   bool savePCD(const std::string & file_path);
 
   // Filter functions - all return reference to allow chaining
-  Modifyer & cropBox(const std::vector<double> & box_params);
-  Modifyer & cropSphere(const double & sphere_params);
-  Modifyer & cropCylinder(const double & zylinder_params);
-  Modifyer & voxelFilter(const std::vector<double> & voxel);
-  Modifyer & outlierRadiusFilter(const double & radius, const int & min_neighbors);
-  Modifyer & outlierStatFilter(const double & threshold, const int & mean);
-  Modifyer & timestampAnalyzer(const std::string & file_path);
+  Modifier & cropBox(const std::vector<double> & box_params);
+  Modifier & cropSphere(const double & sphere_params);
+  Modifier & cropCylinder(const double & zylinder_params);
+  Modifier & voxelFilter(const std::vector<double> & voxel);
+  Modifier & outlierRadiusFilter(const double & radius, const int & min_neighbors);
+  Modifier & outlierStatFilter(const double & threshold, const int & mean);
+  Modifier & timestampAnalyzer(const std::string & file_path);
 
   // Visualization
   void visualize();
@@ -75,4 +75,4 @@ private:
   template <typename T>
   bool saveTimestamps(const std::vector<T> & timestamps, const std::string & output_path);
 };
-}  // namespace pointcloudmodifyer
+}  // namespace pointcloudmodifier

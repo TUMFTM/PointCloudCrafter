@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "pointcloudmodifyer.hpp"
+#include "pointcloudmodifier.hpp"
 
 #include <math.h>
 
@@ -39,14 +39,14 @@
 #include <pcl/visualization/pcl_visualizer.h>
 
 using PointCloud = pcl::PCLPointCloud2;
-namespace pointcloudmodifyer
+namespace pointcloudmodifier
 {
-Modifyer::Modifyer()
+Modifier::Modifier()
 : input_cloud(new pcl::PCLPointCloud2()), output_cloud(new pcl::PCLPointCloud2())
 {
 }
-Modifyer::~Modifyer() = default;
-bool Modifyer::loadPCD(const std::string & file_path)
+Modifier::~Modifier() = default;
+bool Modifier::loadPCD(const std::string & file_path)
 {
   pcl::PCDReader reader;
   reader.read(file_path, *input_cloud);
@@ -56,7 +56,7 @@ bool Modifyer::loadPCD(const std::string & file_path)
             << std::endl;
   return true;
 }
-bool Modifyer::savePCD(const std::string & file_path)
+bool Modifier::savePCD(const std::string & file_path)
 {
   std::filesystem::path p(file_path);
   std::filesystem::path dir = p.parent_path();
@@ -75,7 +75,7 @@ bool Modifyer::savePCD(const std::string & file_path)
   std::cout << "PCD file saved to: " << output_path.string() << std::endl;
   return true;
 }
-void Modifyer::visualize()
+void Modifier::visualize()
 {
   // Convert to PointXYZ for visualization
   pcl::PointCloud<pcl::PointXYZ>::Ptr input_xyz(new pcl::PointCloud<pcl::PointXYZ>());
@@ -110,7 +110,7 @@ void Modifyer::visualize()
   // Spin until window is closed
   viewer.spin();
 }
-Modifyer & Modifyer::cropBox(const std::vector<double> & box_params)
+Modifier & Modifier::cropBox(const std::vector<double> & box_params)
 {
   if (box_params.size() < 6) {
     std::cerr << "Error: cropBox requires 6 parameters (min_x, min_y, min_z, max_x, max_y, max_z)"
@@ -125,7 +125,7 @@ Modifyer & Modifyer::cropBox(const std::vector<double> & box_params)
   boxFilter.filter(*output_cloud);
   return *this;
 }
-Modifyer & Modifyer::cropSphere(const double & sphere_params)
+Modifier & Modifier::cropSphere(const double & sphere_params)
 {
   pcl::PointCloud<pcl::PointXYZ>::Ptr tmp(new pcl::PointCloud<pcl::PointXYZ>);
   pcl::fromPCLPointCloud2(*output_cloud, *tmp);
@@ -145,7 +145,7 @@ Modifyer & Modifyer::cropSphere(const double & sphere_params)
 
   return *this;
 }
-Modifyer & Modifyer::cropCylinder(const double & zylinder_params)
+Modifier & Modifier::cropCylinder(const double & zylinder_params)
 {
   pcl::PointCloud<pcl::PointXYZ>::Ptr tmp(new pcl::PointCloud<pcl::PointXYZ>);
   pcl::fromPCLPointCloud2(*output_cloud, *tmp);
@@ -167,7 +167,7 @@ Modifyer & Modifyer::cropCylinder(const double & zylinder_params)
 
   return *this;
 }
-Modifyer & Modifyer::voxelFilter(const std::vector<double> & voxel)
+Modifier & Modifier::voxelFilter(const std::vector<double> & voxel)
 {
   if (voxel.size() < 3) {
     std::cerr << "Error: Voxel filter requires 3 parameters (voxel_x, voxel_y, voxel_z)"
@@ -197,14 +197,14 @@ Modifyer & Modifyer::voxelFilter(const std::vector<double> & voxel)
 
   return *this;
 }
-void Modifyer::applyVoxelFilter(const std::vector<double> & voxel, PointCloud::Ptr & cloud)
+void Modifier::applyVoxelFilter(const std::vector<double> & voxel, PointCloud::Ptr & cloud)
 {
   pcl::VoxelGrid<PointCloud> voxelFilter;
   voxelFilter.setLeafSize(voxel[0], voxel[1], voxel[2]);
   voxelFilter.setInputCloud(cloud);
   voxelFilter.filter(*cloud);
 }
-void Modifyer::applySubVoxelFilter(
+void Modifier::applySubVoxelFilter(
   const std::vector<double> & voxel, PointCloud::Ptr & cloud, const pcl::PointXYZ & min_pt,
   const pcl::PointXYZ & max_pt, const uint64_t num_x, const uint64_t num_y, const uint64_t num_z)
 {
@@ -244,7 +244,7 @@ void Modifyer::applySubVoxelFilter(
   std::cout << std::endl;
   *output_cloud = *apc;
 }
-Modifyer & Modifyer::outlierRadiusFilter(const double & radius, const int & min_neighbors)
+Modifier & Modifier::outlierRadiusFilter(const double & radius, const int & min_neighbors)
 {
   pcl::RadiusOutlierRemoval<PointCloud> radiusFilter;
   radiusFilter.setRadiusSearch(radius);
@@ -253,7 +253,7 @@ Modifyer & Modifyer::outlierRadiusFilter(const double & radius, const int & min_
   radiusFilter.filter(*output_cloud);
   return *this;
 }
-Modifyer & Modifyer::outlierStatFilter(const double & threshold, const int & mean)
+Modifier & Modifier::outlierStatFilter(const double & threshold, const int & mean)
 {
   pcl::StatisticalOutlierRemoval<PointCloud> statFilter;
   statFilter.setMeanK(mean);
@@ -262,7 +262,7 @@ Modifyer & Modifyer::outlierStatFilter(const double & threshold, const int & mea
   statFilter.filter(*output_cloud);
   return *this;
 }
-Modifyer & Modifyer::timestampAnalyzer(const std::string & file_path)
+Modifier & Modifier::timestampAnalyzer(const std::string & file_path)
 {
   std::vector<double> time_float{};
   std::vector<size_t> time_int{};
@@ -333,7 +333,7 @@ Modifyer & Modifyer::timestampAnalyzer(const std::string & file_path)
   return *this;
 }
 template <typename T>
-bool Modifyer::saveTimestamps(const std::vector<T> & timestamps, const std::string & output_path)
+bool Modifier::saveTimestamps(const std::vector<T> & timestamps, const std::string & output_path)
 {
   std::ofstream outfile;
   outfile.open(output_path);
@@ -351,4 +351,4 @@ bool Modifyer::saveTimestamps(const std::vector<T> & timestamps, const std::stri
   std::cout << "Timestamps saved to: " << output_path << std::endl;
   return true;
 }
-}  // namespace pointcloudmodifyer
+}  // namespace pointcloudmodifier

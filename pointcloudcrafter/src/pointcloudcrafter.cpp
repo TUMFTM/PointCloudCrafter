@@ -49,7 +49,7 @@
 #include <vector>
 
 #include "pointcloudcrafter/utils.hpp"
-#include "pointcloudmodifyer.hpp"
+#include "pointcloudmodifier.hpp"
 namespace pointcloudcrafter
 {
 // global variables that will be populated by CLI arguments
@@ -184,8 +184,8 @@ void PointCloudCrafter::process_pointclouds(
   }
 
   // Modify the merged pointcloud with pointcloudmodifier
-  // Pointcloud modifyer
-  pointcloudmodifyer::Modifyer modifier;
+  // Pointcloud modifier
+  pointcloudmodifier::Modifier modifier;
   modifier.setCloud(merged_pc);
   // Apply filters
   // Cropbox filtering
