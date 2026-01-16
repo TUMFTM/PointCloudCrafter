@@ -18,7 +18,7 @@ add_executable(example example.cpp)
 
 # Link against the main library and PCL
 target_link_libraries(example 
-    pointcloudmodifier
+    pointcloudmodifierlib
     ${PCL_LIBRARIES}
 )
 

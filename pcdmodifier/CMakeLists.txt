@@ -14,7 +14,7 @@
 # limitations under the License.
 
 cmake_minimum_required(VERSION 3.10)
-project(pointcloudcrafter VERSION 1.0.0)
+project(pointcloudmodifier VERSION 1.0.0)
 
 if(POLICY CMP0074)
   cmake_policy(SET CMP0074 NEW)
@@ -39,7 +39,7 @@ find_package(fmt REQUIRED)
 
 # Subdirectory for cpp library
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../pointcloudmodifier/)
-  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../pointcloudmodifier ${CMAKE_CURRENT_BINARY_DIR}/pointcloudcrafter)
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../pointcloudmodifier ${CMAKE_CURRENT_BINARY_DIR}/pointcloudmodifier)
 else()
   message(FATAL_ERROR "pointcloudmodifier directory not found by cmake")
 endif()
@@ -47,7 +47,7 @@ endif()
 
 # Library
 add_library(${PROJECT_NAME} SHARED
-  src/pointcloudcrafter.cpp)
+  src/pcdmodifier.cpp)
 
 target_include_directories(${PROJECT_NAME}
   PUBLIC 
@@ -58,10 +58,8 @@ target_include_directories(${PROJECT_NAME}
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
 ament_target_dependencies(${PROJECT_NAME} PUBLIC
   rclcpp
-  rosbag2_cpp
   sensor_msgs
-  pcl_conversions
-  tf2_ros)
+  pcl_conversions)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
   ${PCL_LIBRARIES}
@@ -76,15 +74,15 @@ install(TARGETS ${PROJECT_NAME}
 
 
 # Executable
-add_executable(crafter
-  src/pointcloudcrafter_main.cpp)
+add_executable(modifier
+  src/pcdmodifier_main.cpp)
 
-target_link_libraries(crafter
+target_link_libraries(modifier
   ${PROJECT_NAME})
 
-target_compile_features(crafter PRIVATE cxx_std_20)
+target_compile_features(modifier PRIVATE cxx_std_20)
 
-install(TARGETS crafter
+install(TARGETS modifier
   RUNTIME DESTINATION lib/${PROJECT_NAME})
 
 ament_package()

@@ -183,9 +183,9 @@ void PointCloudCrafter::process_pointclouds(
     reader_.set_state(false);
   }
 
-  // Modify the merged pointcloud with pointcloudmodifier
+  // Modify the merged pointcloud with pointcloudmodifierlib
   // Pointcloud modifier
-  pointcloudmodifier::Modifier modifier;
+  pointcloudmodifierlib::Modifier modifier;
   modifier.setCloud(merged_pc);
   // Apply filters
   // Cropbox filtering
