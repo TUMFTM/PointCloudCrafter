@@ -51,7 +51,7 @@ public:
   /**
    * @brief Constructor
    */
-  PointCloudCrafter(const config::CrafterConfig & cfg);
+  explicit PointCloudCrafter(const config::CrafterConfig & cfg);
   /**
    * @brief Run the pointcloud crafter
    */

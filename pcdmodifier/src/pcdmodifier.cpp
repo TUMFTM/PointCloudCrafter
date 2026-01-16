@@ -119,7 +119,8 @@ void PointCloudModifier::process_pointcloud(const std::string & input_path)
     modifier.voxelFilter(cfg_.voxelfilter);
   }
   if (cfg_.outlier_radius_filter.first > 0.0) {
-    modifier.outlierRadiusFilter(cfg_.outlier_radius_filter.first, cfg_.outlier_radius_filter.second);
+    modifier.outlierRadiusFilter(cfg_.outlier_radius_filter.first,
+      cfg_.outlier_radius_filter.second);
   }
   if (cfg_.outlier_stat_filter.first > 0.0) {
     modifier.outlierStatFilter(cfg_.outlier_stat_filter.first, cfg_.outlier_stat_filter.second);

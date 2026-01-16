@@ -190,7 +190,8 @@ void PointCloudCrafter::process_pointclouds(
   }
   // Outlier radius filtering
   if (cfg_.outlier_radius_filter.first > 0.0) {
-    modifier.outlierRadiusFilter(cfg_.outlier_radius_filter.first, cfg_.outlier_radius_filter.second);
+    modifier.outlierRadiusFilter(cfg_.outlier_radius_filter.first,
+      cfg_.outlier_radius_filter.second);
   }
   // Outlier statistical filtering
   if (cfg_.outlier_stat_filter.first > 0.0) {

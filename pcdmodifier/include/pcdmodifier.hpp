@@ -34,7 +34,7 @@ namespace pointcloudmodifier
 class PointCloudModifier
 {
 public:
-  PointCloudModifier(const config::PcdModifierConfig & cfg);
+  explicit PointCloudModifier(const config::PcdModifierConfig & cfg);
   void run();
 
 protected:
