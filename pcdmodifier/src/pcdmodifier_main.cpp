@@ -23,7 +23,7 @@ int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
 
-  CLI::App app{"pcd_modifier"};
+  CLI::App app{"pointcloudmodifier"};
   app.name("ros2 run pointcloudmodifier modifier");
 
   /* =========================

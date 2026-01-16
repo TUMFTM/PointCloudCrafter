@@ -23,7 +23,7 @@ int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
 
-  CLI::App app{"rosbag_to_pcd"};
+  CLI::App app{"pointcloudcrafter"};
   app.name("ros2 run pointcloudcrafter crafter");
 
   /* =========================

@@ -32,6 +32,8 @@ To run the docker container use:
 
 <h2> Usage and Command Line Arguments </h2>
 
+<h3> Create and modify point clouds from rosbags </h3>
+
 ```
 Usage: ros2 run pointcloudcrafter crafter [OPTIONS] bag-path out-dir topic-names...
 
@@ -77,4 +79,49 @@ Filtering:
 Example:
   ros2 run pointcloudcrafter crafter bag.mcap out/ /points_raw 
     --voxel-filter 0.1 0.1 0.1 --stride-frames 5
+```
+
+<h3> Modify PCD files </h3>
+
+```
+Usage: ros2 run pointcloudmodifier modifier [OPTIONS] input-path out-dir
+
+Positionals:
+  input-path TEXT REQUIRED    Path to PCD file
+  out-dir TEXT REQUIRED       Output directory for .pcd files
+
+Options:
+  -h,--help                   Print this help message and exit
+
+
+Output:
+  --sequential-name           Use sequential file names instead of input file names
+
+
+General:
+  -m,--max-frames INT         Maximum number of frames to modify (-1 = unlimited)
+  -j,--skip-frames INT        Number of frames to skip at the beginning
+  -s,--stride-frames INT      Write every Nth frame
+
+
+Transforms:
+  --transform-file,--tf TEXT  TXT file with additional transforms (frame_id r1 r2 r3 x r4 r5 r6 y r7 r8 r9 z)
+
+
+Filtering:
+  --crop-box,--cb FLOAT FLOAT FLOAT FLOAT FLOAT FLOAT x 6
+                              Crop box [xmin ymin zmin xmax ymax zmax]
+  --crop-sphere,--cs FLOAT    Crop to sphere with given radius
+  --crop-cylinder,--cc FLOAT  Crop to cylinder with given radius
+  --voxel-filter,--vf FLOAT FLOAT FLOAT x 3
+                              Voxel size [x y z]
+  --outlier-radius-filter,--orf FLOAT INT x 2
+                              Radius outlier removal [radius min_neighbors]
+  --outlier-stat-filter,--osf FLOAT INT x 2
+                              Statistical outlier removal [threshold mean_k]
+
+
+Example:
+  ros2 run pointcloudmodifier modifier input/ out/ 
+    --voxel-filter 0.1 0.1 0.1 -m 5
 ```
