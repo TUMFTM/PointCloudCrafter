@@ -31,25 +31,10 @@
 
 namespace pointcloudmodifier
 {
-// Global variables populated by CLI arguments
-std::string INPUT_PATH;        // NOLINT
-std::string OUT_DIR;           // NOLINT
-std::string TRANSFORM_FILE{};  // NOLINT
-int64_t MAX_FRAMES = -1;
-int64_t SKIP_FRAMES = 0;
-int64_t STRIDE_FRAMES = 1;
-bool SEQUENTIAL_NAMES = false;
-std::vector<double> CROPBOX{};
-double CROPSPHERE{0.0};
-double CROPCYLINDER{0.0};
-std::vector<double> VOXELFILTER{};
-std::pair<double, int> OUTLIERRADIUSFILTER{};
-std::pair<double, int> OUTLIERSTATFILTER{};
-
-PointCloudModifier::PointCloudModifier()
-: logger_(rclcpp::get_logger("pcd_modifier"))
+PointCloudModifier::PointCloudModifier(const config::PcdModifierConfig & cfg)
+: logger_(rclcpp::get_logger("pcd_modifier")), cfg_(cfg)
 {
-  std::filesystem::path input_path(INPUT_PATH);
+  std::filesystem::path input_path(cfg_.input_path);
   if (std::filesystem::is_directory(input_path)) {
     for (const auto & entry : std::filesystem::directory_iterator(input_path)) {
       if (entry.path().extension() == ".pcd") {
@@ -58,7 +43,7 @@ PointCloudModifier::PointCloudModifier()
     }
     std::sort(pcd_files_.begin(), pcd_files_.end());
   } else if (std::filesystem::is_regular_file(input_path) && input_path.extension() == ".pcd") {
-    pcd_files_.push_back(INPUT_PATH);
+    pcd_files_.push_back(cfg_.input_path);
   } else {
     throw std::runtime_error("Input path must be a PCD file or directory containing PCD files");
   }
@@ -69,8 +54,8 @@ PointCloudModifier::PointCloudModifier()
 
   RCLCPP_INFO(logger_, "Found %zu PCD file(s) to process", pcd_files_.size());
 
-  if (!std::filesystem::exists(OUT_DIR)) {
-    std::filesystem::create_directories(OUT_DIR);
+  if (!std::filesystem::exists(cfg_.out_dir)) {
+    std::filesystem::create_directories(cfg_.out_dir);
   }
 }
 
@@ -81,7 +66,7 @@ void PointCloudModifier::run()
   const int64_t total_files = static_cast<int64_t>(pcd_files_.size());
 
   for (const auto & pcd_file : pcd_files_) {
-    if (file_index < SKIP_FRAMES) {
+    if (file_index < cfg_.skip_frames) {
       file_index++;
       continue;
     }
@@ -92,8 +77,8 @@ void PointCloudModifier::run()
       continue;
     }
 
-    if (MAX_FRAMES > 0 && processed_frames_ >= MAX_FRAMES) {
-      RCLCPP_INFO(logger_, "Reached max frames limit (%ld)", MAX_FRAMES);
+    if (cfg_.max_frames > 0 && processed_frames_ >= cfg_.max_frames) {
+      RCLCPP_INFO(logger_, "Reached max frames limit (%ld)", cfg_.max_frames);
       break;
     }
 
@@ -105,7 +90,7 @@ void PointCloudModifier::run()
     process_pointcloud(pcd_file);
 
     processed_frames_++;
-    stride_frames_ = STRIDE_FRAMES - 1;
+    stride_frames_ = cfg_.stride_frames - 1;
     file_index++;
   }
 
@@ -121,34 +106,35 @@ void PointCloudModifier::process_pointcloud(const std::string & input_path)
   }
 
   // Apply filters
-  if (!CROPBOX.empty()) {
-    modifier.cropBox(CROPBOX);
+  if (!cfg_.cropbox.empty()) {
+    modifier.cropBox(cfg_.cropbox);
   }
-  if (CROPSPHERE > 0.0) {
-    modifier.cropSphere(CROPSPHERE);
+  if (cfg_.cropsphere > 0.0) {
+    modifier.cropSphere(cfg_.cropsphere);
   }
-  if (CROPCYLINDER > 0.0) {
-    modifier.cropCylinder(CROPCYLINDER);
+  if (cfg_.cropcylinder > 0.0) {
+    modifier.cropCylinder(cfg_.cropcylinder);
   }
-  if (!VOXELFILTER.empty()) {
-    modifier.voxelFilter(VOXELFILTER);
+  if (!cfg_.voxelfilter.empty()) {
+    modifier.voxelFilter(cfg_.voxelfilter);
   }
-  if (OUTLIERRADIUSFILTER.first > 0.0) {
-    modifier.outlierRadiusFilter(OUTLIERRADIUSFILTER.first, OUTLIERRADIUSFILTER.second);
+  if (cfg_.outlier_radius_filter.first > 0.0) {
+    modifier.outlierRadiusFilter(cfg_.outlier_radius_filter.first,
+      cfg_.outlier_radius_filter.second);
   }
-  if (OUTLIERSTATFILTER.first > 0.0) {
-    modifier.outlierStatFilter(OUTLIERSTATFILTER.first, OUTLIERSTATFILTER.second);
+  if (cfg_.outlier_stat_filter.first > 0.0) {
+    modifier.outlierStatFilter(cfg_.outlier_stat_filter.first, cfg_.outlier_stat_filter.second);
   }
 
   std::string output_name;
-  if (SEQUENTIAL_NAMES) {
+  if (cfg_.sequential_names) {
     output_name = fmt::format("{:06d}.pcd", processed_frames_);
   } else {
     std::filesystem::path p(input_path);
     output_name = p.filename().string();
   }
 
-  std::string output_path = OUT_DIR + "/" + output_name;
+  std::string output_path = cfg_.out_dir + "/" + output_name;
   if (!modifier.savePCD(output_path)) {
     RCLCPP_ERROR(logger_, "Failed to save pointcloud to %s", output_path.c_str());
     return;

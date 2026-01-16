@@ -24,36 +24,24 @@
 #include <utility>
 #include <vector>
 
+#include "cli_config.hpp"
+
 namespace pointcloudmodifier
 {
-// Flags - CLI arguments (defined in pcdmodifier.cpp)
-extern std::string INPUT_PATH;
-extern std::string OUT_DIR;
-extern std::string TRANSFORM_FILE;
-extern int64_t MAX_FRAMES;
-extern int64_t SKIP_FRAMES;
-extern int64_t STRIDE_FRAMES;
-extern bool SEQUENTIAL_NAMES;
-extern std::vector<double> CROPBOX;
-extern double CROPSPHERE;
-extern double CROPCYLINDER;
-extern std::vector<double> VOXELFILTER;
-extern std::pair<double, int> OUTLIERRADIUSFILTER;
-extern std::pair<double, int> OUTLIERSTATFILTER;
-
 /**
  * @brief PointCloudModifier class
  */
 class PointCloudModifier
 {
 public:
-  PointCloudModifier();
+  explicit PointCloudModifier(const config::PcdModifierConfig & cfg);
   void run();
 
 protected:
   void process_pointcloud(const std::string & input_path);
 
 private:
+  config::PcdModifierConfig cfg_;
   rclcpp::Logger logger_;
   std::vector<std::string> pcd_files_{};
   int64_t processed_frames_{0};
