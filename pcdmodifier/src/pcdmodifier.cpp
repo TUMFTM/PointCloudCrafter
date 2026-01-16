@@ -23,6 +23,9 @@
 #include <filesystem>  // NOLINT
 #include <rclcpp/logging.hpp>
 #include <stdexcept>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "pointcloudmodifier.hpp"
 
