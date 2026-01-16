@@ -33,17 +33,13 @@ add_definitions(-DVTK_DEPRECATION_LEVEL=0)
 # PCL
 find_package(PCL REQUIRED)
 
-# Define library sources
+# Library
 set(LIBRARY_SOURCES
     src/pointcloudmodifier.cpp
 )
-
-# Define library headers
 set(LIBRARY_HEADERS
     include/pointcloudmodifier.hpp
 )
-
-# Create shared library
 add_library(${PROJECT_NAME} SHARED ${LIBRARY_SOURCES})
 target_include_directories(${PROJECT_NAME}
   PUBLIC 
@@ -66,7 +62,15 @@ install(TARGETS ${PROJECT_NAME}
     PUBLIC_HEADER DESTINATION include
 )
 
-# Turn on examples by default
+add_executable(modifier
+    src/pointcloudmodifier_main.cpp)
+
+target_link_libraries(modifier
+    ${PROJECT_NAME})
+
+target_compile_features(modifier PRIVATE cxx_std_20)
+
+# Build an example application when BUILD_EXAMPLES is ON
 option(BUILD_EXAMPLES "Build example applications" OFF)
 if(BUILD_EXAMPLES)
     add_subdirectory(examples)
