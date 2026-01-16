@@ -3,7 +3,7 @@
 <package format="3">
   <name>pointcloudmodifier</name>
   <version>1.0.0</version>
-  <description>PCD and Pose extraction tool for ROS 2.</description>
+  <description>PCD modification tool.</description>
   <maintainer email="dominik.kulmer@tum.de">Dominik Kulmer</maintainer>
   <maintainer email="maxi.leitenstern@tum.de">Maximilian Leitenstern</maintainer>
   <license>Apache 2.0</license>
