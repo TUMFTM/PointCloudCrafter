@@ -35,30 +35,13 @@
 #include <vector>
 
 #include "pointcloudcrafter/rosbag_reader.hpp"
+#include "cli_config.hpp"
 
 // clang-format off
 typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::msg::PointCloud2, sensor_msgs::msg::PointCloud2, sensor_msgs::msg::PointCloud2, sensor_msgs::msg::PointCloud2> ApproxTimeSyncPolicy;  // NOLINT
 // clang-format on
 namespace pointcloudcrafter
 {
-// Flags
-extern std::string BAG_PATH;
-extern std::vector<std::string> TOPICS;
-extern std::string OUT_DIR;
-extern std::string TARGET_FRAME;
-extern std::string SENSOR_NUMBER_FIELD;
-extern std::string TRANSFORM_FILE;
-extern int64_t MAX_FRAMES;
-extern int64_t SKIP_FRAMES;
-extern int64_t STRIDE_FRAMES;
-extern bool SEQUENTIAL_NAMES;
-extern std::vector<double> CROPBOX;
-extern double CROPSPHERE;
-extern double CROPCYLINDER;
-extern std::vector<double> VOXELFILTER;
-extern std::pair<double, int> OUTLIERRADIUSFILTER;
-extern std::pair<double, int> OUTLIERSTATFILTER;
-extern bool TIMESTAMPS;
 /**
  * @brief PointCloudCrafter class
  */
@@ -68,7 +51,7 @@ public:
   /**
    * @brief Constructor
    */
-  PointCloudCrafter();
+  PointCloudCrafter(const config::CrafterConfig & cfg);
   /**
    * @brief Run the pointcloud crafter
    */
@@ -108,6 +91,8 @@ protected:
     const sensor_msgs::msg::PointCloud2 & msg_in, sensor_msgs::msg::PointCloud2 & msg_out);
 
 private:
+  // CLI Configuration
+  config::CrafterConfig cfg_;
   // Custom rosbag reader
   tools::RosbagReader reader_;
   // TF2 buffer to store transform
@@ -126,5 +111,6 @@ private:
   size_t num_sensors_{};
   int64_t loaded_frames_{0};
   int64_t stride_frames_{0};
+  int64_t skip_frames_{0};
 };
 }  // namespace pointcloudcrafter

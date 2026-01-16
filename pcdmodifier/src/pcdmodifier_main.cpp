@@ -18,7 +18,9 @@
 #include <rclcpp/rclcpp.hpp>
 
 #include "CLI11.hpp"
+#include "cli_config.hpp"
 #include "pcdmodifier.hpp"
+
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
@@ -26,96 +28,8 @@ int main(int argc, char * argv[])
   CLI::App app{"pointcloudmodifier"};
   app.name("ros2 run pointcloudmodifier modifier");
 
-  /* =========================
-   * Positional arguments
-   * ========================= */
-  app.add_option("input-path", pointcloudmodifier::INPUT_PATH, "Path to PCD file")
-    ->required()
-    ->group("Required");
-
-  app.add_option("out-dir", pointcloudmodifier::OUT_DIR, "Output directory for .pcd files")
-    ->required()
-    ->group("Required");
-
-  /* =========================
-   * Output control
-   * ========================= */
-  app
-    .add_flag(
-      "--sequential-name", pointcloudmodifier::SEQUENTIAL_NAMES,
-      "Use sequential file names instead of input file names")
-    ->group("Output");
-
-  /* =========================
-   * Frame selection
-   * ========================= */
-  app
-    .add_option(
-      "-m,--max-frames", pointcloudmodifier::MAX_FRAMES,
-      "Maximum number of frames to modify (-1 = unlimited)")
-    ->group("General");
-
-  app
-    .add_option(
-      "-j,--skip-frames", pointcloudmodifier::SKIP_FRAMES,
-      "Number of frames to skip at the beginning")
-    ->group("General");
-
-  app.add_option("-s,--stride-frames", pointcloudmodifier::STRIDE_FRAMES, "Write every Nth frame")
-    ->group("General");
-
-  /* =========================
-   * Transform options
-   * ========================= */
-  app
-    .add_option(
-      "--transform-file,--tf", pointcloudmodifier::TRANSFORM_FILE,
-      "TXT file with additional transforms (frame_id r1 r2 r3 x r4 r5 r6 y r7 r8 r9 z)")
-    ->group("Transforms");
-
-  /* =========================
-   * Filtering
-   * ========================= */
-  app
-    .add_option(
-      "--crop-box,--cb", pointcloudmodifier::CROPBOX, "Crop box [xmin ymin zmin xmax ymax zmax]")
-    ->expected(6)
-    ->type_name("FLOAT FLOAT FLOAT FLOAT FLOAT FLOAT")
-    ->group("Filtering");
-
-  app
-    .add_option(
-      "--crop-sphere,--cs", pointcloudmodifier::CROPSPHERE, "Crop to sphere with given radius")
-    ->type_name("FLOAT")
-    ->group("Filtering");
-
-  app
-    .add_option(
-      "--crop-cylinder,--cc", pointcloudmodifier::CROPCYLINDER,
-      "Crop to cylinder with given radius")
-    ->type_name("FLOAT")
-    ->group("Filtering");
-
-  app.add_option("--voxel-filter,--vf", pointcloudmodifier::VOXELFILTER, "Voxel size [x y z]")
-    ->expected(3)
-    ->type_name("FLOAT FLOAT FLOAT")
-    ->group("Filtering");
-
-  app
-    .add_option(
-      "--outlier-radius-filter,--orf", pointcloudmodifier::OUTLIERRADIUSFILTER,
-      "Radius outlier removal [radius min_neighbors]")
-    ->expected(2)
-    ->type_name("FLOAT INT")
-    ->group("Filtering");
-
-  app
-    .add_option(
-      "--outlier-stat-filter,--osf", pointcloudmodifier::OUTLIERSTATFILTER,
-      "Statistical outlier removal [threshold mean_k]")
-    ->expected(2)
-    ->type_name("FLOAT INT")
-    ->group("Filtering");
+  config::PcdModifierConfig cfg;
+  cfg.add_cli_options(&app);
 
   app.footer(
     "\nExample:\n"
@@ -124,7 +38,7 @@ int main(int argc, char * argv[])
 
   CLI11_PARSE(app, argc, argv);
 
-  pointcloudmodifier::PointCloudModifier().run();
+  pointcloudmodifier::PointCloudModifier(cfg).run();
 
   rclcpp::shutdown();
   return 0;
