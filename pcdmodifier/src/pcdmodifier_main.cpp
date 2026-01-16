@@ -25,15 +25,15 @@ int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
 
-  CLI::App app{"pointcloudmodifier"};
-  app.name("ros2 run pointcloudmodifier modifier");
+  CLI::App app{"pointcloudcrafter_pcd"};
+  app.name("ros2 run pointcloudcrafter pcd");
 
   config::PcdModifierConfig cfg;
   cfg.add_cli_options(&app);
 
   app.footer(
     "\nExample:\n"
-    "  ros2 run pointcloudmodifier modifier input/ out/ \n"
+    "  ros2 run pointcloudcrafter pcd input/ out/ \n"
     "    --voxel-filter 0.1 0.1 0.1 -m 5\n");
 
   CLI11_PARSE(app, argc, argv);

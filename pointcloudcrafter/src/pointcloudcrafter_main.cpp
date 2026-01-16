@@ -26,15 +26,15 @@ int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
 
-  CLI::App app{"pointcloudcrafter"};
-  app.name("ros2 run pointcloudcrafter crafter");
+  CLI::App app{"pointcloudcrafter_rosbag"};
+  app.name("ros2 run pointcloudcrafter rosbag");
 
   config::CrafterConfig cfg;
   cfg.add_cli_options(&app);
 
   app.footer(
     "\nExample:\n"
-    "  ros2 run pointcloudcrafter crafter bag.mcap out/ /points_raw \n"
+    "  ros2 run pointcloudcrafter rosbag bag.mcap out/ /points_raw \n"
     "    --voxel-filter 0.1 0.1 0.1 --stride-frames 5\n");
 
   CLI11_PARSE(app, argc, argv);

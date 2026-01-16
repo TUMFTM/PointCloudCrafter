@@ -38,8 +38,8 @@ find_package(PCL REQUIRED)
 find_package(fmt REQUIRED)
 
 # Subdirectory for cpp library
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../pointcloudmodifier/)
-  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../pointcloudmodifier ${CMAKE_CURRENT_BINARY_DIR}/pointcloudcrafter)
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/pointcloudmodifier/)
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/pointcloudmodifier ${CMAKE_CURRENT_BINARY_DIR}/pointcloudcrafter)
 else()
   message(FATAL_ERROR "pointcloudmodifier directory not found by cmake")
 endif()
@@ -47,12 +47,14 @@ endif()
 
 # Library
 add_library(${PROJECT_NAME} SHARED
-  src/pointcloudcrafter.cpp)
+  pointcloudcrafter/src/pointcloudcrafter.cpp
+  pcdmodifier/src/pcdmodifier.cpp)
 
 target_include_directories(${PROJECT_NAME}
   PUBLIC 
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../utils>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/pointcloudcrafter/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/pcdmodifier/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/utils>
     $<INSTALL_INTERFACE:include>
     ${PCL_INCLUDE_DIRS})
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
@@ -76,15 +78,26 @@ install(TARGETS ${PROJECT_NAME}
 
 
 # Executable
-add_executable(crafter
-  src/pointcloudcrafter_main.cpp)
+add_executable(rosbag
+  pointcloudcrafter/src/pointcloudcrafter_main.cpp)
 
-target_link_libraries(crafter
+target_link_libraries(rosbag
   ${PROJECT_NAME})
 
-target_compile_features(crafter PRIVATE cxx_std_20)
+target_compile_features(rosbag PRIVATE cxx_std_20)
 
-install(TARGETS crafter
+install(TARGETS rosbag
+  RUNTIME DESTINATION lib/${PROJECT_NAME})
+
+add_executable(pcd
+  pcdmodifier/src/pcdmodifier_main.cpp)
+
+target_link_libraries(pcd
+  ${PROJECT_NAME})
+
+target_compile_features(pcd PRIVATE cxx_std_20)
+
+install(TARGETS pcd
   RUNTIME DESTINATION lib/${PROJECT_NAME})
 
 ament_package()

@@ -35,7 +35,7 @@ To run the docker container use:
 <h3> Create and modify point clouds from rosbags </h3>
 
 ```
-Usage: ros2 run pointcloudcrafter crafter [OPTIONS] bag-path out-dir topic-names...
+Usage: ros2 run pointcloudcrafter rosbag [OPTIONS] bag-path out-dir topic-names...
 
 Positionals:
   bag-path TEXT REQUIRED      Path to ROS 2 bag
@@ -48,19 +48,19 @@ Options:
 
 
 Output:
-  --sequential-name           Use sequential file names instead of timestamps
   --timestamps                Save point cloud timestamps to a text file
-
-
-General:
-  -m,--max-frames INT         Maximum number of frames to extract (-1 = unlimited)
-  -j,--skip-frames INT        Number of frames to skip at the beginning
-  -s,--stride-frames INT      Write every Nth frame
+  --sequential-name           Use sequential file names
 
 
 Transforms:
   -t,--target-frame TEXT      Target TF frame for all point clouds
-  --transform-file,--tf TEXT  TXT file with additional transforms (frame_id r1 r2 r3 x r4 r5 r6 y r7 r8 r9 z)
+  --transform-file,--tf TEXT  TXT file with transform (r1 r2 r3 x r4 r5 r6 y r7 r8 r9 z)
+
+
+General:
+  -m,--max-frames INT         Maximum number of frames (-1 = unlimited)
+  -j,--skip-frames INT        Number of frames to skip at the beginning
+  -s,--stride-frames INT      Write every Nth frame
 
 
 Filtering:
@@ -77,17 +77,17 @@ Filtering:
 
 
 Example:
-  ros2 run pointcloudcrafter crafter bag.mcap out/ /points_raw 
+  ros2 run pointcloudcrafter rosbag bag.mcap out/ /points_raw 
     --voxel-filter 0.1 0.1 0.1 --stride-frames 5
 ```
 
 <h3> Modify PCD files </h3>
 
 ```
-Usage: ros2 run pointcloudmodifier modifier [OPTIONS] input-path out-dir
+Usage: ros2 run pointcloudcrafter pcd [OPTIONS] input-path out-dir
 
 Positionals:
-  input-path TEXT REQUIRED    Path to PCD file
+  input-path TEXT REQUIRED    Path to PCD file or directory
   out-dir TEXT REQUIRED       Output directory for .pcd files
 
 Options:
@@ -95,17 +95,17 @@ Options:
 
 
 Output:
-  --sequential-name           Use sequential file names instead of input file names
+  --sequential-name           Use sequential file names
 
 
 General:
-  -m,--max-frames INT         Maximum number of frames to modify (-1 = unlimited)
+  -m,--max-frames INT         Maximum number of frames (-1 = unlimited)
   -j,--skip-frames INT        Number of frames to skip at the beginning
   -s,--stride-frames INT      Write every Nth frame
 
 
 Transforms:
-  --transform-file,--tf TEXT  TXT file with additional transforms (frame_id r1 r2 r3 x r4 r5 r6 y r7 r8 r9 z)
+  --transform-file,--tf TEXT  TXT file with transform (r1 r2 r3 x r4 r5 r6 y r7 r8 r9 z)
 
 
 Filtering:
@@ -122,6 +122,6 @@ Filtering:
 
 
 Example:
-  ros2 run pointcloudmodifier modifier input/ out/ 
+  ros2 run pointcloudcrafter pcd input/ out/ 
     --voxel-filter 0.1 0.1 0.1 -m 5
 ```
