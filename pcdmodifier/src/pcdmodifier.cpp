@@ -93,7 +93,7 @@ void PointCloudModifier::run()
       RCLCPP_INFO(logger_, "Reached max frames limit (%ld)", MAX_FRAMES);
       break;
     }
-    
+
     // Log progress
     double progress = 100.0 * static_cast<double>(file_index) / static_cast<double>(total_files);
     RCLCPP_INFO_THROTTLE(logger_, wall_clock, 1000, "Processed %ld of %ld files [% 5.1f%%]",

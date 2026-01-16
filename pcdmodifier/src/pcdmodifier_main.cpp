@@ -91,7 +91,8 @@ int main(int argc, char * argv[])
 
   app
     .add_option(
-      "--crop-cylinder,--cc", pointcloudmodifier::CROPCYLINDER, "Crop to cylinder with given radius")
+      "--crop-cylinder,--cc", pointcloudmodifier::CROPCYLINDER,
+      "Crop to cylinder with given radius")
     ->type_name("FLOAT")
     ->group("Filtering");
 
