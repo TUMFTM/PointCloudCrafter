@@ -15,32 +15,37 @@
  * limitations under the License.
  */
 
+#pragma once
+
+#include <rclcpp/clock.hpp>
 #include <rclcpp/rclcpp.hpp>
 
-#include "CLI11.hpp"
+#include <string>
+#include <utility>
+#include <vector>
+
 #include "cli_config.hpp"
-#include "pointcloudcrafter/pointcloudcrafter.hpp"
 
-
-int main(int argc, char * argv[])
+namespace pointcloudmodifier
 {
-  rclcpp::init(argc, argv);
+/**
+ * @brief PointCloudModifier class
+ */
+class PointCloudModifier
+{
+public:
+  explicit PointCloudModifier(const config::PcdModifierConfig & cfg);
+  void run();
 
-  CLI::App app{"pointcloudcrafter_rosbag"};
-  app.name("ros2 run pointcloudcrafter rosbag");
+protected:
+  void process_pointcloud(const std::string & input_path);
 
-  config::CrafterConfig cfg;
-  cfg.add_cli_options(&app);
+private:
+  config::PcdModifierConfig cfg_;
+  rclcpp::Logger logger_;
+  std::vector<std::string> pcd_files_{};
+  int64_t processed_frames_{0};
+  int64_t stride_frames_{0};
+};
 
-  app.footer(
-    "\nExample:\n"
-    "  ros2 run pointcloudcrafter rosbag bag.mcap out/ /points_raw \n"
-    "    --voxel-filter 0.1 0.1 0.1 --stride-frames 5\n");
-
-  CLI11_PARSE(app, argc, argv);
-
-  pointcloudcrafter::PointCloudCrafter(cfg).run();
-
-  rclcpp::shutdown();
-  return 0;
-}
+}  // namespace pointcloudmodifier

@@ -146,7 +146,7 @@ public:
       // Log progress
       double time_done = static_cast<double>((bag_msg->time_stamp - first_msg_time) / 1e9);
       RCLCPP_INFO_THROTTLE(
-        logger_, wall_clock, 5000, "Processed %.3f sec of bag [% 5.1f%%]", time_done,
+        logger_, wall_clock, 1000, "Processed %.3f sec of bag [% 5.1f%%]", time_done,
         100 * time_done / total_duration);
 
       // Call the handlers

@@ -49,42 +49,26 @@
 #include <vector>
 
 #include "pointcloudcrafter/utils.hpp"
-#include "pointcloudmodifyer.hpp"
+#include "pointcloudmodifier.hpp"
 namespace pointcloudcrafter
 {
-// global variables that will be populated by CLI arguments
-std::string BAG_PATH;  // NOLINT
-std::vector<std::string> TOPICS;
-std::string OUT_DIR;            // NOLINT
-std::string TARGET_FRAME = "";  // NOLINT
-std::string TRANSFORM_FILE{};   // NOLINT
-int64_t MAX_FRAMES = -1;
-int64_t SKIP_FRAMES = 0;
-int64_t STRIDE_FRAMES = 1;
-bool SEQUENTIAL_NAMES = false;
-std::vector<double> CROPBOX{};
-double CROPSPHERE{0.0};
-double CROPCYLINDER{0.0};
-std::vector<double> VOXELFILTER{};
-std::pair<double, int> OUTLIERRADIUSFILTER{};
-std::pair<double, int> OUTLIERSTATFILTER{};
-bool TIMESTAMPS = false;
 /**
  * @brief PointCloudCrafter class
  */
-PointCloudCrafter::PointCloudCrafter()
-: reader_(BAG_PATH),
+PointCloudCrafter::PointCloudCrafter(const config::CrafterConfig & cfg)
+: reader_(cfg_.bag_path),
   tf2_buffer_(std::make_shared<rclcpp::Clock>()),
   logger_(rclcpp::get_logger("rosbag_to_pcd")),
-  num_sensors_(TOPICS.size())
+  num_sensors_(cfg_.topics.size()),
+  cfg_(cfg)
 {
   // Check for number of topics
-  if (TOPICS.size() > 4) {
+  if (cfg_.topics.size() > 4) {
     throw std::runtime_error("Only a maximum of 4 topics are supported");
   }
   // Initialize message to filter and sync to reader
   for (size_t i = 0; i < 4; i++) {
-    std::string topic = (i < num_sensors_) ? TOPICS[i] : TOPICS[0];
+    std::string topic = (i < num_sensors_) ? cfg_.topics[i] : cfg_.topics[0];
     subscribers_.push_back(
       std::make_unique<tools::MsgFilter<sensor_msgs::msg::PointCloud2>>(topic, reader_));
   }
@@ -103,16 +87,16 @@ PointCloudCrafter::PointCloudCrafter()
   tf2_buffer_.setUsingDedicatedThread(true);
 
   // Load transforms from file
-  if (!TRANSFORM_FILE.empty()) {
-    this->file_transforms_ = tools::utils::load_transforms_from_file(TRANSFORM_FILE);
+  if (!cfg_.transform_file.empty()) {
+    this->file_transforms_ = tools::utils::load_transforms_from_file(cfg_.transform_file);
   }
 
   // Init out directory
-  if (OUT_DIR.empty()) {
+  if (cfg_.out_dir.empty()) {
     throw std::runtime_error("Output directory not specified");
   }
-  if (!std::filesystem::exists(OUT_DIR)) {
-    std::filesystem::create_directories(OUT_DIR);
+  if (!std::filesystem::exists(cfg_.out_dir)) {
+    std::filesystem::create_directories(cfg_.out_dir);
   }
 }
 void PointCloudCrafter::tf_callback(const tools::RosbagReaderMsg<tf2_msgs::msg::TFMessage> & msg)
@@ -131,8 +115,8 @@ void PointCloudCrafter::pointcloud_sync_callback(
   const sensor_msgs::msg::PointCloud2::ConstSharedPtr & pc4)
 {
   // Check if we should skip frames
-  if (SKIP_FRAMES > 0) {
-    SKIP_FRAMES--;
+  if (cfg_.skip_frames > 0) {
+    skip_frames_--;
     return;
   }
 
@@ -176,54 +160,55 @@ void PointCloudCrafter::process_pointclouds(
     pcl_conversions::toPCL(msg_transformed, pc);
     *merged_pc += pc;
   }
-  stride_frames_ = stride_frames_ - 1;
+  stride_frames_ = cfg_.stride_frames - 1;
 
   loaded_frames_++;
-  if (MAX_FRAMES > 0 && loaded_frames_ >= MAX_FRAMES) {
+  if (cfg_.max_frames > 0 && loaded_frames_ >= cfg_.max_frames) {
     reader_.set_state(false);
   }
 
-  // Modify the merged pointcloud with pointcloudmodifier
-  // Pointcloud modifyer
-  pointcloudmodifyer::Modifyer modifier;
+  // Modify the merged pointcloud with pointcloudmodifierlib
+  // Pointcloud modifier
+  pointcloudmodifierlib::Modifier modifier;
   modifier.setCloud(merged_pc);
   // Apply filters
   // Cropbox filtering
-  if (!CROPBOX.empty()) {
-    modifier.cropBox(CROPBOX);
+  if (!cfg_.cropbox.empty()) {
+    modifier.cropBox(cfg_.cropbox);
   }
   // Sphere filtering
-  if (CROPSPHERE > 0.0) {
-    modifier.cropSphere(CROPSPHERE);
+  if (cfg_.cropsphere > 0.0) {
+    modifier.cropSphere(cfg_.cropsphere);
   }
   // Cylinder filtering
-  if (CROPCYLINDER > 0.0) {
-    modifier.cropCylinder(CROPCYLINDER);
+  if (cfg_.cropcylinder > 0.0) {
+    modifier.cropCylinder(cfg_.cropcylinder);
   }
   // Voxelization
-  if (!VOXELFILTER.empty()) {
-    modifier.voxelFilter(VOXELFILTER);
+  if (!cfg_.voxelfilter.empty()) {
+    modifier.voxelFilter(cfg_.voxelfilter);
   }
   // Outlier radius filtering
-  if (OUTLIERRADIUSFILTER.first > 0.0) {
-    modifier.outlierRadiusFilter(OUTLIERRADIUSFILTER.first, OUTLIERRADIUSFILTER.second);
+  if (cfg_.outlier_radius_filter.first > 0.0) {
+    modifier.outlierRadiusFilter(cfg_.outlier_radius_filter.first,
+      cfg_.outlier_radius_filter.second);
   }
   // Outlier statistical filtering
-  if (OUTLIERSTATFILTER.first > 0.0) {
-    modifier.outlierStatFilter(OUTLIERSTATFILTER.first, OUTLIERSTATFILTER.second);
+  if (cfg_.outlier_stat_filter.first > 0.0) {
+    modifier.outlierStatFilter(cfg_.outlier_stat_filter.first, cfg_.outlier_stat_filter.second);
   }
 
   // Save output cloud
   auto ts = tools::utils::timestamp_to_ros(base_time);
   std::string name = fmt::format("{}_{:09}", ts.sec, ts.nanosec);
-  if (!modifier.savePCD(OUT_DIR + "/" + name + ".pcd")) {
+  if (!modifier.savePCD(cfg_.out_dir + "/" + name + ".pcd")) {
     RCLCPP_ERROR(logger_, "Failed to save pointcloud to %s", name.c_str());
     return;
   }
 
   // Save timestamps if enabled
-  if (TIMESTAMPS) {
-    modifier.timestampAnalyzer(OUT_DIR + "/" + name + "_stamps.txt");
+  if (cfg_.timestamps) {
+    modifier.timestampAnalyzer(cfg_.out_dir + "/" + name + "_stamps.txt");
   }
 }
 void PointCloudCrafter::transform_pc(
@@ -233,9 +218,9 @@ void PointCloudCrafter::transform_pc(
 
   if (file_transforms_.find(msg_in.header.frame_id) != file_transforms_.end()) {
     transformation = file_transforms_[msg_in.header.frame_id];
-  } else if (!TARGET_FRAME.empty()) {
+  } else if (!cfg_.target_frame.empty()) {
     transformation = tools::utils::transform2eigen(
-      tf2_buffer_.lookupTransform(TARGET_FRAME, msg_in.header.frame_id, rclcpp::Time{0}));
+      tf2_buffer_.lookupTransform(cfg_.target_frame, msg_in.header.frame_id, rclcpp::Time{0}));
   }
 
   tools::utils::transform_pointcloud2(transformation.cast<float>(), msg_in, msg_out);

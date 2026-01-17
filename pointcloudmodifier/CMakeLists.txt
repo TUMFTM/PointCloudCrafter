@@ -14,7 +14,7 @@
 # limitations under the License.
 
 cmake_minimum_required(VERSION 3.10)
-project(pointcloudmodifyer VERSION 1.0.0)
+project(pointcloudmodifierlib VERSION 1.0.0)
 
 if(POLICY CMP0074)
   cmake_policy(SET CMP0074 NEW)
@@ -30,33 +30,21 @@ endif()
 # Suppress VTK deprecation warnings
 add_definitions(-DVTK_DEPRECATION_LEVEL=0)
 
-# Find PCL
+# PCL
 find_package(PCL REQUIRED)
-include_directories(${PCL_INCLUDE_DIRS})
-link_directories(${PCL_LIBRARY_DIRS})
-add_definitions(${PCL_DEFINITIONS})
 
-# Include project headers
-include_directories(include)
-
-# Define library sources
-set(LIBRARY_SOURCES
-    src/pointcloudmodifyer.cpp
-)
-
-# Define library headers
+# Library
 set(LIBRARY_HEADERS
-    include/pointcloudmodifyer.hpp
+    include/pointcloudmodifier.hpp
 )
-
-# Create shared library
-add_library(${PROJECT_NAME} SHARED ${LIBRARY_SOURCES})
+add_library(${PROJECT_NAME} INTERFACE)
 target_include_directories(${PROJECT_NAME}
-  PUBLIC 
+  INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>)
-# Link PCL libraries
-target_link_libraries(${PROJECT_NAME} ${PCL_LIBRARIES})
+    $<INSTALL_INTERFACE:include>
+    ${PCL_INCLUDE_DIRS})
+target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_20)
+target_link_libraries(${PROJECT_NAME} INTERFACE ${PCL_LIBRARIES})
 
 # Set the library version
 set_target_properties(${PROJECT_NAME} PROPERTIES
@@ -67,11 +55,13 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 
 # Installation rules
 install(TARGETS ${PROJECT_NAME}
-    LIBRARY DESTINATION lib
-    PUBLIC_HEADER DESTINATION include
+    EXPORT ${PROJECT_NAME}Targets
 )
 
-# Turn on examples by default
+install(FILES include/pointcloudmodifier.hpp
+    DESTINATION include)
+
+# Build an example application when BUILD_EXAMPLES is ON
 option(BUILD_EXAMPLES "Build example applications" OFF)
 if(BUILD_EXAMPLES)
     add_subdirectory(examples)
