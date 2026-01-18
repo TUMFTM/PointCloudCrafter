@@ -66,3 +66,7 @@ option(BUILD_EXAMPLES "Build example applications" OFF)
 if(BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
+
+if (BUILD_TESTS)
+    add_subdirectory(tests)
+endif()
