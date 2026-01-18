@@ -20,6 +20,8 @@
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 
+#include <vector>
+
 #include "pointcloudmodifier.hpp"
 /**
  * @brief Helper function to create a test point cloud with known points
