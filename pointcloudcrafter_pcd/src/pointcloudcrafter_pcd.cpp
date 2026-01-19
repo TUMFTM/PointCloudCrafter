@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "pcdmodifier.hpp"
+#include "pointcloudmodifier.hpp"
 
 #include <fmt/core.h>
 
@@ -27,12 +27,12 @@
 #include <utility>
 #include <vector>
 
-#include "pointcloudmodifier.hpp"
+#include "pointcloudcrafter_pcd/pointcloudcrafter_pcd.hpp"
 
-namespace pointcloudmodifier
+namespace pointcloudcrafter
 {
-PointCloudModifier::PointCloudModifier(const config::PcdModifierConfig & cfg)
-: logger_(rclcpp::get_logger("pcd_modifier")), cfg_(cfg)
+PCD::PCD(const config::PCDConfig & cfg)
+: logger_(rclcpp::get_logger("pointcloudcrafter_pcd")), cfg_(cfg)
 {
   std::filesystem::path input_path(cfg_.input_path);
   if (std::filesystem::is_directory(input_path)) {
@@ -59,7 +59,7 @@ PointCloudModifier::PointCloudModifier(const config::PcdModifierConfig & cfg)
   }
 }
 
-void PointCloudModifier::run()
+void PCD::run()
 {
   int64_t file_index = 0;
   rclcpp::Clock wall_clock{};
@@ -97,7 +97,7 @@ void PointCloudModifier::run()
   RCLCPP_INFO(logger_, "Processing complete. Processed %ld file(s).", processed_frames_);
 }
 
-void PointCloudModifier::process_pointcloud(const std::string & input_path)
+void PCD::process_pointcloud(const std::string & input_path)
 {
   pointcloudmodifierlib::Modifier modifier;
   if (!modifier.loadPCD(input_path)) {
@@ -141,4 +141,4 @@ void PointCloudModifier::process_pointcloud(const std::string & input_path)
   }
 }
 
-}  // namespace pointcloudmodifier
+}  // namespace pointcloudcrafter

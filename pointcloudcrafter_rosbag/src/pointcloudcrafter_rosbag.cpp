@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "pointcloudcrafter/pointcloudcrafter.hpp"
+#include "pointcloudcrafter_rosbag/pointcloudcrafter_rosbag.hpp"
 
 #include <Eigen/src/Core/Matrix.h>
 #include <Eigen/src/Core/util/Constants.h>
@@ -48,17 +48,17 @@
 #include <utility>
 #include <vector>
 
-#include "pointcloudcrafter/utils.hpp"
+#include "utils.hpp"
 #include "pointcloudmodifier.hpp"
 namespace pointcloudcrafter
 {
 /**
- * @brief PointCloudCrafter class
+ * @brief Rosbag class
  */
-PointCloudCrafter::PointCloudCrafter(const config::CrafterConfig & cfg)
+Rosbag::Rosbag(const config::RosbagConfig & cfg)
 : reader_(cfg_.bag_path),
   tf2_buffer_(std::make_shared<rclcpp::Clock>()),
-  logger_(rclcpp::get_logger("rosbag_to_pcd")),
+  logger_(rclcpp::get_logger("pointcloudcrafter_rosbag")),
   num_sensors_(cfg_.topics.size()),
   cfg_(cfg)
 {
@@ -78,12 +78,12 @@ PointCloudCrafter::PointCloudCrafter(const config::CrafterConfig & cfg)
     *subscribers_[3]);
   // Register callback for synchronized pointclouds
   sync_connection_ = synchronizer_->registerCallback(std::bind(
-    &PointCloudCrafter::pointcloud_sync_callback, this, std::placeholders::_1,
+    &Rosbag::pointcloud_sync_callback, this, std::placeholders::_1,
     std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 
   // Initialize transform listener
   reader_.add_listener<tf2_msgs::msg::TFMessage>(
-    "/tf_static", std::bind(&PointCloudCrafter::tf_callback, this, std::placeholders::_1));
+    "/tf_static", std::bind(&Rosbag::tf_callback, this, std::placeholders::_1));
   tf2_buffer_.setUsingDedicatedThread(true);
 
   // Load transforms from file
@@ -99,7 +99,7 @@ PointCloudCrafter::PointCloudCrafter(const config::CrafterConfig & cfg)
     std::filesystem::create_directories(cfg_.out_dir);
   }
 }
-void PointCloudCrafter::tf_callback(const tools::RosbagReaderMsg<tf2_msgs::msg::TFMessage> & msg)
+void Rosbag::tf_callback(const tools::RosbagReaderMsg<tf2_msgs::msg::TFMessage> & msg)
 {
   for (auto & tf : msg.ros_msg.transforms) {
     if (tf.header.frame_id == tf.child_frame_id) {
@@ -108,7 +108,7 @@ void PointCloudCrafter::tf_callback(const tools::RosbagReaderMsg<tf2_msgs::msg::
     tf2_buffer_.setTransform(tf, "bag", msg.bag_msg.topic_name == "/tf_static");
   }
 }
-void PointCloudCrafter::pointcloud_sync_callback(
+void Rosbag::pointcloud_sync_callback(
   const sensor_msgs::msg::PointCloud2::ConstSharedPtr & pc1,
   const sensor_msgs::msg::PointCloud2::ConstSharedPtr & pc2,
   const sensor_msgs::msg::PointCloud2::ConstSharedPtr & pc3,
@@ -134,7 +134,7 @@ void PointCloudCrafter::pointcloud_sync_callback(
   // Process the pointclouds
   process_pointclouds(pc_msgs);
 }
-void PointCloudCrafter::process_pointclouds(
+void Rosbag::process_pointclouds(
   std::vector<sensor_msgs::msg::PointCloud2::ConstSharedPtr> & pc_msgs)
 {
   // Find the smallest timestamp of all pointclouds
@@ -211,7 +211,7 @@ void PointCloudCrafter::process_pointclouds(
     modifier.timestampAnalyzer(cfg_.out_dir + "/" + name + "_stamps.txt");
   }
 }
-void PointCloudCrafter::transform_pc(
+void Rosbag::transform_pc(
   const sensor_msgs::msg::PointCloud2 & msg_in, sensor_msgs::msg::PointCloud2 & msg_out)
 {
   Eigen::Affine3d transformation(Eigen::Affine3d::Identity());

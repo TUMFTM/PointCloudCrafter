@@ -34,8 +34,8 @@
 #include <utility>
 #include <vector>
 
-#include "pointcloudcrafter/rosbag_reader.hpp"
-#include "cli_config.hpp"
+#include "rosbag_reader.hpp"
+#include "cli/cli_config.hpp"
 
 // clang-format off
 typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::msg::PointCloud2, sensor_msgs::msg::PointCloud2, sensor_msgs::msg::PointCloud2, sensor_msgs::msg::PointCloud2> ApproxTimeSyncPolicy;  // NOLINT
@@ -43,15 +43,15 @@ typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::msg::PointC
 namespace pointcloudcrafter
 {
 /**
- * @brief PointCloudCrafter class
+ * @brief Rosbag class
  */
-class PointCloudCrafter
+class Rosbag
 {
 public:
   /**
    * @brief Constructor
    */
-  explicit PointCloudCrafter(const config::CrafterConfig & cfg);
+  explicit Rosbag(const config::RosbagConfig & cfg);
   /**
    * @brief Run the pointcloud crafter
    */
@@ -92,7 +92,7 @@ protected:
 
 private:
   // CLI Configuration
-  config::CrafterConfig cfg_;
+  config::RosbagConfig cfg_;
   // Custom rosbag reader
   tools::RosbagReader reader_;
   // TF2 buffer to store transform

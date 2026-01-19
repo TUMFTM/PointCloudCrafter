@@ -17,28 +17,29 @@
 
 #include <rclcpp/rclcpp.hpp>
 
-#include "CLI11.hpp"
-#include "cli_config.hpp"
-#include "pcdmodifier.hpp"
+#include "cli/CLI11.hpp"
+#include "cli/cli_config.hpp"
+#include "pointcloudcrafter_rosbag/pointcloudcrafter_rosbag.hpp"
+
 
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
 
-  CLI::App app{"pointcloudcrafter_pcd"};
-  app.name("ros2 run pointcloudcrafter pcd");
+  CLI::App app{"pointcloudcrafter_rosbag"};
+  app.name("ros2 run pointcloudcrafter rosbag");
 
-  config::PcdModifierConfig cfg;
+  config::RosbagConfig cfg;
   cfg.add_cli_options(&app);
 
   app.footer(
     "\nExample:\n"
-    "  ros2 run pointcloudcrafter pcd input/ out/ \n"
-    "    --voxel-filter 0.1 0.1 0.1 -m 5\n");
+    "  ros2 run pointcloudcrafter rosbag bag.mcap out/ /points_raw \n"
+    "    --voxel-filter 0.1 0.1 0.1 --stride-frames 5\n");
 
   CLI11_PARSE(app, argc, argv);
 
-  pointcloudmodifier::PointCloudModifier(cfg).run();
+  pointcloudcrafter::Rosbag(cfg).run();
 
   rclcpp::shutdown();
   return 0;
