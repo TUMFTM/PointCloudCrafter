@@ -41,20 +41,20 @@ option(BUILD_TESTS "Build unit tests" ON)
 
 # Subdirectory for cpp library
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/pointcloudmodifier/)
-  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/pointcloudmodifier ${CMAKE_CURRENT_BINARY_DIR}/pointcloudcrafter)
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/pointcloudmodifier)
 else()
   message(FATAL_ERROR "pointcloudmodifier directory not found by cmake")
 endif()
 
 # Library
 add_library(${PROJECT_NAME} SHARED
-  pointcloudcrafter/src/pointcloudcrafter.cpp
-  pcdmodifier/src/pcdmodifier.cpp)
+  pointcloudcrafter_rosbag/src/pointcloudcrafter_rosbag.cpp
+  pointcloudcrafter_pcd/src/pointcloudcrafter_pcd.cpp)
 
 target_include_directories(${PROJECT_NAME}
   PUBLIC 
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/pointcloudcrafter/include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/pcdmodifier/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/pointcloudcrafter_rosbag/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/pointcloudcrafter_pcd/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/utils>
     $<INSTALL_INTERFACE:include>
     ${PCL_INCLUDE_DIRS})
@@ -80,7 +80,7 @@ install(TARGETS ${PROJECT_NAME}
 
 # Executable
 add_executable(rosbag
-  pointcloudcrafter/src/pointcloudcrafter_main.cpp)
+  pointcloudcrafter_rosbag/src/pointcloudcrafter_rosbag_main.cpp)
 
 target_link_libraries(rosbag
   ${PROJECT_NAME})
@@ -91,7 +91,7 @@ install(TARGETS rosbag
   RUNTIME DESTINATION lib/${PROJECT_NAME})
 
 add_executable(pcd
-  pcdmodifier/src/pcdmodifier_main.cpp)
+  pointcloudcrafter_pcd/src/pointcloudcrafter_pcd_main.cpp)
 
 target_link_libraries(pcd
   ${PROJECT_NAME})

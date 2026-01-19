@@ -24,28 +24,28 @@
 #include <utility>
 #include <vector>
 
-#include "cli_config.hpp"
+#include "cli/cli_config.hpp"
 
-namespace pointcloudmodifier
+namespace pointcloudcrafter
 {
 /**
- * @brief PointCloudModifier class
+ * @brief PCD class
  */
-class PointCloudModifier
+class PCD
 {
 public:
-  explicit PointCloudModifier(const config::PcdModifierConfig & cfg);
+  explicit PCD(const config::PCDConfig & cfg);
   void run();
 
 protected:
   void process_pointcloud(const std::string & input_path);
 
 private:
-  config::PcdModifierConfig cfg_;
+  config::PCDConfig cfg_;
   rclcpp::Logger logger_;
   std::vector<std::string> pcd_files_{};
   int64_t processed_frames_{0};
   int64_t stride_frames_{0};
 };
 
-}  // namespace pointcloudmodifier
+}  // namespace pointcloudcrafter

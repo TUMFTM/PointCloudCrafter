@@ -21,7 +21,7 @@
 #include <utility>
 #include <vector>
 
-#include "CLI11.hpp"
+#include "cli/CLI11.hpp"
 
 namespace config
 {
@@ -98,7 +98,7 @@ struct ModifierConfig
   }
 };
 
-struct PcdModifierConfig : public ModifierConfig
+struct PCDConfig : public ModifierConfig
 {
   std::string input_path{};
 
@@ -116,7 +116,7 @@ struct PcdModifierConfig : public ModifierConfig
   }
 };
 
-struct CrafterConfig : public ModifierConfig
+struct RosbagConfig : public ModifierConfig
 {
   std::string bag_path{};
   std::vector<std::string> topics{};
