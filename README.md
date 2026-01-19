@@ -125,3 +125,16 @@ Example:
   ros2 run pointcloudcrafter pcd input/ out/ 
     --voxel-filter 0.1 0.1 0.1 -m 5
 ```
+
+<h3> Cloning without test data (recommended) </h3>
+
+This repository uses Git LFS for large test files (22 MB).
+Most users do not need them.
+
+Clone without downloading LFS files:
+
+    GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/TUMFTM/PointCloudCrafter.git
+
+To download them later:
+
+    git lfs pull
