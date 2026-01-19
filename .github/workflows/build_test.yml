@@ -1,4 +1,4 @@
-name: Docker
+name: Build_Test
 
 on:
   push:
@@ -38,4 +38,5 @@ jobs:
       - name: Build and deploy docker
         run: |
           ./docker/build_docker.sh
+          docker run --rm ghcr.io/tumftm/pointcloudcrafter:latest /bin/bash -c "cd /ros_ws && colcon test && colcon test-result --verbose --all"
           docker push ghcr.io/tumftm/pointcloudcrafter:latest

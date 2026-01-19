@@ -37,13 +37,14 @@ find_package(tf2_ros REQUIRED)
 find_package(PCL REQUIRED)
 find_package(fmt REQUIRED)
 
+option(BUILD_TESTS "Build unit tests" ON)
+
 # Subdirectory for cpp library
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/pointcloudmodifier/)
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/pointcloudmodifier ${CMAKE_CURRENT_BINARY_DIR}/pointcloudcrafter)
 else()
   message(FATAL_ERROR "pointcloudmodifier directory not found by cmake")
 endif()
-
 
 # Library
 add_library(${PROJECT_NAME} SHARED
