@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
     python3-pip \
     python3-tk \
     git \
+    git-lfs \
     cmake \
     make \
     apt-utils \
