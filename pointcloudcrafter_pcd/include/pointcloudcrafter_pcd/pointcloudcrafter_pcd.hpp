@@ -23,6 +23,8 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <unordered_map>
+#include <Eigen/Eigen>
 
 #include "cli/cli_config.hpp"
 
@@ -38,7 +40,7 @@ public:
   void run();
 
 protected:
-  void process_pointcloud(const std::string & input_path);
+  void process_pointcloud(const std::string & input_path, size_t file_index);
 
 private:
   config::PCDConfig cfg_;
@@ -46,6 +48,7 @@ private:
   std::vector<std::string> pcd_files_{};
   int64_t processed_frames_{0};
   int64_t stride_frames_{0};
+  std::vector<Eigen::Affine3d> file_transforms_{};
 };
 
 }  // namespace pointcloudcrafter

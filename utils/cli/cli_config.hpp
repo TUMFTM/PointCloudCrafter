@@ -41,6 +41,9 @@ struct ModifierConfig
   std::string out_dir{};
   bool sequential_names{false};
   bool inverse_crop{false};
+  std::vector<double> translation{};
+  std::vector<double> rotation{};
+  bool degree{false};
 
   void add_modifier_options(CLI::App * app)
   {
@@ -59,9 +62,10 @@ struct ModifierConfig
       ->group("General");
 
     // Transforms
+    // TODO(ga58lar): unified order of option flags
     app->add_option(
         "--transform-file,--tf", transform_file,
-        "TXT file with transform (r1 r2 r3 x r4 r5 r6 y r7 r8 r9 z)")
+        "TXT file with transform ([frame_id] r1 r2 r3 x r4 r5 r6 y r7 r8 r9 z)")
       ->group("Transforms");
 
     // Filtering
@@ -115,6 +119,19 @@ struct PCDConfig : public ModifierConfig
     app->add_option("out-dir", out_dir, "Output directory for .pcd files")
       ->required()
       ->group("Required");
+
+    app->add_option("-t,--translation", translation, "Translation [x y z]]")
+      ->expected(2)
+      ->type_name("FLOAT FLOAT FLOAT")
+      ->group("Transforms");
+
+    app->add_option("-r,--rotation", rotation, "Rotation [roll pitch yaw]]")
+      ->expected(3)
+      ->type_name("FLOAT FLOAT FLOAT")
+      ->group("Transforms");
+
+    app->add_flag("--deg", degree, "Rotation in degrees instead of radians")
+      ->group("Transforms");
 
     add_modifier_options(app);
   }

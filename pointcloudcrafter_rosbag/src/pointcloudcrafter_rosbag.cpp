@@ -92,6 +92,7 @@ Rosbag::Rosbag(const config::RosbagConfig & cfg)
   }
 
   // Init out directory
+  // TODO(ga58lar): remove this check as CLI should ensure this
   if (cfg_.out_dir.empty()) {
     throw std::runtime_error("Output directory not specified");
   }
