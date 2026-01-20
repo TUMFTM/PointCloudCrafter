@@ -15,7 +15,9 @@
  * limitations under the License.
  */
 
+#include "pointcloudcrafter_pcd/pointcloudcrafter_pcd.hpp"
 #include "pointcloudmodifier.hpp"
+#include "utils.hpp"
 
 #include <fmt/core.h>
 
@@ -26,8 +28,6 @@
 #include <string>
 #include <utility>
 #include <vector>
-
-#include "pointcloudcrafter_pcd/pointcloudcrafter_pcd.hpp"
 
 namespace pointcloudcrafter
 {
@@ -54,6 +54,12 @@ PCD::PCD(const config::PCDConfig & cfg)
 
   RCLCPP_INFO(logger_, "Found %zu PCD file(s) to process", pcd_files_.size());
 
+  // Load transforms from file
+  if (!cfg_.transform_file.empty()) {
+    this->file_transforms_ = tools::utils::load_poses_from_file(cfg_.transform_file);
+  }
+
+  // TODO(ga58lar): uniform comments between the two applications
   if (!std::filesystem::exists(cfg_.out_dir)) {
     std::filesystem::create_directories(cfg_.out_dir);
   }
@@ -65,6 +71,7 @@ void PCD::run()
   rclcpp::Clock wall_clock{};
   const int64_t total_files = static_cast<int64_t>(pcd_files_.size());
 
+  // TODO(ga58lar): substitute raw loops with algorithms
   for (const auto & pcd_file : pcd_files_) {
     if (file_index < cfg_.skip_frames) {
       file_index++;
@@ -87,7 +94,7 @@ void PCD::run()
     RCLCPP_INFO_THROTTLE(logger_, wall_clock, 1000, "Processed %ld of %ld files [% 5.1f%%]",
       file_index, total_files, progress);
 
-    process_pointcloud(pcd_file);
+    process_pointcloud(pcd_file, file_index);
 
     processed_frames_++;
     stride_frames_ = cfg_.stride_frames - 1;
@@ -97,7 +104,7 @@ void PCD::run()
   RCLCPP_INFO(logger_, "Processing complete. Processed %ld file(s).", processed_frames_);
 }
 
-void PCD::process_pointcloud(const std::string & input_path)
+void PCD::process_pointcloud(const std::string & input_path, size_t file_index)
 {
   pointcloudmodifierlib::Modifier modifier;
   if (!modifier.loadPCD(input_path)) {
@@ -124,6 +131,30 @@ void PCD::process_pointcloud(const std::string & input_path)
   }
   if (cfg_.outlier_stat_filter.first > 0.0) {
     modifier.outlierStatFilter(cfg_.outlier_stat_filter.first, cfg_.outlier_stat_filter.second);
+  }
+  if (!cfg_.transform_file.empty() && file_index < file_transforms_.size()) {
+    modifier.transform(this->file_transforms_[file_index]);
+  } else if (!cfg_.transform_file.empty()) {
+    RCLCPP_ERROR(logger_, "No transform available for index %zu", file_index);
+    return;
+  }
+  if (!cfg_.rotation.empty()) {
+    Eigen::Affine3d transform = Eigen::Affine3d::Identity();
+    std::vector<double> rot =
+        cfg_.degree ? std::vector<double>{cfg_.rotation[0] * M_PI / 180.0, cfg_.rotation[1] * M_PI / 180.0,
+                                  cfg_.rotation[2] * M_PI / 180.0}
+                                  : cfg_.rotation;
+    Eigen::Matrix3d rotation;
+    rotation = Eigen::AngleAxisd(rot[0], Eigen::Vector3d::UnitX()) *
+               Eigen::AngleAxisd(rot[1], Eigen::Vector3d::UnitY()) *
+               Eigen::AngleAxisd(rot[2], Eigen::Vector3d::UnitZ());
+    transform.linear() = rotation;
+    modifier.transform(transform);
+  }
+  if (!cfg_.translation.empty()) {
+    Eigen::Affine3d transform = Eigen::Affine3d::Identity();
+    transform.translation() << cfg_.translation[0], cfg_.translation[1], cfg_.translation[2];
+    modifier.transform(transform);
   }
 
   std::string output_name;

@@ -1,0 +1,3 @@
+# First string represents the frame_id
+lidar_innovusion_frontcenter 1.0 0.0 0.0 0.1 0.0 1.0 0.0 0.1 0.0 0.0 1.0 0.1
+lidar_ouster_frontleft 1.0 0.0 0.0 -0.1 0.0 1.0 0.0 -0.1 0.0 0.0 1.0 -0.1

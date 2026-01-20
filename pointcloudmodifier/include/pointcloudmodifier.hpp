@@ -83,8 +83,10 @@ public:
   }
 
   // Filter functions - all return reference to allow chaining
+  // TODO(ga58lar): add Doxygen comments
   Modifier & cropBox(const std::vector<double> & box_params)
   {
+    // TODO(ga58lar): remove this check as it should be handled by CLI expected
     if (box_params.size() < 6) {
       std::cerr << "Error: cropBox requires 6 parameters (min_x, min_y, min_z, max_x, max_y, max_z)"
                 << std::endl;
@@ -142,7 +144,8 @@ public:
   }
   Modifier & voxelFilter(const std::vector<double> & voxel)
   {
-    if (voxel.size() < 3) {
+    // TODO(ga58lar): remove this check as it should be handled by CLI expected
+    if (voxel.size() != 3) {
       std::cerr << "Error: Voxel filter requires 3 parameters (voxel_x, voxel_y, voxel_z)"
                 << std::endl;
       return *this;
@@ -188,6 +191,39 @@ public:
     statFilter.filter(*output_cloud);
     return *this;
   }
+
+  // Transforms
+  Modifier & transform(const Eigen::Affine3d & transformation)
+  {
+    // Find x, y, z field offsets
+    int x_offset = -1, y_offset = -1, z_offset = -1;
+    for (const auto & field : output_cloud->fields) {
+      if (field.name == "x") x_offset = field.offset;
+      else if (field.name == "y") y_offset = field.offset;
+      else if (field.name == "z") z_offset = field.offset;
+    }
+
+    Eigen::Affine3f transform_f = transformation.cast<float>();
+
+    // Transform each point in-place
+    for (size_t i = 0; i < output_cloud->data.size(); i += output_cloud->point_step) {
+      float x, y, z;
+      memcpy(&x, &output_cloud->data[i + x_offset], sizeof(float));
+      memcpy(&y, &output_cloud->data[i + y_offset], sizeof(float));
+      memcpy(&z, &output_cloud->data[i + z_offset], sizeof(float));
+
+      Eigen::Vector3f pt(x, y, z);
+      Eigen::Vector3f pt_transformed = transform_f * pt;
+
+      memcpy(&output_cloud->data[i + x_offset], &pt_transformed.x(), sizeof(float));
+      memcpy(&output_cloud->data[i + y_offset], &pt_transformed.y(), sizeof(float));
+      memcpy(&output_cloud->data[i + z_offset], &pt_transformed.z(), sizeof(float));
+    }
+
+    return *this;
+  }
+
+  // Timestamp analysis
   Modifier & timestampAnalyzer(const std::string & file_path)
   {
     std::vector<double> time_float{};
