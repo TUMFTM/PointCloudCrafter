@@ -40,6 +40,7 @@ struct ModifierConfig
   int64_t stride_frames{1};
   std::string out_dir{};
   bool sequential_names{false};
+  bool inverse_crop{false};
 
   void add_modifier_options(CLI::App * app)
   {
@@ -75,6 +76,9 @@ struct ModifierConfig
 
     app->add_option("--crop-cylinder,--cc", cropcylinder, "Crop to cylinder with given radius")
       ->type_name("FLOAT")
+      ->group("Filtering");
+
+    app->add_flag("--inverse-crop", inverse_crop, "Inverse crop filters")
       ->group("Filtering");
 
     app->add_option("--voxel-filter,--vf", voxelfilter, "Voxel size [x y z]")

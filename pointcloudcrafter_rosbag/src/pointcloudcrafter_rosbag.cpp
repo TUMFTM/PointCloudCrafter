@@ -174,15 +174,15 @@ void Rosbag::process_pointclouds(
   // Apply filters
   // Cropbox filtering
   if (!cfg_.cropbox.empty()) {
-    modifier.cropBox(cfg_.cropbox);
+    modifier.cropBox(cfg_.cropbox, cfg_.inverse_crop);
   }
   // Sphere filtering
   if (cfg_.cropsphere > 0.0) {
-    modifier.cropSphere(cfg_.cropsphere);
+    modifier.cropSphere(cfg_.cropsphere, cfg_.inverse_crop);
   }
   // Cylinder filtering
   if (cfg_.cropcylinder > 0.0) {
-    modifier.cropCylinder(cfg_.cropcylinder);
+    modifier.cropCylinder(cfg_.cropcylinder, cfg_.inverse_crop);
   }
   // Voxelization
   if (!cfg_.voxelfilter.empty()) {
