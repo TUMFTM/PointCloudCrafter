@@ -25,7 +25,9 @@
 
 namespace config
 {
-
+/**
+ * @brief Common modifier configuration
+ */
 struct ModifierConfig
 {
   std::string transform_file{};
@@ -45,6 +47,10 @@ struct ModifierConfig
   std::vector<double> rotation{};
   bool degree{false};
 
+  /**
+   * @brief Add common modifier CLI options to the given app
+   * @param app CLI app
+   */
   void add_modifier_options(CLI::App * app)
   {
     // Output
@@ -62,43 +68,42 @@ struct ModifierConfig
       ->group("General");
 
     // Transforms
-    // TODO(ga58lar): unified order of option flags
     app->add_option(
-        "--transform-file,--tf", transform_file,
+        "--tf, --transform-file", transform_file,
         "TXT file with transform ([frame_id] r1 r2 r3 x r4 r5 r6 y r7 r8 r9 z)")
       ->group("Transforms");
 
     // Filtering
-    app->add_option("--crop-box,--cb", cropbox, "Crop box [xmin ymin zmin xmax ymax zmax]")
+    app->add_option("--cb, --crop-box", cropbox, "Crop box [xmin ymin zmin xmax ymax zmax]")
       ->expected(6)
       ->type_name("FLOAT FLOAT FLOAT FLOAT FLOAT FLOAT")
       ->group("Filtering");
 
-    app->add_option("--crop-sphere,--cs", cropsphere, "Crop to sphere with given radius")
+    app->add_option("--cs, --crop-sphere", cropsphere, "Crop to sphere with given radius")
       ->type_name("FLOAT")
       ->group("Filtering");
 
-    app->add_option("--crop-cylinder,--cc", cropcylinder, "Crop to cylinder with given radius")
+    app->add_option("--cc, --crop-cylinder", cropcylinder, "Crop to cylinder with given radius")
       ->type_name("FLOAT")
       ->group("Filtering");
 
     app->add_flag("--inverse-crop", inverse_crop, "Inverse crop filters")
       ->group("Filtering");
 
-    app->add_option("--voxel-filter,--vf", voxelfilter, "Voxel size [x y z]")
+    app->add_option("--vf, --voxel-filter", voxelfilter, "Voxel size [x y z]")
       ->expected(3)
       ->type_name("FLOAT FLOAT FLOAT")
       ->group("Filtering");
 
     app->add_option(
-        "--outlier-radius-filter,--orf", outlier_radius_filter,
+        "--orf, --outlier-radius-filter", outlier_radius_filter,
         "Radius outlier removal [radius min_neighbors]")
       ->expected(2)
       ->type_name("FLOAT INT")
       ->group("Filtering");
 
     app->add_option(
-        "--outlier-stat-filter,--osf", outlier_stat_filter,
+        "--osf, --outlier-stat-filter", outlier_stat_filter,
         "Statistical outlier removal [threshold mean_k]")
       ->expected(2)
       ->type_name("FLOAT INT")
@@ -106,10 +111,17 @@ struct ModifierConfig
   }
 };
 
+/**
+ * @brief PCD input configuration
+ */
 struct PCDConfig : public ModifierConfig
 {
   std::string input_path{};
 
+  /**
+   * @brief Add PCD CLI options to the given app
+   * @param app CLI app
+   */
   void add_cli_options(CLI::App * app)
   {
     app->add_option("input-path", input_path, "Path to PCD file or directory")
@@ -137,6 +149,9 @@ struct PCDConfig : public ModifierConfig
   }
 };
 
+/**
+ * @brief Rosbag input configuration
+ */
 struct RosbagConfig : public ModifierConfig
 {
   std::string bag_path{};
@@ -144,6 +159,10 @@ struct RosbagConfig : public ModifierConfig
   std::string target_frame{};
   bool timestamps{false};
 
+  /**
+   * @brief Add Rosbag CLI options to the given app
+   * @param app CLI app
+   */
   void add_cli_options(CLI::App * app)
   {
     app->add_option("bag-path", bag_path, "Path to ROS 2 bag")
