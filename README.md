@@ -54,7 +54,7 @@ Output:
 
 Transforms:
   -t,--target-frame TEXT      Target TF frame for all point clouds
-  --transform-file,--tf TEXT  TXT file with transform (r1 r2 r3 x r4 r5 r6 y r7 r8 r9 z)
+  --transform-file,--tf TEXT  TXT file with transform ([frame_id] r1 r2 r3 x r4 r5 r6 y r7 r8 r9 z)
 
 
 General:
@@ -94,6 +94,15 @@ Options:
   -h,--help                   Print this help message and exit
 
 
+Transforms:
+  -t,--translation FLOAT FLOAT FLOAT x 2
+                              Translation [x y z]]
+  -r,--rotation FLOAT FLOAT FLOAT x 3
+                              Rotation [roll pitch yaw]]
+  --deg                       Rotation in degrees instead of radians
+  --transform-file,--tf TEXT  TXT file with transform ([frame_id] r1 r2 r3 x r4 r5 r6 y r7 r8 r9 z)
+
+
 Output:
   --sequential-name           Use sequential file names
 
@@ -102,10 +111,6 @@ General:
   -m,--max-frames INT         Maximum number of frames (-1 = unlimited)
   -j,--skip-frames INT        Number of frames to skip at the beginning
   -s,--stride-frames INT      Write every Nth frame
-
-
-Transforms:
-  --transform-file,--tf TEXT  TXT file with transform (r1 r2 r3 x r4 r5 r6 y r7 r8 r9 z)
 
 
 Filtering:
