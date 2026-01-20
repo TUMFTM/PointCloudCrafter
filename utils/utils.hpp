@@ -20,6 +20,7 @@
 #include <Eigen/Eigen>
 #include <builtin_interfaces/msg/time.hpp>
 #include <fstream>
+#include <geometry_msgs/msg/transform_stamped.hpp>
 #include <iostream>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
@@ -114,7 +115,7 @@ std::unordered_map<std::string, Eigen::Affine3d> load_transforms_from_file(
 
   std::string line;
   while (std::getline(file, line)) {
-    if (line.empty()) {
+    if (line.empty() || line[0] == '#') {
       continue;
     }
     std::istringstream iss(line);
@@ -134,4 +135,44 @@ std::unordered_map<std::string, Eigen::Affine3d> load_transforms_from_file(
 
   return transforms;
 }
+/**
+ * @brief Load poses in the KITTI format from a text file
+ * @param filename - name of the file
+ * @return vector of poses
+ */
+std::vector<Eigen::Affine3d> load_poses_from_file(const std::string & filename)
+{
+  std::vector<Eigen::Affine3d> poses;
+
+  std::ifstream file(filename);
+  if (!file.is_open()) {
+    throw std::runtime_error("Cannot open file: " + filename);
+  }
+
+  double x, y, z;
+  double r1, r2, r3, r4, r5, r6, r7, r8, r9;
+
+  std::string line;
+  while (std::getline(file, line)) {
+    if (line.empty() || line[0] == '#') {
+      continue;
+    }
+    std::istringstream iss(line);
+
+    if (!(iss >> r1 >> r2 >> r3 >> x >> r4 >> r5 >> r6 >> y >> r7 >> r8 >> r9 >> z)) {
+      std::cerr << "Pose not in expected format" << std::endl;
+    }
+    Eigen::Matrix3d rotation;
+    rotation << r1, r2, r3, r4, r5, r6, r7, r8, r9;
+
+    Eigen::Affine3d trafo = Eigen::Affine3d::Identity();
+    trafo.linear() = rotation;
+    trafo.translation() << x, y, z;
+
+    poses.push_back(trafo);
+  }
+
+  return poses;
+}
+
 }  // namespace pointcloudcrafter::tools::utils

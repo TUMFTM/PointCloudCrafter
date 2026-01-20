@@ -13,36 +13,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Suppress VTK deprecation warnings
-add_definitions(-DVTK_DEPRECATION_LEVEL=0)
-
 # Library
-add_library(pointcloudmodifierlib INTERFACE)
+add_library(pointcloudcrafter_pcd SHARED
+  src/pointcloudcrafter_pcd.cpp)
 
-target_include_directories(pointcloudmodifierlib
-  INTERFACE
+target_include_directories(pointcloudcrafter_pcd
+  PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
     ${PCL_INCLUDE_DIRS})
 
-target_link_libraries(pointcloudmodifierlib
-  INTERFACE
-    ${PCL_LIBRARIES})
+ament_target_dependencies(pointcloudcrafter_pcd PUBLIC
+  rclcpp)
+
+target_link_libraries(pointcloudcrafter_pcd PUBLIC
+  ${PCL_LIBRARIES}
+  fmt::fmt
+  pointcloudmodifierlib
+  utils)
+
+# Executable
+add_executable(pcd
+  src/pointcloudcrafter_pcd_main.cpp)
+
+target_link_libraries(pcd PRIVATE
+  pointcloudcrafter_pcd)
 
 # Installation
-install(TARGETS pointcloudmodifierlib
-  EXPORT pointcloudmodifierlibTargets)
+install(TARGETS pointcloudcrafter_pcd
+  LIBRARY DESTINATION lib)
 
-install(FILES include/pointcloudmodifier.hpp
-  DESTINATION include)
-
-# Examples
-option(BUILD_EXAMPLES "Build example applications" OFF)
-if(BUILD_EXAMPLES)
-  add_subdirectory(examples)
-endif()
-
-# Tests
-if(BUILD_TESTS)
-  add_subdirectory(tests)
-endif()
+install(TARGETS pcd
+  RUNTIME DESTINATION lib/${PROJECT_NAME})

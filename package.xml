@@ -9,8 +9,12 @@
   <maintainer email="maxi.leitenstern@tum.de">Maximilian Leitenstern</maintainer>
   <license>Apache 2.0</license>
 
-  <depend>sensor_msgs</depend>
+  <depend>geometry_msgs</depend>
   <depend>pcl_conversions</depend>
+  <depend>rclcpp</depend>
+  <depend>rosbag2_cpp</depend>
+  <depend>sensor_msgs</depend>
+  <depend>tf2_ros</depend>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
