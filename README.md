@@ -70,6 +70,7 @@ Filtering:
                               Crop box [xmin ymin zmin xmax ymax zmax]
   --crop-sphere,--cs FLOAT    Crop to sphere with given radius
   --crop-cylinder,--cc FLOAT  Crop to cylinder with given radius
+  --inverse-crop              Inverse crop filters
   --voxel-filter,--vf FLOAT FLOAT FLOAT x 3
                               Voxel size [x y z]
   --outlier-radius-filter,--orf FLOAT INT x 2
@@ -120,6 +121,7 @@ Filtering:
                               Crop box [xmin ymin zmin xmax ymax zmax]
   --crop-sphere,--cs FLOAT    Crop to sphere with given radius
   --crop-cylinder,--cc FLOAT  Crop to cylinder with given radius
+  --inverse-crop              Inverse crop filters
   --voxel-filter,--vf FLOAT FLOAT FLOAT x 3
                               Voxel size [x y z]
   --outlier-radius-filter,--orf FLOAT INT x 2

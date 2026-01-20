@@ -84,7 +84,7 @@ public:
 
   // Filter functions - all return reference to allow chaining
   // TODO(ga58lar): add Doxygen comments
-  Modifier & cropBox(const std::vector<double> & box_params)
+  Modifier & cropBox(const std::vector<double> & box_params, const bool & negative = false)
   {
     // TODO(ga58lar): remove this check as it should be handled by CLI expected
     if (box_params.size() < 6) {
@@ -97,10 +97,11 @@ public:
     boxFilter.setMin(Eigen::Vector4f(box_params[0], box_params[1], box_params[2], 1.0));
     boxFilter.setMax(Eigen::Vector4f(box_params[3], box_params[4], box_params[5], 1.0));
     boxFilter.setInputCloud(output_cloud);
+    boxFilter.setNegative(negative);
     boxFilter.filter(*output_cloud);
     return *this;
   }
-  Modifier & cropSphere(const double & sphere_params)
+  Modifier & cropSphere(const double & sphere_params, const bool & negative = false)
   {
     pcl::PointCloud<pcl::PointXYZ>::Ptr tmp(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::fromPCLPointCloud2(*output_cloud, *tmp);
@@ -116,11 +117,12 @@ public:
     pcl::ExtractIndices<pcl::PCLPointCloud2> extract;
     extract.setInputCloud(output_cloud);
     extract.setIndices(inliers);
+    extract.setNegative(negative);
     extract.filter(*output_cloud);
 
     return *this;
   }
-  Modifier & cropCylinder(const double & zylinder_params)
+  Modifier & cropCylinder(const double & zylinder_params, const bool & negative = false)
   {
     pcl::PointCloud<pcl::PointXYZ>::Ptr tmp(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::fromPCLPointCloud2(*output_cloud, *tmp);
@@ -138,6 +140,7 @@ public:
     pcl::ExtractIndices<pcl::PCLPointCloud2> extract;
     extract.setInputCloud(output_cloud);
     extract.setIndices(inliers);
+    extract.setNegative(negative);
     extract.filter(*output_cloud);
 
     return *this;
