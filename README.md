@@ -158,21 +158,15 @@ This project uses the following third-party libraries:
 | [CLI11](https://github.com/CLIUtils/CLI11)                   | BSD           |
 | [Eigen](https://eigen.tuxfamily.org/)                        | MPL-2.0       |
 | [fmt](https://github.com/fmtlib/fmt)                         | MIT           |
+| [geometry_msgs](https://github.com/ros2/common_interfaces)   | Apache-2.0    |
 | [message_filters](https://github.com/ros2/message_filters)   | BSD           |
 | [PCL](https://pointclouds.org/)                              | BSD           |
-| [pcl_conversions](https://github.com/ros-perception/perception_pcl)  | PCL/ROS conversions      |
+| [pcl_conversions](https://github.com/ros-perception/perception_pcl)  | BSD   |
+| [rclcpp](https://github.com/ros2/rclcpp)                     | Apache-2.0    |
+| [rosbag2_cpp](https://github.com/ros2/rosbag2)               | Apache-2.0    |
+| [sensor_msgs](https://github.com/ros2/common_interfaces)     | Apache-2.0    |
 | [tf2_ros](https://github.com/ros2/geometry2)                 | BSD           |
 | [tf2_msgs](https://github.com/ros2/geometry2)                | BSD           |
-
-The following ROS 2 packages are used under the Apache-2.0 License:
-
-| Package                                                              |
-| -------------------------------------------------------------------- |
-| [geometry_msgs](https://github.com/ros2/common_interfaces)           |
-| [rclcpp](https://github.com/ros2/rclcpp)                             |
-| [rosbag2_cpp](https://github.com/ros2/rosbag2)                       |
-| [sensor_msgs](https://github.com/ros2/common_interfaces)             |
-
 
 > **Note:** This list may not be exhaustive. Please refer to the individual package documentation for complete license information.
 
