@@ -141,9 +141,11 @@ void PCD::process_pointcloud(const std::string & input_path, size_t file_index)
   if (!cfg_.rotation.empty()) {
     Eigen::Affine3d transform = Eigen::Affine3d::Identity();
     std::vector<double> rot =
-        cfg_.degree ? std::vector<double>{cfg_.rotation[0] * M_PI / 180.0, cfg_.rotation[1] * M_PI / 180.0,
-                                  cfg_.rotation[2] * M_PI / 180.0}
-                                  : cfg_.rotation;
+        cfg_.degree ? std::vector<double>{
+          cfg_.rotation[0] * M_PI / 180.0,
+          cfg_.rotation[1] * M_PI / 180.0,
+          cfg_.rotation[2] * M_PI / 180.0}
+            : cfg_.rotation;
     Eigen::Matrix3d rotation;
     rotation = Eigen::AngleAxisd(rot[0], Eigen::Vector3d::UnitX()) *
                Eigen::AngleAxisd(rot[1], Eigen::Vector3d::UnitY()) *

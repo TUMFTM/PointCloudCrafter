@@ -61,7 +61,7 @@ struct ModifierConfig
       ->group("General");
 
     // Transforms
-    // TODO(ga58lar): unified order of option flags 
+    // TODO(ga58lar): unified order of option flags
     app->add_option(
         "--transform-file,--tf", transform_file,
         "TXT file with transform ([frame_id] r1 r2 r3 x r4 r5 r6 y r7 r8 r9 z)")
