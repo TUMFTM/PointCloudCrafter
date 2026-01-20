@@ -30,6 +30,8 @@ To run the docker container use:
 ./docker/run_docker.sh /path/to/data/directory
 ```
 
+<br>
+
 <h2> Usage and Command Line Arguments </h2>
 
 <h3> Create and modify point clouds from rosbags </h3>
@@ -126,7 +128,9 @@ Example:
     --voxel-filter 0.1 0.1 0.1 -m 5
 ```
 
-<h3> Cloning without test data (recommended) </h3>
+<br>
+
+<h2> Cloning without test data (recommended) </h2>
 
 This repository uses Git LFS for large test files (22 MB).
 Most users do not need them.
@@ -138,3 +142,56 @@ Clone without downloading LFS files:
 To download them later:
 
     git lfs pull
+
+<br>
+
+<h2> Third-Party Licenses </h2>
+
+<details>
+<summary>More information</summary>
+<br>
+
+This project uses the following third-party libraries:
+
+| Library                                                      | License       |
+| ------------------------------------------------------------ | ------------- |
+| [CLI11](https://github.com/CLIUtils/CLI11)                   | BSD           |
+| [Eigen](https://eigen.tuxfamily.org/)                        | MPL-2.0       |
+| [fmt](https://github.com/fmtlib/fmt)                         | MIT           |
+| [message_filters](https://github.com/ros2/message_filters)   | BSD           |
+| [PCL](https://pointclouds.org/)                              | BSD           |
+| [pcl_conversions](https://github.com/ros-perception/perception_pcl)  | PCL/ROS conversions      |
+| [tf2_ros](https://github.com/ros2/geometry2)                 | BSD           |
+| [tf2_msgs](https://github.com/ros2/geometry2)                | BSD           |
+
+The following ROS 2 packages are used under the Apache-2.0 License:
+
+| Package                                                              |
+| -------------------------------------------------------------------- |
+| [geometry_msgs](https://github.com/ros2/common_interfaces)           |
+| [rclcpp](https://github.com/ros2/rclcpp)                             |
+| [rosbag2_cpp](https://github.com/ros2/rosbag2)                       |
+| [sensor_msgs](https://github.com/ros2/common_interfaces)             |
+
+
+> **Note:** This list may not be exhaustive. Please refer to the individual package documentation for complete license information.
+
+</details>
+
+<h2> More Point Cloud Handling </h2>
+
+<details>
+<summary>More information</summary>
+<br>
+
+| Tool                                                              | Type            |
+| ----------------------------------------------------------------- | --------------- |
+| [CloudCompare](https://github.com/CloudCompare/CloudCompare)      | GUI & CLI       |
+| [libLAS](https://liblas.org/)                                     | Library         |
+| [libpointmatcher](https://github.com/norlab-ulaval/libpointmatcher) | Library       |
+| [Open3D](https://www.open3d.org/)                                 | Library         |
+| [PCL](https://github.com/PointCloudLibrary/pcl)                   | Library & CLI   |
+| [PDAL](https://pdal.io/)                                          | Library & CLI   |
+| [PointCloudEditor](https://github.com/JohannesKrueger/pointcloudeditor) | GUI       |
+
+</details>
