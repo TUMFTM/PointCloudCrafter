@@ -31,6 +31,10 @@
 
 namespace pointcloudcrafter
 {
+/**
+ * @brief PCD class
+ * @param cfg Configuration
+ */
 PCD::PCD(const config::PCDConfig & cfg)
 : logger_(rclcpp::get_logger("pointcloudcrafter_pcd")), cfg_(cfg)
 {
@@ -59,31 +63,32 @@ PCD::PCD(const config::PCDConfig & cfg)
     this->file_transforms_ = tools::utils::load_poses_from_file(cfg_.transform_file);
   }
 
-  // TODO(ga58lar): uniform comments between the two applications
+  // Init out directory
   if (!std::filesystem::exists(cfg_.out_dir)) {
     std::filesystem::create_directories(cfg_.out_dir);
   }
 }
 
+/**
+ * @brief Run the PCD processing
+ */
 void PCD::run()
 {
   int64_t file_index = 0;
   rclcpp::Clock wall_clock{};
   const int64_t total_files = static_cast<int64_t>(pcd_files_.size());
 
-  // TODO(ga58lar): substitute raw loops with algorithms
-  for (const auto & pcd_file : pcd_files_) {
+  for (size_t i = 0; i < total_files && rclcpp::ok(); i++) {
+    // Check if we should skip frames
     if (file_index < cfg_.skip_frames) {
       file_index++;
       continue;
     }
-
     if (stride_frames_ > 0) {
       stride_frames_--;
       file_index++;
       continue;
     }
-
     if (cfg_.max_frames > 0 && processed_frames_ >= cfg_.max_frames) {
       RCLCPP_INFO(logger_, "Reached max frames limit (%ld)", cfg_.max_frames);
       break;
@@ -94,18 +99,24 @@ void PCD::run()
     RCLCPP_INFO_THROTTLE(logger_, wall_clock, 1000, "Processed %ld of %ld files [% 5.1f%%]",
       file_index, total_files, progress);
 
-    process_pointcloud(pcd_file, file_index);
+    process_pointcloud(pcd_files_[i], file_index);
 
     processed_frames_++;
     stride_frames_ = cfg_.stride_frames - 1;
     file_index++;
   }
 
-  RCLCPP_INFO(logger_, "Processing complete. Processed %ld file(s).", processed_frames_);
+  RCLCPP_INFO(logger_, "Processing finished. Processed %ld file(s).", processed_frames_);
 }
 
+/**
+ * @brief Process a single pointcloud file
+ * @param input_path Path to the input PCD file
+ * @param file_index Index of the file being processed
+ */
 void PCD::process_pointcloud(const std::string & input_path, size_t file_index)
 {
+  // Modify the pointclouds with pointcloudmodifierlib
   pointcloudmodifierlib::Modifier modifier;
   if (!modifier.loadPCD(input_path)) {
     RCLCPP_ERROR(logger_, "Failed to load PCD file: %s", input_path.c_str());
@@ -113,31 +124,40 @@ void PCD::process_pointcloud(const std::string & input_path, size_t file_index)
   }
 
   // Apply filters
+  // Cropbox filtering
   if (!cfg_.cropbox.empty()) {
     modifier.cropBox(cfg_.cropbox, cfg_.inverse_crop);
   }
+  // Sphere filtering
   if (cfg_.cropsphere > 0.0) {
     modifier.cropSphere(cfg_.cropsphere, cfg_.inverse_crop);
   }
+  // Cylinder filtering
   if (cfg_.cropcylinder > 0.0) {
     modifier.cropCylinder(cfg_.cropcylinder, cfg_.inverse_crop);
   }
+  // Voxelization
   if (!cfg_.voxelfilter.empty()) {
     modifier.voxelFilter(cfg_.voxelfilter);
   }
+  // Outlier radius filtering
   if (cfg_.outlier_radius_filter.first > 0.0) {
     modifier.outlierRadiusFilter(cfg_.outlier_radius_filter.first,
       cfg_.outlier_radius_filter.second);
   }
+  // Outlier statistical filtering
   if (cfg_.outlier_stat_filter.first > 0.0) {
     modifier.outlierStatFilter(cfg_.outlier_stat_filter.first, cfg_.outlier_stat_filter.second);
   }
+  // Apply transforms
+  // Pose file transform
   if (!cfg_.transform_file.empty() && file_index < file_transforms_.size()) {
     modifier.transform(this->file_transforms_[file_index]);
   } else if (!cfg_.transform_file.empty()) {
     RCLCPP_ERROR(logger_, "No transform available for index %zu", file_index);
     return;
   }
+  // Rotation transform
   if (!cfg_.rotation.empty()) {
     Eigen::Affine3d transform = Eigen::Affine3d::Identity();
     std::vector<double> rot =
@@ -153,12 +173,14 @@ void PCD::process_pointcloud(const std::string & input_path, size_t file_index)
     transform.linear() = rotation;
     modifier.transform(transform);
   }
+  // Translation transform
   if (!cfg_.translation.empty()) {
     Eigen::Affine3d transform = Eigen::Affine3d::Identity();
     transform.translation() << cfg_.translation[0], cfg_.translation[1], cfg_.translation[2];
     modifier.transform(transform);
   }
 
+  // Save output cloud
   std::string output_name;
   if (cfg_.sequential_names) {
     output_name = fmt::format("{:06d}.pcd", processed_frames_);

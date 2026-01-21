@@ -54,6 +54,7 @@ namespace pointcloudcrafter
 {
 /**
  * @brief Rosbag class
+ * @param cfg Configuration
  */
 Rosbag::Rosbag(const config::RosbagConfig & cfg)
 : reader_(cfg_.bag_path),
@@ -92,14 +93,15 @@ Rosbag::Rosbag(const config::RosbagConfig & cfg)
   }
 
   // Init out directory
-  // TODO(ga58lar): remove this check as CLI should ensure this
-  if (cfg_.out_dir.empty()) {
-    throw std::runtime_error("Output directory not specified");
-  }
   if (!std::filesystem::exists(cfg_.out_dir)) {
     std::filesystem::create_directories(cfg_.out_dir);
   }
 }
+
+/**
+ * @brief Callback for TF messages
+ * @param msg TF message
+ */
 void Rosbag::tf_callback(const tools::RosbagReaderMsg<tf2_msgs::msg::TFMessage> & msg)
 {
   for (auto & tf : msg.ros_msg.transforms) {
@@ -109,6 +111,13 @@ void Rosbag::tf_callback(const tools::RosbagReaderMsg<tf2_msgs::msg::TFMessage> 
     tf2_buffer_.setTransform(tf, "bag", msg.bag_msg.topic_name == "/tf_static");
   }
 }
+/**
+ * @brief Callback for synchronized pointclouds
+ * @param pc1 Pointcloud message 1
+ * @param pc2 Pointcloud message 2
+ * @param pc3 Pointcloud message 3
+ * @param pc4 Pointcloud message 4
+ */
 void Rosbag::pointcloud_sync_callback(
   const sensor_msgs::msg::PointCloud2::ConstSharedPtr & pc1,
   const sensor_msgs::msg::PointCloud2::ConstSharedPtr & pc2,
@@ -135,6 +144,10 @@ void Rosbag::pointcloud_sync_callback(
   // Process the pointclouds
   process_pointclouds(pc_msgs);
 }
+/**
+ * @brief Process synchronized pointclouds
+ * @param pc_msgs Vector of pointcloud messages
+ */
 void Rosbag::process_pointclouds(
   std::vector<sensor_msgs::msg::PointCloud2::ConstSharedPtr> & pc_msgs)
 {
@@ -169,7 +182,6 @@ void Rosbag::process_pointclouds(
   }
 
   // Modify the merged pointcloud with pointcloudmodifierlib
-  // Pointcloud modifier
   pointcloudmodifierlib::Modifier modifier;
   modifier.setCloud(merged_pc);
   // Apply filters
@@ -212,6 +224,11 @@ void Rosbag::process_pointclouds(
     modifier.timestampAnalyzer(cfg_.out_dir + "/" + name + "_stamps.txt");
   }
 }
+/**
+ * @brief Transform a pointcloud given the transform from either the file or the TF buffer
+ * @param msg_in Input pointcloud
+ * @param msg_out Output pointcloud
+ */
 void Rosbag::transform_pc(
   const sensor_msgs::msg::PointCloud2 & msg_in, sensor_msgs::msg::PointCloud2 & msg_out)
 {

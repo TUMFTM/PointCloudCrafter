@@ -46,6 +46,9 @@
 using PointCloud = pcl::PCLPointCloud2;
 namespace pointcloudmodifierlib
 {
+/**
+ * @brief Modifier class for point cloud processing
+ */
 class Modifier
 {
 public:
@@ -56,6 +59,11 @@ public:
   ~Modifier() = default;
 
   // Loading/saving functions
+  /**
+   * @brief Load PCD file
+   * @param file_path Path to the PCD file
+   * @return True if successful, false otherwise
+   */
   bool loadPCD(const std::string & file_path)
   {
     pcl::PCDReader reader;
@@ -64,6 +72,11 @@ public:
     *output_cloud = *input_cloud;
     return true;
   }
+  /**
+   * @brief Save PCD file
+   * @param file_path Path to save the PCD file
+   * @return True if successful, false otherwise
+   */
   bool savePCD(const std::string & file_path)
   {
     std::filesystem::path p(file_path);
@@ -82,17 +95,15 @@ public:
     return true;
   }
 
-  // Filter functions - all return reference to allow chaining
-  // TODO(ga58lar): add Doxygen comments
+  // Filtering functions
+  /**
+   * @brief Crop box filter
+   * @param box_params Vector of 6 doubles defining the min and max points of the box
+   * @param negative If true, removes points inside the box
+   * @return Reference to the Modifier object
+   */
   Modifier & cropBox(const std::vector<double> & box_params, const bool & negative = false)
   {
-    // TODO(ga58lar): remove this check as it should be handled by CLI expected
-    if (box_params.size() < 6) {
-      std::cerr << "Error: cropBox requires 6 parameters (min_x, min_y, min_z, max_x, max_y, max_z)"
-                << std::endl;
-      return *this;
-    }
-
     pcl::CropBox<PointCloud> boxFilter;
     boxFilter.setMin(Eigen::Vector4f(box_params[0], box_params[1], box_params[2], 1.0));
     boxFilter.setMax(Eigen::Vector4f(box_params[3], box_params[4], box_params[5], 1.0));
@@ -101,15 +112,23 @@ public:
     boxFilter.filter(*output_cloud);
     return *this;
   }
+  /**
+   * @brief Crop sphere filter
+   * @param sphere_params Radius of the sphere
+   * @param negative If true, removes points inside the sphere
+   * @return Reference to the Modifier object
+   */
   Modifier & cropSphere(const double & sphere_params, const bool & negative = false)
   {
+    const auto radius_sq = sphere_params * sphere_params;
     pcl::PointCloud<pcl::PointXYZ>::Ptr tmp(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::fromPCLPointCloud2(*output_cloud, *tmp);
 
     pcl::PointIndices::Ptr inliers(new pcl::PointIndices());
+    inliers->indices.reserve(tmp->size());
 
     for (size_t i = 0; i < tmp->size(); ++i) {
-      if (tmp->points[i].getVector3fMap().norm() < sphere_params) {
+      if (tmp->points[i].getVector3fMap().squaredNorm() < radius_sq) {
         inliers->indices.push_back(i);
       }
     }
@@ -122,17 +141,25 @@ public:
 
     return *this;
   }
+  /**
+   * @brief Crop cylinder filter
+   * @param zylinder_params Radius of the cylinder
+   * @param negative If true, removes points inside the cylinder
+   * @return Reference to the Modifier object
+   */
   Modifier & cropCylinder(const double & zylinder_params, const bool & negative = false)
   {
+    const auto radius_sq = zylinder_params * zylinder_params;
     pcl::PointCloud<pcl::PointXYZ>::Ptr tmp(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::fromPCLPointCloud2(*output_cloud, *tmp);
 
     pcl::PointIndices::Ptr inliers(new pcl::PointIndices());
+    inliers->indices.reserve(tmp->size());
 
     for (size_t i = 0; i < tmp->size(); ++i) {
       auto point = tmp->points[i].getVector3fMap();
-      double r = std::sqrt(point.x() * point.x() + point.y() * point.y());
-      if (r < zylinder_params) {
+      auto r = point.x() * point.x() + point.y() * point.y();
+      if (r < radius_sq) {
         inliers->indices.push_back(i);
       }
     }
@@ -145,15 +172,13 @@ public:
 
     return *this;
   }
+  /**
+   * @brief Voxel grid filter with subvoxel handling
+   * @param voxel Vector of 3 doubles defining the voxel size in x, y, z
+   * @return Reference to the Modifier object
+   */
   Modifier & voxelFilter(const std::vector<double> & voxel)
   {
-    // TODO(ga58lar): remove this check as it should be handled by CLI expected
-    if (voxel.size() != 3) {
-      std::cerr << "Error: Voxel filter requires 3 parameters (voxel_x, voxel_y, voxel_z)"
-                << std::endl;
-      return *this;
-    }
-
     pcl::PointCloud<pcl::PointXYZ>::Ptr tmp(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::fromPCLPointCloud2(*output_cloud, *tmp);
 
@@ -176,6 +201,12 @@ public:
 
     return *this;
   }
+  /**
+   * @brief Outlier radius filter
+   * @param radius Radius for the filter
+   * @param min_neighbors Minimum number of neighbors to be considered an inlier
+   * @return Reference to the Modifier object
+   */
   Modifier & outlierRadiusFilter(const double & radius, const int & min_neighbors)
   {
     pcl::RadiusOutlierRemoval<PointCloud> radiusFilter;
@@ -185,6 +216,12 @@ public:
     radiusFilter.filter(*output_cloud);
     return *this;
   }
+  /**
+   * @brief Outlier statistical filter
+   * @param threshold Standard deviation multiplier threshold
+   * @param mean Number of nearest neighbors to use for mean distance estimation
+   * @return Reference to the Modifier object
+   */
   Modifier & outlierStatFilter(const double & threshold, const int & mean)
   {
     pcl::StatisticalOutlierRemoval<PointCloud> statFilter;
@@ -196,6 +233,11 @@ public:
   }
 
   // Transforms
+  /**
+   * @brief Apply transformation to the point cloud
+   * @param transformation Eigen Affine3d transformation matrix
+   * @return Reference to the Modifier object
+   */
   Modifier & transform(const Eigen::Affine3d & transformation)
   {
     // Find x, y, z field offsets
@@ -226,7 +268,12 @@ public:
     return *this;
   }
 
-  // Timestamp analysis
+  // Analysis
+  /**
+   * @brief Save timestamps to a file and print basic statistics
+   * @param file_path Path to save the timestamps
+   * @return Reference to the Modifier object
+   */
   Modifier & timestampAnalyzer(const std::string & file_path)
   {
     std::vector<double> time_float{};
@@ -299,6 +346,9 @@ public:
   }
 
   // Visualization
+  /**
+   * @brief Visualize input and output point clouds
+   */
   void visualize()
   {
     // Convert to PointXYZ for visualization
@@ -336,6 +386,10 @@ public:
   }
 
   // Setters
+  /**
+   * @brief Set point cloud directly
+   * @param cloud Point cloud to set
+   */
   void setCloud(const PointCloud::Ptr & cloud)
   {
     *output_cloud = *cloud;
@@ -343,13 +397,31 @@ public:
   }
 
   // Getters
+  /**
+   * @brief Get input point cloud
+   * @return Pointer to the input point cloud
+   */
   const PointCloud::Ptr getInputCloud() const { return input_cloud; }
+  /**
+   * @brief Get output point cloud
+   * @return Pointer to the output point cloud
+   */
   const PointCloud::Ptr getOutputCloud() const { return output_cloud; }
 
 private:
   PointCloud::Ptr input_cloud;
   PointCloud::Ptr output_cloud;
 
+  /**
+   * @brief Apply subvoxel filter to the point cloud
+   * @param voxel Vector of 3 doubles defining the voxel size in x, y, z
+   * @param cloud Pointer to the point cloud
+   * @param min_pt Minimum point of the bounding box
+   * @param max_pt Maximum point of the bounding box
+   * @param num_x Number of voxels in x direction
+   * @param num_y Number of voxels in y direction
+   * @param num_z Number of voxels in z direction
+   */
   void applySubVoxelFilter(
     const std::vector<double> & voxel, PointCloud::Ptr & cloud, const pcl::PointXYZ & min_pt,
     const pcl::PointXYZ & max_pt, const uint64_t num_x, const uint64_t num_y, const uint64_t num_z)
@@ -391,6 +463,11 @@ private:
     *output_cloud = *apc;
   }
 
+  /**
+   * @brief Apply voxel filter to the point cloud
+   * @param voxel Vector of 3 doubles defining the voxel size in x, y, z
+   * @param cloud Pointer to the point cloud
+   */
   void applyVoxelFilter(const std::vector<double> & voxel, PointCloud::Ptr & cloud)
   {
     pcl::VoxelGrid<PointCloud> voxelFilter;
@@ -399,6 +476,12 @@ private:
     voxelFilter.filter(*cloud);
   }
 
+  /**
+   * @brief Save timestamps to a file
+   * @param timestamps Vector of timestamps
+   * @param output_path Path to save the timestamps
+   * @return True if successful, false otherwise
+   */
   template <typename T>
   bool saveTimestamps(const std::vector<T> & timestamps, const std::string & output_path)
   {
