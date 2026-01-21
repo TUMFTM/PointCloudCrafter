@@ -120,6 +120,7 @@ public:
    */
   Modifier & cropSphere(const double & sphere_params, const bool & negative = false)
   {
+    const auto radius_sq = sphere_params * sphere_params;
     pcl::PointCloud<pcl::PointXYZ>::Ptr tmp(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::fromPCLPointCloud2(*output_cloud, *tmp);
 
@@ -127,7 +128,7 @@ public:
     inliers->indices.reserve(tmp->size());
 
     for (size_t i = 0; i < tmp->size(); ++i) {
-      if (tmp->points[i].getVector3fMap().squaredNorm() < sphere_params * sphere_params) {
+      if (tmp->points[i].getVector3fMap().squaredNorm() < radius_sq) {
         inliers->indices.push_back(i);
       }
     }
@@ -148,6 +149,7 @@ public:
    */
   Modifier & cropCylinder(const double & zylinder_params, const bool & negative = false)
   {
+    const auto radius_sq = zylinder_params * zylinder_params;
     pcl::PointCloud<pcl::PointXYZ>::Ptr tmp(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::fromPCLPointCloud2(*output_cloud, *tmp);
 
@@ -157,7 +159,7 @@ public:
     for (size_t i = 0; i < tmp->size(); ++i) {
       auto point = tmp->points[i].getVector3fMap();
       auto r = point.x() * point.x() + point.y() * point.y();
-      if (r < zylinder_params * zylinder_params) {
+      if (r < radius_sq) {
         inliers->indices.push_back(i);
       }
     }
