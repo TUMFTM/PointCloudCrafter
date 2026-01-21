@@ -23,11 +23,14 @@ target_include_directories(pointcloudmodifierlib
   INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
-    ${PCL_INCLUDE_DIRS})
+    ${PCL_INCLUDE_DIRS}
+    ${PDAL_INCLUDE_DIRS})
 
 target_link_libraries(pointcloudmodifierlib
   INTERFACE
-    ${PCL_LIBRARIES})
+    ${PCL_LIBRARIES}
+    ${PDAL_LIBRARIES}
+    utils)
 
 # Installation
 install(TARGETS pointcloudmodifierlib

@@ -41,12 +41,15 @@ PCD::PCD(const config::PCDConfig & cfg)
   std::filesystem::path input_path(cfg_.input_path);
   if (std::filesystem::is_directory(input_path)) {
     for (const auto & entry : std::filesystem::directory_iterator(input_path)) {
-      if (entry.path().extension() == ".pcd") {
+      if (entry.path().extension() == pointcloudcrafter::tools::formats::format_to_extension(
+            cfg_.get_load_format())) {
         pcd_files_.push_back(entry.path().string());
       }
     }
     std::sort(pcd_files_.begin(), pcd_files_.end());
-  } else if (std::filesystem::is_regular_file(input_path) && input_path.extension() == ".pcd") {
+  } else if (std::filesystem::is_regular_file(input_path) && input_path.extension() ==
+            pointcloudcrafter::tools::formats::format_to_extension(
+            cfg_.get_load_format())) {
     pcd_files_.push_back(cfg_.input_path);
   } else {
     throw std::runtime_error("Input path must be a PCD file or directory containing PCD files");
@@ -118,8 +121,8 @@ void PCD::process_pointcloud(const std::string & input_path, size_t file_index)
 {
   // Modify the pointclouds with pointcloudmodifierlib
   pointcloudmodifierlib::Modifier modifier;
-  if (!modifier.loadPCD(input_path)) {
-    RCLCPP_ERROR(logger_, "Failed to load PCD file: %s", input_path.c_str());
+  if (!modifier.load(input_path, cfg_.get_load_format())) {
+    RCLCPP_ERROR(logger_, "Failed to load file: %s", input_path.c_str());
     return;
   }
 
@@ -180,19 +183,18 @@ void PCD::process_pointcloud(const std::string & input_path, size_t file_index)
     modifier.transform(transform);
   }
 
-  // Save output cloud
-  std::string output_name;
-  if (cfg_.sequential_names) {
-    output_name = fmt::format("{:06d}.pcd", processed_frames_);
-  } else {
-    std::filesystem::path p(input_path);
-    output_name = p.filename().string();
-  }
+  // Generate output path
+  std::filesystem::path input_p(input_path);
+  std::string stem = cfg_.sequential_names ?
+    fmt::format("{:06d}", processed_frames_) : input_p.stem().string();
 
-  std::string output_path = cfg_.out_dir + "/" + output_name;
-  if (!modifier.savePCD(output_path)) {
-    RCLCPP_ERROR(logger_, "Failed to save pointcloud to %s", output_path.c_str());
-    return;
+  auto save_fmt = cfg_.get_save_format();
+  std::string output_path = cfg_.out_dir + "/" + stem +
+    pointcloudcrafter::tools::formats::format_to_extension(save_fmt);
+
+  // Save with configured format
+  if (!modifier.save(output_path, save_fmt)) {
+    RCLCPP_ERROR(logger_, "Failed to save: %s", output_path.c_str());
   }
 }
 

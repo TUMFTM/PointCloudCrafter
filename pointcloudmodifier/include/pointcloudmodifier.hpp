@@ -38,10 +38,14 @@
 #include <pcl/filters/statistical_outlier_removal.h>
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/io/pcd_io.h>
+#include <pcl/io/ply_io.h>
+#include <pcl/io/obj_io.h>
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/conversions.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
+
+#include "formats.hpp"
 
 using PointCloud = pcl::PCLPointCloud2;
 namespace pointcloudmodifierlib
@@ -58,41 +62,58 @@ public:
   }
   ~Modifier() = default;
 
-  // Loading/saving functions
+  // Loading point clouds
   /**
-   * @brief Load PCD file
-   * @param file_path Path to the PCD file
+   * @brief Load a point cloud file based on the specified format
+   * @param file_path Path to the file
+   * @param format The file format
    * @return True if successful, false otherwise
    */
-  bool loadPCD(const std::string & file_path)
+  bool load(const std::string & file_path,
+    pointcloudcrafter::tools::formats::FileFormat format)
   {
-    pcl::PCDReader reader;
-    reader.read(file_path, *input_cloud);
-
-    *output_cloud = *input_cloud;
-    return true;
+    switch (format) {
+      case pointcloudcrafter::tools::formats::FileFormat::PCD:
+        return load_pcd(file_path);
+      case pointcloudcrafter::tools::formats::FileFormat::PLY:
+        return load_ply(file_path);
+      case pointcloudcrafter::tools::formats::FileFormat::XYZ:
+        return load_xyz(file_path);
+      case pointcloudcrafter::tools::formats::FileFormat::KITTI:
+        return load_kitti(file_path);
+      case pointcloudcrafter::tools::formats::FileFormat::NUSCENES:
+        return load_nuscenes(file_path);
+      case pointcloudcrafter::tools::formats::FileFormat::OBJ:
+        return load_obj(file_path);
+      default:
+        std::cerr << "Error: Unknown file format" << std::endl;
+        return false;
+    }
   }
   /**
-   * @brief Save PCD file
-   * @param file_path Path to save the PCD file
+   * @brief Save point cloud to file based on the specified format
+   * @param file_path Path to save the file
+   * @param format The file format
    * @return True if successful, false otherwise
    */
-  bool savePCD(const std::string & file_path)
+  bool save(const std::string & file_path,
+    pointcloudcrafter::tools::formats::FileFormat format)
   {
-    std::filesystem::path p(file_path);
-    std::filesystem::path dir = p.parent_path();
-    std::string filename = p.filename().string();
-    std::filesystem::path output_path = dir / filename;
-
-    pcl::PCDWriter writer;
-    if (
-      writer.write(
-        output_path.string(), output_cloud, Eigen::Vector4f::Zero(), Eigen::Quaternionf::Identity(),
-        true) == -1) {
-      std::cerr << "Failed to save PCD file: " << output_path.string() << std::endl;
-      return false;
+    switch (format) {
+      case pointcloudcrafter::tools::formats::FileFormat::PCD:
+        return save_pcd(file_path);
+      case pointcloudcrafter::tools::formats::FileFormat::PLY:
+        return save_ply(file_path);
+      case pointcloudcrafter::tools::formats::FileFormat::XYZ:
+        return save_xyz(file_path);
+      case pointcloudcrafter::tools::formats::FileFormat::KITTI:
+        return save_kitti(file_path);
+      case pointcloudcrafter::tools::formats::FileFormat::NUSCENES:
+        return save_nuscenes(file_path);
+      default:
+        std::cerr << "Error: Unknown file format" << std::endl;
+        return false;
     }
-    return true;
   }
 
   // Filtering functions
@@ -411,6 +432,311 @@ public:
 private:
   PointCloud::Ptr input_cloud;
   PointCloud::Ptr output_cloud;
+
+  /**
+   * @brief Load PCD file
+   * @param file_path Path to the PCD file
+   * @return True if successful, false otherwise
+   */
+  bool load_pcd(const std::string & file_path)
+  {
+    pcl::PCDReader reader;
+    if (reader.read(file_path, *input_cloud) == -1) {
+      std::cerr << "Error: Failed to load PCD file: " << file_path << std::endl;
+      return false;
+    }
+    *output_cloud = *input_cloud;
+    return true;
+  }
+  /**
+   * @brief Load a PLY file into PCLPointCloud2
+   * @param file_path Path to the PLY file
+   * @return True if successful, false otherwise
+   */
+  bool load_ply(const std::string & file_path)
+  {
+    pcl::PLYReader reader;
+    if (reader.read(file_path, *input_cloud) == -1) {
+      std::cerr << "Error: Failed to load PLY file: " << file_path << std::endl;
+      return false;
+    }
+    *output_cloud = *input_cloud;
+    return true;
+  }
+  /**
+   * @brief Load an XYZ ASCII file into PCLPointCloud2
+   * @param file_path Path to the XYZ file
+   * @return True if successful, false otherwise
+   */
+  bool load_xyz(const std::string & file_path)
+  {
+    std::ifstream file(file_path);
+    if (!file.is_open()) {
+      std::cerr << "Error: Failed to open XYZ file: " << file_path << std::endl;
+      return false;
+    }
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr tmp(new pcl::PointCloud<pcl::PointXYZ>);
+    std::string line;
+
+    while (std::getline(file, line)) {
+      if (line.empty() || line[0] == '#') continue;
+
+      std::istringstream iss(line);
+      float x, y, z;
+      if (iss >> x >> y >> z) {
+        tmp->push_back(pcl::PointXYZ(x, y, z));
+      }
+    }
+
+    tmp->width = tmp->size();
+    tmp->height = 1;
+    tmp->is_dense = true;
+
+    pcl::toPCLPointCloud2(*tmp, *input_cloud);
+    *output_cloud = *input_cloud;
+    return true;
+  }
+  /**
+   * @brief Load a KITTI binary file into PCLPointCloud2
+   * 
+   * KITTI format: binary file with points as (x, y, z, intensity) float32
+   * 
+   * @param file_path Path to the KITTI .bin file
+   * @return True if successful, false otherwise
+   */
+  bool load_kitti(const std::string & file_path)
+  {
+    std::ifstream file(file_path, std::ios::binary);
+    if (!file.is_open()) {
+      std::cerr << "Error: Failed to open KITTI file: " << file_path << std::endl;
+      return false;
+    }
+
+    // Get file size
+    file.seekg(0, std::ios::end);
+    const size_t file_size = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    // KITTI format: 4 floats per point (x, y, z, intensity)
+    constexpr size_t point_size = 4 * sizeof(float);
+    const size_t num_points = file_size / point_size;
+
+    // Read all data
+    std::vector<float> buffer(num_points * 4);
+    file.read(reinterpret_cast<char*>(buffer.data()), file_size);
+
+    // Convert to PointXYZI
+    pcl::PointCloud<pcl::PointXYZI>::Ptr tmp(new pcl::PointCloud<pcl::PointXYZI>);
+    tmp->reserve(num_points);
+
+    for (size_t i = 0; i < num_points; ++i) {
+      pcl::PointXYZI point;
+      point.x = buffer[i * 4 + 0];
+      point.y = buffer[i * 4 + 1];
+      point.z = buffer[i * 4 + 2];
+      point.intensity = buffer[i * 4 + 3];
+      tmp->push_back(point);
+    }
+
+    tmp->width = tmp->size();
+    tmp->height = 1;
+    tmp->is_dense = true;
+
+    pcl::toPCLPointCloud2(*tmp, *input_cloud);
+    *output_cloud = *input_cloud;
+    return true;
+  }
+  /**
+   * @brief Load a nuScenes binary file into PCLPointCloud2
+   * 
+   * nuScenes format: binary file with points as (x, y, z, intensity, ring) float32
+   * 
+   * @param file_path Path to the nuScenes .bin file
+   * @return True if successful, false otherwise
+   */
+  bool load_nuscenes(const std::string & file_path)
+  {
+    std::ifstream file(file_path, std::ios::binary);
+    if (!file.is_open()) {
+      std::cerr << "Error: Failed to open nuScenes file: " << file_path << std::endl;
+      return false;
+    }
+
+    // Get file size
+    file.seekg(0, std::ios::end);
+    const size_t file_size = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    // nuScenes format: 5 floats per point (x, y, z, intensity, ring)
+    constexpr size_t point_size = 5 * sizeof(float);
+    const size_t num_points = file_size / point_size;
+
+    // Read all data
+    std::vector<float> buffer(num_points * 5);
+    file.read(reinterpret_cast<char*>(buffer.data()), file_size);
+
+    // Create custom point cloud with ring field
+    // Using PointXYZI and storing ring in a separate structure
+    pcl::PointCloud<pcl::PointXYZI>::Ptr tmp(new pcl::PointCloud<pcl::PointXYZI>);
+    tmp->reserve(num_points);
+
+    for (size_t i = 0; i < num_points; ++i) {
+      pcl::PointXYZI point;
+      point.x = buffer[i * 5 + 0];
+      point.y = buffer[i * 5 + 1];
+      point.z = buffer[i * 5 + 2];
+      point.intensity = buffer[i * 5 + 3];
+      // Note: ring (buffer[i * 5 + 4]) is lost in PointXYZI
+      // For full support, use a custom point type
+      tmp->push_back(point);
+    }
+
+    tmp->width = tmp->size();
+    tmp->height = 1;
+    tmp->is_dense = true;
+
+    pcl::toPCLPointCloud2(*tmp, *input_cloud);
+    *output_cloud = *input_cloud;
+    return true;
+  }
+  /**
+   * @brief Load a OBJ file into PCLPointCloud2
+   * @param file_path Path to the OBJ file
+   * @return True if successful, false otherwise
+   */
+  bool load_obj(const std::string & file_path)
+  {
+    pcl::OBJReader reader;
+    if (reader.read(file_path, *input_cloud) == -1) {
+      std::cerr << "Error: Failed to load OBJ file: " << file_path << std::endl;
+      return false;
+    }
+    *output_cloud = *input_cloud;
+    return true;
+  }
+
+  /**
+   * @brief Save point cloud to PCD file
+   * @param file_path Path to save the PCD file
+   * @return True if successful, false otherwise
+   */
+  bool save_pcd(const std::string & file_path)
+  {
+    pcl::PCDWriter writer;
+    if (writer.write(file_path, *output_cloud, Eigen::Vector4f::Zero(),
+          Eigen::Quaternionf::Identity(), true) == -1) {
+      std::cerr << "Error: Failed to save PCD file: " << file_path << std::endl;
+      return false;
+    }
+    return true;
+  }
+  /**
+   * @brief Save point cloud to PLY file
+   * @param file_path Path to save the PLY file
+   * @return True if successful, false otherwise
+   */
+  bool save_ply(const std::string & file_path)
+  {
+    pcl::PLYWriter writer;
+    if (writer.write(file_path, *output_cloud, Eigen::Vector4f::Zero(),
+          Eigen::Quaternionf::Identity(), true, true) == -1) {
+      std::cerr << "Error: Failed to save PLY file: " << file_path << std::endl;
+      return false;
+    }
+    return true;
+  }
+  /**
+   * @brief Save point cloud to XYZ ASCII file
+   * @param file_path Path to save the XYZ file
+   * @return True if successful, false otherwise
+   */
+  bool save_xyz(const std::string & file_path)
+  {
+    pcl::PointCloud<pcl::PointXYZ>::Ptr tmp(new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::fromPCLPointCloud2(*output_cloud, *tmp);
+
+    std::ofstream file(file_path);
+    if (!file.is_open()) {
+      std::cerr << "Error: Failed to open XYZ file for writing: " << file_path << std::endl;
+      return false;
+    }
+
+    file << std::fixed << std::setprecision(6);
+    for (const auto & point : tmp->points) {
+      file << point.x << " " << point.y << " " << point.z << "\n";
+    }
+    return true;
+  }
+  /**
+   * @brief Save point cloud to KITTI binary file
+   * @param file_path Path to save the KITTI .bin file
+   * @return True if successful, false otherwise
+   */
+  bool save_kitti(const std::string & file_path)
+  {
+    std::ofstream file(file_path, std::ios::binary);
+    if (!file.is_open()) {
+      std::cerr << "Error: Failed to open KITTI file for writing: " << file_path << std::endl;
+      return false;
+    }
+
+    // Check if intensity field exists
+    bool has_intensity = std::any_of(
+      output_cloud->fields.begin(), output_cloud->fields.end(),
+      [](const pcl::PCLPointField & f) { return f.name == "intensity"; });
+
+    if (has_intensity) {
+      pcl::PointCloud<pcl::PointXYZI>::Ptr tmp(new pcl::PointCloud<pcl::PointXYZI>);
+      pcl::fromPCLPointCloud2(*output_cloud, *tmp);
+      for (const auto & point : tmp->points) {
+        float data[4] = {point.x, point.y, point.z, point.intensity};
+        file.write(reinterpret_cast<char *>(data), sizeof(data));
+      }
+    } else {
+      pcl::PointCloud<pcl::PointXYZ>::Ptr tmp(new pcl::PointCloud<pcl::PointXYZ>);
+      pcl::fromPCLPointCloud2(*output_cloud, *tmp);
+      for (const auto & point : tmp->points) {
+        float data[4] = {point.x, point.y, point.z, 0.0f};
+        file.write(reinterpret_cast<char *>(data), sizeof(data));
+      }
+    }
+    return true;
+  }
+  /**
+   * @brief Save point cloud to nuScenes binary file
+   * @param file_path Path to save the nuScenes .bin file
+   * @return True if successful, false otherwise
+   */
+  bool save_nuscenes(const std::string & file_path)
+  {
+    std::ofstream file(file_path, std::ios::binary);
+    if (!file.is_open()) {
+      std::cerr << "Error: Failed to open nuScenes file for writing: " << file_path << std::endl;
+      return false;
+    }
+
+    bool has_intensity = std::any_of(
+      output_cloud->fields.begin(), output_cloud->fields.end(),
+      [](const pcl::PCLPointField & f) { return f.name == "intensity"; });
+
+    if (has_intensity) {
+      pcl::PointCloud<pcl::PointXYZI>::Ptr tmp(new pcl::PointCloud<pcl::PointXYZI>);
+      pcl::fromPCLPointCloud2(*output_cloud, *tmp);
+      for (const auto & point : tmp->points) {
+        float data[5] = {point.x, point.y, point.z, point.intensity, 0.0f};
+        file.write(reinterpret_cast<char *>(data), sizeof(data));
+      }
+    } else {
+      pcl::PointCloud<pcl::PointXYZ>::Ptr tmp(new pcl::PointCloud<pcl::PointXYZ>);
+      pcl::fromPCLPointCloud2(*output_cloud, *tmp);
+      for (const auto & point : tmp->points) {
+        float data[5] = {point.x, point.y, point.z, 0.0f, 0.0f};
+        file.write(reinterpret_cast<char *>(data), sizeof(data));
+      }
+    }
+    return true;
+  }
 
   /**
    * @brief Apply subvoxel filter to the point cloud

@@ -56,7 +56,7 @@ Output:
 
 Transforms:
   -t,--target-frame TEXT      Target TF frame for all point clouds
-  --transform-file,--tf TEXT  TXT file with transform ([frame_id] r1 r2 r3 x r4 r5 r6 y r7 r8 r9 z)
+  --tf,--transform-file TEXT  TXT file with transform ([frame_id] r1 r2 r3 x r4 r5 r6 y r7 r8 r9 z)
 
 
 General:
@@ -65,22 +65,30 @@ General:
   -s,--stride-frames INT      Write every Nth frame
 
 
+File Format:
+  --save-pcd                  Save PCD files (default)
+  --save-ply                  Save PLY files
+  --save-xyz                  Save XYZ ASCII files
+  --save-kitti                Save KITTI binary files
+  --save-nuscenes             Save nuScenes binary files
+
+
 Filtering:
-  --crop-box,--cb FLOAT FLOAT FLOAT FLOAT FLOAT FLOAT x 6
+  --cb,--crop-box FLOAT FLOAT FLOAT FLOAT FLOAT FLOAT x 6
                               Crop box [xmin ymin zmin xmax ymax zmax]
-  --crop-sphere,--cs FLOAT    Crop to sphere with given radius
-  --crop-cylinder,--cc FLOAT  Crop to cylinder with given radius
+  --cs,--crop-sphere FLOAT    Crop to sphere with given radius
+  --cc,--crop-cylinder FLOAT  Crop to cylinder with given radius
   --inverse-crop              Inverse crop filters
-  --voxel-filter,--vf FLOAT FLOAT FLOAT x 3
+  --vf,--voxel-filter FLOAT FLOAT FLOAT x 3
                               Voxel size [x y z]
-  --outlier-radius-filter,--orf FLOAT INT x 2
+  --orf,--outlier-radius-filter FLOAT INT x 2
                               Radius outlier removal [radius min_neighbors]
-  --outlier-stat-filter,--osf FLOAT INT x 2
+  --osf,--outlier-stat-filter FLOAT INT x 2
                               Statistical outlier removal [threshold mean_k]
 
 
 Example:
-  ros2 run pointcloudcrafter rosbag bag.mcap out/ /points_raw 
+  ros2 run pointcloudcrafter rosbag /datasets/bag.mcap /datasets/out/ /points_raw 
     --voxel-filter 0.1 0.1 0.1 --stride-frames 5
 ```
 
@@ -97,13 +105,27 @@ Options:
   -h,--help                   Print this help message and exit
 
 
+File Format:
+  --load-pcd                  Load PCD files (default)
+  --load-ply                  Load PLY files
+  --load-xyz                  Load XYZ ASCII files
+  --load-kitti                Load KITTI binary files
+  --load-nuscenes             Load nuScenes binary files
+  --load-obj                  Load OBJ files
+  --save-pcd                  Save PCD files (default)
+  --save-ply                  Save PLY files
+  --save-xyz                  Save XYZ ASCII files
+  --save-kitti                Save KITTI binary files
+  --save-nuscenes             Save nuScenes binary files
+
+
 Transforms:
-  -t,--translation FLOAT FLOAT FLOAT x 2
-                              Translation [x y z]
+  -t,--translation FLOAT FLOAT FLOAT x 3
+                              Translation [x y z]]
   -r,--rotation FLOAT FLOAT FLOAT x 3
-                              Rotation [roll pitch yaw]
+                              Rotation [roll pitch yaw]]
   --deg                       Rotation in degrees instead of radians
-  --transform-file,--tf TEXT  TXT file with transform ([frame_id] r1 r2 r3 x r4 r5 r6 y r7 r8 r9 z)
+  --tf,--transform-file TEXT  TXT file with transform ([frame_id] r1 r2 r3 x r4 r5 r6 y r7 r8 r9 z)
 
 
 Output:
@@ -117,21 +139,21 @@ General:
 
 
 Filtering:
-  --crop-box,--cb FLOAT FLOAT FLOAT FLOAT FLOAT FLOAT x 6
+  --cb,--crop-box FLOAT FLOAT FLOAT FLOAT FLOAT FLOAT x 6
                               Crop box [xmin ymin zmin xmax ymax zmax]
-  --crop-sphere,--cs FLOAT    Crop to sphere with given radius
-  --crop-cylinder,--cc FLOAT  Crop to cylinder with given radius
+  --cs,--crop-sphere FLOAT    Crop to sphere with given radius
+  --cc,--crop-cylinder FLOAT  Crop to cylinder with given radius
   --inverse-crop              Inverse crop filters
-  --voxel-filter,--vf FLOAT FLOAT FLOAT x 3
+  --vf,--voxel-filter FLOAT FLOAT FLOAT x 3
                               Voxel size [x y z]
-  --outlier-radius-filter,--orf FLOAT INT x 2
+  --orf,--outlier-radius-filter FLOAT INT x 2
                               Radius outlier removal [radius min_neighbors]
-  --outlier-stat-filter,--osf FLOAT INT x 2
+  --osf,--outlier-stat-filter FLOAT INT x 2
                               Statistical outlier removal [threshold mean_k]
 
 
 Example:
-  ros2 run pointcloudcrafter pcd input/ out/ 
+  ros2 run pointcloudcrafter pcd /datasets/input/ /datasets/out/ 
     --voxel-filter 0.1 0.1 0.1 -m 5
 ```
 

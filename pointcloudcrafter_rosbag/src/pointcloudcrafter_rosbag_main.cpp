@@ -34,7 +34,7 @@ int main(int argc, char * argv[])
 
   app.footer(
     "\nExample:\n"
-    "  ros2 run pointcloudcrafter rosbag bag.mcap out/ /points_raw \n"
+    "  ros2 run pointcloudcrafter rosbag /datasets/bag.mcap /datasets/out/ /points_raw \n"
     "    --voxel-filter 0.1 0.1 0.1 --stride-frames 5\n");
 
   CLI11_PARSE(app, argc, argv);

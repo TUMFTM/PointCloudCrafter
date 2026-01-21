@@ -214,8 +214,13 @@ void Rosbag::process_pointclouds(
   // Save output cloud
   auto ts = tools::utils::timestamp_to_ros(base_time);
   std::string name = fmt::format("{}_{:09}", ts.sec, ts.nanosec);
-  if (!modifier.savePCD(cfg_.out_dir + "/" + name + ".pcd")) {
-    RCLCPP_ERROR(logger_, "Failed to save pointcloud to %s", name.c_str());
+
+  auto save_fmt = cfg_.get_save_format();
+  std::string output_path = cfg_.out_dir + "/" + name +
+    pointcloudcrafter::tools::formats::format_to_extension(save_fmt);
+
+  if (!modifier.save(output_path, save_fmt)) {
+    RCLCPP_ERROR(logger_, "Failed to save: %s", output_path.c_str());
     return;
   }
 
