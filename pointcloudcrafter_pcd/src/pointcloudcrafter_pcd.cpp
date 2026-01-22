@@ -36,23 +36,28 @@ namespace pointcloudcrafter
  * @param cfg Configuration
  */
 PCD::PCD(const config::PCDConfig & cfg)
-: logger_(rclcpp::get_logger("pointcloudcrafter_pcd")), cfg_(cfg)
+: cfg_(cfg),
+  logger_(rclcpp::get_logger("pointcloudcrafter_pcd"))
 {
   std::filesystem::path input_path(cfg_.input_path);
+  auto load_fmt = cfg_.get_load_format();
+
   if (std::filesystem::is_directory(input_path)) {
     for (const auto & entry : std::filesystem::directory_iterator(input_path)) {
-      if (entry.path().extension() == pointcloudcrafter::tools::formats::format_to_extension(
-            cfg_.get_load_format())) {
+      if (pointcloudcrafter::tools::formats::matches_format(entry.path(), load_fmt)) {
         pcd_files_.push_back(entry.path().string());
       }
     }
     std::sort(pcd_files_.begin(), pcd_files_.end());
-  } else if (std::filesystem::is_regular_file(input_path) && input_path.extension() ==
-            pointcloudcrafter::tools::formats::format_to_extension(
-            cfg_.get_load_format())) {
+  } else if (std::filesystem::is_regular_file(input_path) &&
+             pointcloudcrafter::tools::formats::matches_format(input_path, load_fmt)) {
     pcd_files_.push_back(cfg_.input_path);
   } else {
-    throw std::runtime_error("Input path must be a PCD file or directory containing PCD files");
+    throw std::runtime_error(
+      fmt::format("Input path must be a '{}' file or directory containing '{}' files",
+        pointcloudcrafter::tools::formats::format_to_extension(load_fmt),
+        pointcloudcrafter::tools::formats::format_to_extension(load_fmt))
+    );
   }
 
   if (pcd_files_.empty()) {
@@ -186,7 +191,7 @@ void PCD::process_pointcloud(const std::string & input_path, size_t file_index)
   // Generate output path
   std::filesystem::path input_p(input_path);
   std::string stem = cfg_.sequential_names ?
-    fmt::format("{:06d}", processed_frames_) : input_p.stem().string();
+    fmt::format("{:06d}", processed_frames_) : pointcloudcrafter::tools::formats::get_stem(input_p);
 
   auto save_fmt = cfg_.get_save_format();
   std::string output_path = cfg_.out_dir + "/" + stem +

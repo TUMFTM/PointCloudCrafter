@@ -77,8 +77,8 @@ public:
         return load_pcd(file_path);
       case pointcloudcrafter::tools::formats::FileFormat::PLY:
         return load_ply(file_path);
-      case pointcloudcrafter::tools::formats::FileFormat::XYZ:
-        return load_xyz(file_path);
+      case pointcloudcrafter::tools::formats::FileFormat::TXT:
+        return load_txt(file_path);
       case pointcloudcrafter::tools::formats::FileFormat::KITTI:
         return load_kitti(file_path);
       case pointcloudcrafter::tools::formats::FileFormat::NUSCENES:
@@ -104,8 +104,8 @@ public:
         return save_pcd(file_path);
       case pointcloudcrafter::tools::formats::FileFormat::PLY:
         return save_ply(file_path);
-      case pointcloudcrafter::tools::formats::FileFormat::XYZ:
-        return save_xyz(file_path);
+      case pointcloudcrafter::tools::formats::FileFormat::TXT:
+        return save_txt(file_path);
       case pointcloudcrafter::tools::formats::FileFormat::KITTI:
         return save_kitti(file_path);
       case pointcloudcrafter::tools::formats::FileFormat::NUSCENES:
@@ -289,6 +289,7 @@ public:
     return *this;
   }
 
+  // TODO(ga58lar): integrate timestampAnalyzer into pointcloudcrafter pcd/rosbag
   // Analysis
   /**
    * @brief Save timestamps to a file and print basic statistics
@@ -464,36 +465,134 @@ private:
     return true;
   }
   /**
-   * @brief Load an XYZ ASCII file into PCLPointCloud2
-   * @param file_path Path to the XYZ file
+   * @brief Load a TXT ASCII file into PCLPointCloud2
+   * 
+   * Format: First line contains channel names separated by spaces
+   * Following lines contain the values for each point
+   * Falls back to x, y, z if no header is detected
+   * 
+   * @param file_path Path to the TXT file
    * @return True if successful, false otherwise
    */
-  bool load_xyz(const std::string & file_path)
+  bool load_txt(const std::string & file_path)
   {
     std::ifstream file(file_path);
     if (!file.is_open()) {
-      std::cerr << "Error: Failed to open XYZ file: " << file_path << std::endl;
+      std::cerr << "Error: Failed to open TXT file: " << file_path << std::endl;
       return false;
     }
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr tmp(new pcl::PointCloud<pcl::PointXYZ>);
     std::string line;
+    std::vector<std::string> field_names;
+    std::vector<std::vector<float>> data;
 
+    // Read first line to check for header
+    if (!std::getline(file, line)) {
+      std::cerr << "Error: Empty TXT file: " << file_path << std::endl;
+      return false;
+    }
+
+    // Try to parse first line as header (check if it contains non-numeric values)
+    std::istringstream first_line(line);
+    std::string token;
+    bool is_header = false;
+
+    while (first_line >> token) {
+      // Check if token is a number
+      char* end;
+      std::strtof(token.c_str(), &end);
+      if (*end != '\0') {
+        // Not a number, treat as header
+        is_header = true;
+      }
+      field_names.push_back(token);
+    }
+
+    if (!is_header) {
+      // First line was data, use default field names and parse as data
+      field_names.clear();
+      size_t num_fields = 0;
+
+      // Count fields and parse first line as data
+      std::istringstream data_line(line);
+      std::vector<float> point_data;
+      float value;
+      while (data_line >> value) {
+        point_data.push_back(value);
+        num_fields++;
+      }
+      data.push_back(point_data);
+
+      // Generate default field names based on number of fields
+      if (num_fields >= 3) {
+        field_names = {"x", "y", "z"};
+        for (size_t i = 3; i < num_fields; ++i) {
+          field_names.push_back("field_" + std::to_string(i));
+        }
+      } else {
+        for (size_t i = 0; i < num_fields; ++i) {
+          field_names.push_back("field_" + std::to_string(i));
+        }
+      }
+    }
+
+    // Read remaining lines as data
     while (std::getline(file, line)) {
       if (line.empty() || line[0] == '#') continue;
 
       std::istringstream iss(line);
-      float x, y, z;
-      if (iss >> x >> y >> z) {
-        tmp->push_back(pcl::PointXYZ(x, y, z));
+      std::vector<float> point_data;
+      float value;
+
+      while (iss >> value) {
+        point_data.push_back(value);
+      }
+
+      if (point_data.size() == field_names.size()) {
+        data.push_back(point_data);
       }
     }
 
-    tmp->width = tmp->size();
-    tmp->height = 1;
-    tmp->is_dense = true;
+    if (data.empty()) {
+      std::cerr << "Error: No valid points in TXT file: " << file_path << std::endl;
+      return false;
+    }
 
-    pcl::toPCLPointCloud2(*tmp, *input_cloud);
+    // Build PCLPointCloud2 manually
+    const size_t num_points = data.size();
+    const size_t num_fields = field_names.size();
+
+    input_cloud->width = num_points;
+    input_cloud->height = 1;
+    input_cloud->is_dense = true;
+    input_cloud->is_bigendian = false;
+
+    // Setup fields (all as FLOAT32)
+    input_cloud->fields.clear();
+    input_cloud->fields.resize(num_fields);
+    uint32_t offset = 0;
+
+    for (size_t i = 0; i < num_fields; ++i) {
+      input_cloud->fields[i].name = field_names[i];
+      input_cloud->fields[i].offset = offset;
+      input_cloud->fields[i].datatype = pcl::PCLPointField::FLOAT32;
+      input_cloud->fields[i].count = 1;
+      offset += sizeof(float);
+    }
+
+    input_cloud->point_step = offset;
+    input_cloud->row_step = input_cloud->point_step * input_cloud->width;
+    input_cloud->data.resize(input_cloud->row_step * input_cloud->height);
+
+    // Fill data
+    for (size_t i = 0; i < num_points; ++i) {
+      uint8_t* pt_data = input_cloud->data.data() + i * input_cloud->point_step;
+      for (size_t j = 0; j < num_fields; ++j) {
+        float value = data[i][j];
+        memcpy(pt_data + input_cloud->fields[j].offset, &value, sizeof(float));
+      }
+    }
+
     *output_cloud = *input_cloud;
     return true;
   }
@@ -640,36 +739,63 @@ private:
   {
     pcl::PLYWriter writer;
     if (writer.write(file_path, *output_cloud, Eigen::Vector4f::Zero(),
-          Eigen::Quaternionf::Identity(), true, true) == -1) {
+          Eigen::Quaternionf::Identity(), true, false) == -1) {
       std::cerr << "Error: Failed to save PLY file: " << file_path << std::endl;
       return false;
     }
     return true;
   }
   /**
-   * @brief Save point cloud to XYZ ASCII file
-   * @param file_path Path to save the XYZ file
+   * @brief Save point cloud to TXT ASCII file with all channels
+   * 
+   * Format: First line contains channel names separated by spaces
+   * Following lines contain the values for each point
+   * 
+   * @param file_path Path to save the TXT file
    * @return True if successful, false otherwise
    */
-  bool save_xyz(const std::string & file_path)
+  bool save_txt(const std::string & file_path)
   {
-    pcl::PointCloud<pcl::PointXYZ>::Ptr tmp(new pcl::PointCloud<pcl::PointXYZ>);
-    pcl::fromPCLPointCloud2(*output_cloud, *tmp);
-
     std::ofstream file(file_path);
     if (!file.is_open()) {
-      std::cerr << "Error: Failed to open XYZ file for writing: " << file_path << std::endl;
+      std::cerr << "Error: Failed to open TXT file for writing: " << file_path << std::endl;
       return false;
     }
 
-    file << std::fixed << std::setprecision(6);
-    for (const auto & point : tmp->points) {
-      file << point.x << " " << point.y << " " << point.z << "\n";
+    // Write header line with channel names
+    for (size_t i = 0; i < output_cloud->fields.size(); ++i) {
+      file << output_cloud->fields[i].name;
+      if (i < output_cloud->fields.size() - 1) {
+        file << " ";
+      }
     }
+    file << "\n";
+
+    // Write point data
+    const size_t num_points = output_cloud->width * output_cloud->height;
+    file << std::fixed << std::setprecision(6);
+
+    for (size_t i = 0; i < num_points; ++i) {
+      const uint8_t* pt_data = output_cloud->data.data() + i * output_cloud->point_step;
+
+      for (size_t j = 0; j < output_cloud->fields.size(); ++j) {
+        const auto & field = output_cloud->fields[j];
+        float value = getFieldValue(pt_data, field);
+        file << value;
+        if (j < output_cloud->fields.size() - 1) {
+          file << " ";
+        }
+      }
+      file << "\n";
+    }
+
     return true;
   }
   /**
    * @brief Save point cloud to KITTI binary file
+   * 
+   * KITTI format: binary file with points as (x, y, z, intensity) float32
+   * 
    * @param file_path Path to save the KITTI .bin file
    * @return True if successful, false otherwise
    */
@@ -681,30 +807,43 @@ private:
       return false;
     }
 
-    // Check if intensity field exists
-    bool has_intensity = std::any_of(
-      output_cloud->fields.begin(), output_cloud->fields.end(),
-      [](const pcl::PCLPointField & f) { return f.name == "intensity"; });
-
-    if (has_intensity) {
-      pcl::PointCloud<pcl::PointXYZI>::Ptr tmp(new pcl::PointCloud<pcl::PointXYZI>);
-      pcl::fromPCLPointCloud2(*output_cloud, *tmp);
-      for (const auto & point : tmp->points) {
-        float data[4] = {point.x, point.y, point.z, point.intensity};
-        file.write(reinterpret_cast<char *>(data), sizeof(data));
-      }
-    } else {
-      pcl::PointCloud<pcl::PointXYZ>::Ptr tmp(new pcl::PointCloud<pcl::PointXYZ>);
-      pcl::fromPCLPointCloud2(*output_cloud, *tmp);
-      for (const auto & point : tmp->points) {
-        float data[4] = {point.x, point.y, point.z, 0.0f};
-        file.write(reinterpret_cast<char *>(data), sizeof(data));
-      }
+    // Find field indices
+    int idx_x = -1, idx_y = -1, idx_z = -1, idx_intensity = -1;
+    for (size_t i = 0; i < output_cloud->fields.size(); ++i) {
+      std::string name = output_cloud->fields[i].name;
+      std::transform(name.begin(), name.end(), name.begin(),
+                    [](unsigned char c){ return std::tolower(c); });
+      if (name == "x") idx_x = static_cast<int>(i);
+      else if (name == "y") idx_y = static_cast<int>(i);
+      else if (name == "z") idx_z = static_cast<int>(i);
+      else if (name == "intensity") idx_intensity = static_cast<int>(i);
     }
+
+    const size_t num_points = output_cloud->width * output_cloud->height;
+
+    for (size_t i = 0; i < num_points; ++i) {
+      uint8_t* pt_data = output_cloud->data.data() + i * output_cloud->point_step;
+
+      float x = *reinterpret_cast<float*>(pt_data + output_cloud->fields[idx_x].offset);
+      float y = *reinterpret_cast<float*>(pt_data + output_cloud->fields[idx_y].offset);
+      float z = *reinterpret_cast<float*>(pt_data + output_cloud->fields[idx_z].offset);
+
+      float intensity = 0.0f;
+      if (idx_intensity != -1) {
+        intensity = getFieldValue(pt_data, output_cloud->fields[idx_intensity]);
+      }
+
+      float data[4] = {x, y, z, intensity};
+      file.write(reinterpret_cast<char*>(data), sizeof(data));
+    }
+
     return true;
   }
   /**
    * @brief Save point cloud to nuScenes binary file
+   * 
+   * nuScenes format: binary file with points as (x, y, z, intensity, ring) float32
+   * 
    * @param file_path Path to save the nuScenes .bin file
    * @return True if successful, false otherwise
    */
@@ -716,26 +855,67 @@ private:
       return false;
     }
 
-    bool has_intensity = std::any_of(
-      output_cloud->fields.begin(), output_cloud->fields.end(),
-      [](const pcl::PCLPointField & f) { return f.name == "intensity"; });
-
-    if (has_intensity) {
-      pcl::PointCloud<pcl::PointXYZI>::Ptr tmp(new pcl::PointCloud<pcl::PointXYZI>);
-      pcl::fromPCLPointCloud2(*output_cloud, *tmp);
-      for (const auto & point : tmp->points) {
-        float data[5] = {point.x, point.y, point.z, point.intensity, 0.0f};
-        file.write(reinterpret_cast<char *>(data), sizeof(data));
-      }
-    } else {
-      pcl::PointCloud<pcl::PointXYZ>::Ptr tmp(new pcl::PointCloud<pcl::PointXYZ>);
-      pcl::fromPCLPointCloud2(*output_cloud, *tmp);
-      for (const auto & point : tmp->points) {
-        float data[5] = {point.x, point.y, point.z, 0.0f, 0.0f};
-        file.write(reinterpret_cast<char *>(data), sizeof(data));
-      }
+    // Find field indices (case-insensitive)
+    int idx_x = -1, idx_y = -1, idx_z = -1, idx_intensity = -1, idx_ring = -1;
+    for (size_t i = 0; i < output_cloud->fields.size(); ++i) {
+      std::string name = output_cloud->fields[i].name;
+      std::transform(name.begin(), name.end(), name.begin(),
+                    [](unsigned char c){ return std::tolower(c); });
+      if (name == "x") idx_x = static_cast<int>(i);
+      else if (name == "y") idx_y = static_cast<int>(i);
+      else if (name == "z") idx_z = static_cast<int>(i);
+      else if (name == "intensity") idx_intensity = static_cast<int>(i);
+      else if (name == "ring" || name == "channel") idx_ring = static_cast<int>(i);
     }
+
+    const size_t num_points = output_cloud->width * output_cloud->height;
+
+    for (size_t i = 0; i < num_points; ++i) {
+      uint8_t* pt_data = output_cloud->data.data() + i * output_cloud->point_step;
+
+      float x = *reinterpret_cast<float*>(pt_data + output_cloud->fields[idx_x].offset);
+      float y = *reinterpret_cast<float*>(pt_data + output_cloud->fields[idx_y].offset);
+      float z = *reinterpret_cast<float*>(pt_data + output_cloud->fields[idx_z].offset);
+
+      float intensity = (idx_intensity != -1) ?
+          getFieldValue(pt_data, output_cloud->fields[idx_intensity]) : 0.0f;
+      float ring = (idx_ring != -1) ?
+          getFieldValue(pt_data, output_cloud->fields[idx_ring]) : 0.0f;
+
+      float data[5] = {x, y, z, intensity, ring};
+      file.write(reinterpret_cast<char*>(data), sizeof(data));
+    }
+
     return true;
+  }
+  /**
+   * @brief Get field value as float from raw point data
+   * @param pt_data Pointer to the point data
+   * @param field PCL point field descriptor
+   * @return Field value as float
+   */
+  float getFieldValue(const uint8_t* pt_data, const pcl::PCLPointField & field)
+  {
+    switch (field.datatype) {
+      case pcl::PCLPointField::INT8:
+        return static_cast<float>(*reinterpret_cast<const int8_t*>(pt_data + field.offset));
+      case pcl::PCLPointField::UINT8:
+        return static_cast<float>(*reinterpret_cast<const uint8_t*>(pt_data + field.offset));
+      case pcl::PCLPointField::INT16:
+        return static_cast<float>(*reinterpret_cast<const int16_t*>(pt_data + field.offset));
+      case pcl::PCLPointField::UINT16:
+        return static_cast<float>(*reinterpret_cast<const uint16_t*>(pt_data + field.offset));
+      case pcl::PCLPointField::INT32:
+        return static_cast<float>(*reinterpret_cast<const int32_t*>(pt_data + field.offset));
+      case pcl::PCLPointField::UINT32:
+        return static_cast<float>(*reinterpret_cast<const uint32_t*>(pt_data + field.offset));
+      case pcl::PCLPointField::FLOAT32:
+        return *reinterpret_cast<const float*>(pt_data + field.offset);
+      case pcl::PCLPointField::FLOAT64:
+        return static_cast<float>(*reinterpret_cast<const double*>(pt_data + field.offset));
+      default:
+        return 0.0f;
+    }
   }
 
   /**

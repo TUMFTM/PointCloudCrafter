@@ -68,7 +68,7 @@ General:
 File Format:
   --save-pcd                  Save PCD files (default)
   --save-ply                  Save PLY files
-  --save-xyz                  Save XYZ ASCII files
+  --save-txt                  Save TXT ASCII files
   --save-kitti                Save KITTI binary files
   --save-nuscenes             Save nuScenes binary files
 
@@ -108,13 +108,13 @@ Options:
 File Format:
   --load-pcd                  Load PCD files (default)
   --load-ply                  Load PLY files
-  --load-xyz                  Load XYZ ASCII files
+  --load-txt                  Load TXT ASCII files
   --load-kitti                Load KITTI binary files
   --load-nuscenes             Load nuScenes binary files
   --load-obj                  Load OBJ files
   --save-pcd                  Save PCD files (default)
   --save-ply                  Save PLY files
-  --save-xyz                  Save XYZ ASCII files
+  --save-txt                  Save TXT ASCII files
   --save-kitti                Save KITTI binary files
   --save-nuscenes             Save nuScenes binary files
 

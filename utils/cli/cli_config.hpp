@@ -46,13 +46,13 @@ struct ModifierConfig
   bool inverse_crop{false};
   bool load_pcd{true};
   bool load_ply{false};
-  bool load_xyz{false};
+  bool load_txt{false};
   bool load_kitti{false};
   bool load_nuscenes{false};
   bool load_obj{false};
-  bool save_pcd{true};
+  bool save_pcd{false};
   bool save_ply{false};
-  bool save_xyz{false};
+  bool save_txt{false};
   bool save_kitti{false};
   bool save_nuscenes{false};
 
@@ -63,7 +63,7 @@ struct ModifierConfig
   pointcloudcrafter::tools::formats::FileFormat get_load_format() const
   {
     if (load_ply) return pointcloudcrafter::tools::formats::FileFormat::PLY;
-    if (load_xyz) return pointcloudcrafter::tools::formats::FileFormat::XYZ;
+    if (load_txt) return pointcloudcrafter::tools::formats::FileFormat::TXT;
     if (load_kitti) return pointcloudcrafter::tools::formats::FileFormat::KITTI;
     if (load_nuscenes) return pointcloudcrafter::tools::formats::FileFormat::NUSCENES;
     if (load_obj) return pointcloudcrafter::tools::formats::FileFormat::OBJ;
@@ -78,7 +78,7 @@ struct ModifierConfig
   {
     if (save_pcd) return pointcloudcrafter::tools::formats::FileFormat::PCD;
     if (save_ply) return pointcloudcrafter::tools::formats::FileFormat::PLY;
-    if (save_xyz) return pointcloudcrafter::tools::formats::FileFormat::XYZ;
+    if (save_txt) return pointcloudcrafter::tools::formats::FileFormat::TXT;
     if (save_kitti) return pointcloudcrafter::tools::formats::FileFormat::KITTI;
     if (save_nuscenes) return pointcloudcrafter::tools::formats::FileFormat::NUSCENES;
     return get_load_format();
@@ -109,7 +109,7 @@ struct ModifierConfig
       ->group("File Format");
     app->add_flag("--save-ply", save_ply, "Save PLY files")
       ->group("File Format");
-    app->add_flag("--save-xyz", save_xyz, "Save XYZ ASCII files")
+    app->add_flag("--save-txt", save_txt, "Save TXT ASCII files")
       ->group("File Format");
     app->add_flag("--save-kitti", save_kitti, "Save KITTI binary files")
       ->group("File Format");
@@ -188,7 +188,7 @@ struct PCDConfig : public ModifierConfig
       ->group("File Format");
     app->add_flag("--load-ply", load_ply, "Load PLY files")
       ->group("File Format");
-    app->add_flag("--load-xyz", load_xyz, "Load XYZ ASCII files")
+    app->add_flag("--load-txt", load_txt, "Load TXT ASCII files")
       ->group("File Format");
     app->add_flag("--load-kitti", load_kitti, "Load KITTI binary files")
       ->group("File Format");

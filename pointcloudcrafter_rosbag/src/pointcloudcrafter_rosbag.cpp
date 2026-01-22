@@ -57,11 +57,11 @@ namespace pointcloudcrafter
  * @param cfg Configuration
  */
 Rosbag::Rosbag(const config::RosbagConfig & cfg)
-: reader_(cfg_.bag_path),
+: cfg_(cfg),
   tf2_buffer_(std::make_shared<rclcpp::Clock>()),
   logger_(rclcpp::get_logger("pointcloudcrafter_rosbag")),
   num_sensors_(cfg_.topics.size()),
-  cfg_(cfg)
+  reader_(cfg_.bag_path)
 {
   // Check for number of topics
   if (cfg_.topics.size() > 4) {
