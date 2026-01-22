@@ -98,14 +98,14 @@ struct ModifierConfig
     app->add_option(
         "--orf, --outlier-radius-filter", outlier_radius_filter,
         "Radius outlier removal [radius min_neighbors]")
-      ->expected(2)
+      ->expected(1)
       ->type_name("FLOAT INT")
       ->group("Filtering");
 
     app->add_option(
         "--osf, --outlier-stat-filter", outlier_stat_filter,
         "Statistical outlier removal [threshold mean_k]")
-      ->expected(2)
+      ->expected(1)
       ->type_name("FLOAT INT")
       ->group("Filtering");
   }

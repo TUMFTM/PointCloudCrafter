@@ -104,6 +104,12 @@ public:
    */
   Modifier & cropBox(const std::vector<double> & box_params, const bool & negative = false)
   {
+    // Check box_params size
+    if (box_params.size() != 6) {
+      std::cerr << "Error: box_params must contain exactly 6 elements." << std::endl;
+      return *this;
+    }
+
     pcl::CropBox<PointCloud> boxFilter;
     boxFilter.setMin(Eigen::Vector4f(box_params[0], box_params[1], box_params[2], 1.0));
     boxFilter.setMax(Eigen::Vector4f(box_params[3], box_params[4], box_params[5], 1.0));
@@ -179,6 +185,12 @@ public:
    */
   Modifier & voxelFilter(const std::vector<double> & voxel)
   {
+    // Check voxel size
+    if (voxel.size() != 3) {
+      std::cerr << "Error: voxel must contain exactly 3 elements." << std::endl;
+      return *this;
+    }
+
     pcl::PointCloud<pcl::PointXYZ>::Ptr tmp(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::fromPCLPointCloud2(*output_cloud, *tmp);
 
@@ -209,6 +221,13 @@ public:
    */
   Modifier & outlierRadiusFilter(const double & radius, const int & min_neighbors)
   {
+    // Check radius and min_neighbors
+    if (radius <= 0.0 || min_neighbors < 1) {
+      std::cerr << "Error: radius must be positive and min_neighbors must be at least 1."
+          << std::endl;
+      return *this;
+    }
+
     pcl::RadiusOutlierRemoval<PointCloud> radiusFilter;
     radiusFilter.setRadiusSearch(radius);
     radiusFilter.setMinNeighborsInRadius(min_neighbors);
@@ -224,6 +243,12 @@ public:
    */
   Modifier & outlierStatFilter(const double & threshold, const int & mean)
   {
+    // Check radius and min_neighbors
+    if (threshold <= 0.0 || mean < 1) {
+      std::cerr << "Error: threshold must be positive and mean must be at least 1." << std::endl;
+      return *this;
+    }
+
     pcl::StatisticalOutlierRemoval<PointCloud> statFilter;
     statFilter.setMeanK(mean);
     statFilter.setStddevMulThresh(threshold);
