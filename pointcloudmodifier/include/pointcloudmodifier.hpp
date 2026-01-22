@@ -243,7 +243,7 @@ public:
    */
   Modifier & outlierStatFilter(const double & threshold, const int & mean)
   {
-    // Check radius and min_neighbors
+    // Check threshold and mean neighbors
     if (threshold <= 0.0 || mean < 1) {
       std::cerr << "Error: threshold must be positive and mean must be at least 1." << std::endl;
       return *this;
