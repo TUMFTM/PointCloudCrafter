@@ -29,12 +29,6 @@ markdown_extensions:
         emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
 copyright: Copyright &copy; 2025 - 2026 TUMFTM
-extra:
-    social:
-        - icon: material/home
-          link: https://www.mos.ed.tum.de/ftm/startseite/
-        - icon: fontawesome/brands/github
-          link: https://github.com/TUMFTM/PointCloudCrafter
 
 extra_css:
     - "https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css"

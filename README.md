@@ -9,6 +9,8 @@ A toolkit for extracting, manipulating, and evaluating point clouds and 3D spati
 [![Linux](https://img.shields.io/badge/os-linux-blue.svg)](https://www.linux.org/)
 [![Docker](https://badgen.net/badge/icon/docker?icon=docker&label)](https://www.docker.com/)
 [![ROS2humble](https://img.shields.io/badge/ros2-humble-blue.svg)](https://docs.ros.org/en/humble/index.html)
+[![build_test](https://github.com/TUMFTM/PointCloudCrafter/actions/workflows/build_test.yml/badge.svg)](https://github.com/TUMFTM/PointCloudCrafter/actions/workflows/build_test.yml)
+[![docs](https://github.com/TUMFTM/PointCloudCrafter/actions/workflows/docs.yml/badge.svg)](https://github.com/TUMFTM/PointCloudCrafter/actions/workflows/docs.yml)
 </div>
 
 <h2> Documentation</h2>
@@ -45,3 +47,11 @@ For file-processing:
 ```bash
     ros2 run pointcloudcrafter file -h
 ```
+
+For more details on functionalities and usage, see the [documentation](https://TUMFTM.github.io/PointCloudCrafter)
+
+## Contact
+
+[Dominik Kulmer](mailto:dominik.kulmer@tum.de)  
+[Maximilian Leitenstern](mailto:maxi.leitenstern@tum.de)  
+Institute of Automotive Technology, School of Engineering and Design, Technical University of Munich, 85748 Garching, Germany
