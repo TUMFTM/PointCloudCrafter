@@ -55,7 +55,6 @@ struct ModifierConfig
   bool save_txt{false};
   bool save_kitti{false};
   bool save_nuscenes{false};
-  bool merge_clouds{false};
 
   /**
    * @brief Get the load format based on flags
@@ -170,6 +169,7 @@ struct FileConfig : public ModifierConfig
   std::vector<double> translation{};
   std::vector<double> rotation{};
   bool degree{false};
+  bool merge_clouds{false};
 
   /**
    * @brief Add FileConfig CLI options to the given app
