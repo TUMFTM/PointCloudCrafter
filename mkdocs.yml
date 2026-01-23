@@ -1,7 +1,7 @@
 site_name: "PointCloudCrafter"
 site_author: TUMFTM
 repo_url: https://github.com/TUMFTM/PointCloudCrafter
-site_url: https://PointCloudCrafter.github.io/site
+site_url: https://TUMFTM.github.io/PointCloudCrafter
 site_description: "PointCloudCrafter: A tool for crafting and modifying point clouds."
 
 theme:
@@ -10,7 +10,7 @@ theme:
         primary: indigo
     logo: assets/icon.svg
     favicon: assets/icon.svg
-    front:
+    font:
         text: Roboto
 
 use_directory_urls: false
@@ -33,9 +33,6 @@ copyright: Copyright &copy; 2025 - 2026 TUMFTM
 extra_css:
     - "https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css"
 
-exclude_docs: |
-    paper.md
-
 nav:
     - Home: 'index.md'
     - docker.md
@@ -43,3 +40,6 @@ nav:
     - usage.md
     - third-party.md
     - API: docs_cpp/index.html
+
+exclude_docs: |
+    paper.md

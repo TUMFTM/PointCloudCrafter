@@ -5,7 +5,7 @@ help:
 .PHONY: cpp
 cpp:
 	@echo "Building C++ documentation..."
-	doxygen Doxyfile doc_cpp
+	doxygen Doxyfile
 
 .PHONY: mkdocs
 mkdocs:
