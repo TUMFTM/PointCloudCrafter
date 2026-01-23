@@ -130,6 +130,7 @@ Transforms:
 
 
 Output:
+  --timestamps                Save point cloud timestamps to a text file
   --sequential-name           Use sequential file names
 
 

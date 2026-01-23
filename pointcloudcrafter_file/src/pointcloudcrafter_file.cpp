@@ -219,6 +219,11 @@ void PCFile::process_pointcloud(const std::string & input_path,
   if (!modifier.save(output_path, save_fmt)) {
     RCLCPP_ERROR(logger_, "Failed to save: %s", output_path.c_str());
   }
+
+  // Save timestamps if enabled
+  if (cfg_.timestamps) {
+    modifier.timestampAnalyzer(cfg_.out_dir + "/" + stem + "_stamps.txt");
+  }
 }
 
 }  // namespace pointcloudcrafter

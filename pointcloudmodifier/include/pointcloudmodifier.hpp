@@ -316,7 +316,6 @@ public:
     return *this;
   }
 
-  // TODO(ga58lar): integrate timestampAnalyzer into pointcloudcrafter pcd/rosbag
   // Analysis
   /**
    * @brief Save timestamps to a file and print basic statistics
