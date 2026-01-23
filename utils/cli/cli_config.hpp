@@ -161,7 +161,7 @@ struct ModifierConfig
 };
 
 /**
- * @brief PCFile input configuration
+ * @brief FileConfig input configuration
  */
 struct FileConfig : public ModifierConfig
 {
@@ -171,7 +171,7 @@ struct FileConfig : public ModifierConfig
   bool degree{false};
 
   /**
-   * @brief Add PCFile CLI options to the given app
+   * @brief Add FileConfig CLI options to the given app
    * @param app CLI app
    */
   void add_cli_options(CLI::App * app)
