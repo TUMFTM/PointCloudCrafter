@@ -5,6 +5,9 @@ on:
     branches: [ main, 37-github-pages ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   docs:
     name: Generate documentation
