@@ -39,6 +39,9 @@ extra:
 extra_css:
     - "https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css"
 
+exclude_docs: |
+    paper.md
+
 nav:
     - Home: 'index.md'
     - docker.md
