@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "pointcloudcrafter_pcd/pointcloudcrafter_pcd.hpp"
+#include "pointcloudcrafter_file/pointcloudcrafter_file.hpp"
 #include "pointcloudmodifier.hpp"
 #include "utils.hpp"
 
@@ -32,12 +32,12 @@
 namespace pointcloudcrafter
 {
 /**
- * @brief PCD class
+ * @brief PCFile class
  * @param cfg Configuration
  */
-PCD::PCD(const config::PCDConfig & cfg)
+PCFile::PCFile(const config::FileConfig & cfg)
 : cfg_(cfg),
-  logger_(rclcpp::get_logger("pointcloudcrafter_pcd"))
+  logger_(rclcpp::get_logger("pointcloudcrafter_file"))
 {
   std::filesystem::path input_path(cfg_.input_path);
   auto load_fmt = cfg_.get_load_format();
@@ -45,13 +45,13 @@ PCD::PCD(const config::PCDConfig & cfg)
   if (std::filesystem::is_directory(input_path)) {
     for (const auto & entry : std::filesystem::directory_iterator(input_path)) {
       if (pointcloudcrafter::tools::formats::matches_format(entry.path(), load_fmt)) {
-        pcd_files_.push_back(entry.path().string());
+        pc_files_.push_back(entry.path().string());
       }
     }
-    std::sort(pcd_files_.begin(), pcd_files_.end());
+    std::sort(pc_files_.begin(), pc_files_.end());
   } else if (std::filesystem::is_regular_file(input_path) &&
              pointcloudcrafter::tools::formats::matches_format(input_path, load_fmt)) {
-    pcd_files_.push_back(cfg_.input_path);
+    pc_files_.push_back(cfg_.input_path);
   } else {
     throw std::runtime_error(
       fmt::format("Input path must be a '{}' file or directory containing '{}' files",
@@ -60,11 +60,11 @@ PCD::PCD(const config::PCDConfig & cfg)
     );
   }
 
-  if (pcd_files_.empty()) {
-    throw std::runtime_error("No PCD files found in input path");
+  if (pc_files_.empty()) {
+    throw std::runtime_error("No point cloud files found in input path");
   }
 
-  RCLCPP_INFO(logger_, "Found %zu PCD file(s) to process", pcd_files_.size());
+  RCLCPP_INFO(logger_, "Found %zu point cloud file(s) to process", pc_files_.size());
 
   // Load transforms from file
   if (!cfg_.transform_file.empty()) {
@@ -78,13 +78,13 @@ PCD::PCD(const config::PCDConfig & cfg)
 }
 
 /**
- * @brief Run the PCD processing
+ * @brief Run the point cloud file processing
  */
-void PCD::run()
+void PCFile::run()
 {
   int64_t file_index = 0;
   rclcpp::Clock wall_clock{};
-  const int64_t total_files = static_cast<int64_t>(pcd_files_.size());
+  const int64_t total_files = static_cast<int64_t>(pc_files_.size());
 
   for (size_t i = 0; i < total_files && rclcpp::ok(); i++) {
     // Check if we should skip frames
@@ -107,7 +107,7 @@ void PCD::run()
     RCLCPP_INFO_THROTTLE(logger_, wall_clock, 1000, "Processed %ld of %ld files [% 5.1f%%]",
       file_index, total_files, progress);
 
-    process_pointcloud(pcd_files_[i], file_index);
+    process_pointcloud(pc_files_[i], file_index);
 
     processed_frames_++;
     stride_frames_ = cfg_.stride_frames - 1;
@@ -119,10 +119,10 @@ void PCD::run()
 
 /**
  * @brief Process a single pointcloud file
- * @param input_path Path to the input PCD file
+ * @param input_path Path to the input point cloud file
  * @param file_index Index of the file being processed
  */
-void PCD::process_pointcloud(const std::string & input_path, size_t file_index)
+void PCFile::process_pointcloud(const std::string & input_path, size_t file_index)
 {
   // Modify the pointclouds with pointcloudmodifierlib
   pointcloudmodifierlib::Modifier modifier;

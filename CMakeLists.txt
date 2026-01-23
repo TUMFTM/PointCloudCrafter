@@ -43,7 +43,7 @@ find_package(sensor_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 
 # Add subdirectories
-add_subdirectory(pointcloudcrafter_pcd)
+add_subdirectory(pointcloudcrafter_file)
 add_subdirectory(pointcloudcrafter_rosbag)
 add_subdirectory(pointcloudmodifier)
 add_subdirectory(utils)

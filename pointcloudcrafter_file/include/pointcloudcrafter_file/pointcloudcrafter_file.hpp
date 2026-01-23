@@ -15,31 +15,40 @@
  * limitations under the License.
  */
 
+#pragma once
+
+#include <rclcpp/clock.hpp>
 #include <rclcpp/rclcpp.hpp>
 
-#include "cli/CLI11.hpp"
+#include <string>
+#include <utility>
+#include <vector>
+#include <unordered_map>
+#include <Eigen/Eigen>
+
 #include "cli/cli_config.hpp"
-#include "pointcloudcrafter_pcd/pointcloudcrafter_pcd.hpp"
 
-int main(int argc, char * argv[])
+namespace pointcloudcrafter
 {
-  rclcpp::init(argc, argv);
+/**
+ * @brief PCFile class
+ */
+class PCFile
+{
+public:
+  explicit PCFile(const config::FileConfig & cfg);
+  void run();
 
-  CLI::App app{"pointcloudcrafter_pcd"};
-  app.name("ros2 run pointcloudcrafter pcd");
+protected:
+  void process_pointcloud(const std::string & input_path, size_t file_index);
 
-  config::PCDConfig cfg;
-  cfg.add_cli_options(&app);
+private:
+  config::FileConfig cfg_;
+  rclcpp::Logger logger_;
+  std::vector<std::string> pc_files_{};
+  int64_t processed_frames_{0};
+  int64_t stride_frames_{0};
+  std::vector<Eigen::Affine3d> file_transforms_{};
+};
 
-  app.footer(
-    "\nExample:\n"
-    "  ros2 run pointcloudcrafter pcd /datasets/input/ /datasets/out/ \n"
-    "    --voxel-filter 0.1 0.1 0.1 -m 5\n");
-
-  CLI11_PARSE(app, argc, argv);
-
-  pointcloudcrafter::PCD(cfg).run();
-
-  rclcpp::shutdown();
-  return 0;
-}
+}  // namespace pointcloudcrafter

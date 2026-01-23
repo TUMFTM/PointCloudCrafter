@@ -2,8 +2,8 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>pointcloudcrafter</name>
-  <version>1.0.0</version>
-  <description>PCD and Pose extraction tool for ROS 2.</description>
+  <version>1.2.0</version>
+  <description>Point cloud crafter, modifier and analyzer tool for rosbags and local files.</description>
   <author email="markus.pielmeier@tum.de">Markus Pielmeier</author>
   <maintainer email="dominik.kulmer@tum.de">Dominik Kulmer</maintainer>
   <maintainer email="maxi.leitenstern@tum.de">Maximilian Leitenstern</maintainer>

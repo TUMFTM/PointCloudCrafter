@@ -161,9 +161,9 @@ struct ModifierConfig
 };
 
 /**
- * @brief PCD input configuration
+ * @brief FileConfig input configuration
  */
-struct PCDConfig : public ModifierConfig
+struct FileConfig : public ModifierConfig
 {
   std::string input_path{};
   std::vector<double> translation{};
@@ -171,16 +171,16 @@ struct PCDConfig : public ModifierConfig
   bool degree{false};
 
   /**
-   * @brief Add PCD CLI options to the given app
+   * @brief Add FileConfig CLI options to the given app
    * @param app CLI app
    */
   void add_cli_options(CLI::App * app)
   {
-    app->add_option("input-path", input_path, "Path to PCD file or directory")
+    app->add_option("input-path", input_path, "Path to point cloud file or directory")
       ->required()
       ->group("Required");
 
-    app->add_option("out-dir", out_dir, "Output directory for .pcd files")
+    app->add_option("out-dir", out_dir, "Output directory for point cloud file(s)")
       ->required()
       ->group("Required");
 
@@ -197,12 +197,12 @@ struct PCDConfig : public ModifierConfig
     app->add_flag("--load-obj", load_obj, "Load OBJ files")
       ->group("File Format");
 
-    app->add_option("-t,--translation", translation, "Translation [x y z]]")
+    app->add_option("-t,--translation", translation, "Translation [x y z]")
       ->expected(3)
       ->type_name("FLOAT FLOAT FLOAT")
       ->group("Transforms");
 
-    app->add_option("-r,--rotation", rotation, "Rotation [roll pitch yaw]]")
+    app->add_option("-r,--rotation", rotation, "Rotation [roll pitch yaw]")
       ->expected(3)
       ->type_name("FLOAT FLOAT FLOAT")
       ->group("Transforms");
@@ -234,7 +234,7 @@ struct RosbagConfig : public ModifierConfig
       ->required()
       ->group("Required");
 
-    app->add_option("out-dir", out_dir, "Output directory for .pcd files")
+    app->add_option("out-dir", out_dir, "Output directory for point cloud file(s)")
       ->required()
       ->group("Required");
 
