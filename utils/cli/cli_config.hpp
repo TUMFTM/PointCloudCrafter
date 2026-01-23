@@ -169,6 +169,7 @@ struct FileConfig : public ModifierConfig
   std::vector<double> translation{};
   std::vector<double> rotation{};
   bool degree{false};
+  bool merge_clouds{false};
 
   /**
    * @brief Add FileConfig CLI options to the given app
@@ -208,6 +209,9 @@ struct FileConfig : public ModifierConfig
       ->group("Transforms");
 
     app->add_flag("--deg", degree, "Rotation in degrees instead of radians")
+      ->group("Transforms");
+
+    app->add_flag("--merge-clouds", merge_clouds, "Merge all point clouds into a single file")
       ->group("Transforms");
 
     add_modifier_options(app);

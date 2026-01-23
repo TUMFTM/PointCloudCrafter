@@ -44,9 +44,11 @@
 #include <pcl/conversions.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
+#include <pcl/PCLPointCloud2.h>
 
 #include "formats.hpp"
 
+// TODO(ga58lar): unify the usage of pcl::PCLPointCloud2
 using PointCloud = pcl::PCLPointCloud2;
 namespace pointcloudmodifierlib
 {
