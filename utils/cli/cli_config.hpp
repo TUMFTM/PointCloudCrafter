@@ -55,6 +55,7 @@ struct ModifierConfig
   bool save_txt{false};
   bool save_kitti{false};
   bool save_nuscenes{false};
+  bool merge_clouds{false};
 
   /**
    * @brief Get the load format based on flags
@@ -208,6 +209,9 @@ struct FileConfig : public ModifierConfig
       ->group("Transforms");
 
     app->add_flag("--deg", degree, "Rotation in degrees instead of radians")
+      ->group("Transforms");
+
+    app->add_flag("--merge-clouds", merge_clouds, "Merge all point clouds into a single file")
       ->group("Transforms");
 
     add_modifier_options(app);

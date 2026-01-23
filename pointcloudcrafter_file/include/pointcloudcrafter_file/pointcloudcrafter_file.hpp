@@ -20,6 +20,8 @@
 #include <rclcpp/clock.hpp>
 #include <rclcpp/rclcpp.hpp>
 
+#include <pcl/PCLPointCloud2.h>
+
 #include <string>
 #include <utility>
 #include <vector>
@@ -40,7 +42,8 @@ public:
   void run();
 
 protected:
-  void process_pointcloud(const std::string & input_path, size_t file_index);
+  void process_pointcloud(const std::string & input_path,
+    const size_t & file_index, const bool & last_file);
 
 private:
   config::FileConfig cfg_;
@@ -49,6 +52,7 @@ private:
   int64_t processed_frames_{0};
   int64_t stride_frames_{0};
   std::vector<Eigen::Affine3d> file_transforms_{};
+  pcl::PCLPointCloud2::Ptr merged_cloud{new pcl::PCLPointCloud2()};
 };
 
 }  // namespace pointcloudcrafter

@@ -125,6 +125,7 @@ Transforms:
   -r,--rotation FLOAT FLOAT FLOAT x 3
                               Rotation [roll pitch yaw]
   --deg                       Rotation in degrees instead of radians
+  --merge-clouds              Merge all point clouds into a single file
   --tf,--transform-file TEXT  TXT file with transform ([frame_id] r1 r2 r3 x r4 r5 r6 y r7 r8 r9 z)
 
 
@@ -146,9 +147,9 @@ Filtering:
   --inverse-crop              Inverse crop filters
   --vf,--voxel-filter FLOAT FLOAT FLOAT x 3
                               Voxel size [x y z]
-  --orf,--outlier-radius-filter FLOAT INT x 2
+  --orf,--outlier-radius-filter FLOAT INT
                               Radius outlier removal [radius min_neighbors]
-  --osf,--outlier-stat-filter FLOAT INT x 2
+  --osf,--outlier-stat-filter FLOAT INT
                               Statistical outlier removal [threshold mean_k]
 
 
