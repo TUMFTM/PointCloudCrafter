@@ -1,38 +1,6 @@
-<div align="center">
-    <img src="docs/logo.svg" alt="pointcloudcrafter" width="600" style="margin-bottom: 30px;">
-</div>
+# Related Work
 
-<div align="center">
-
-A toolkit for extracting, manipulating, and evaluating point clouds and 3D spatial maps. Includes functions for processing, analyzing, and visualizing point clouds, designed to streamline workflows in 3D mapping and general point cloud handling. Ideal for researchers and developers working with LiDAR, SLAM, and 3D spatial data.
-
-[![Linux](https://img.shields.io/badge/os-linux-blue.svg)](https://www.linux.org/)
-[![Docker](https://badgen.net/badge/icon/docker?icon=docker&label)](https://www.docker.com/)
-[![ROS2humble](https://img.shields.io/badge/ros2-humble-blue.svg)](https://docs.ros.org/en/humble/index.html)
-</div>
-
-<h2> Documentation</h2>
-
-Github Pages: [https://TUMFTM.github.io/PointCloudCrafter](https://TUMFTM.github.io/PointCloudCrafter)
-
-<h2> Cloning without test data (recommended) </h2>
-
-This repository uses Git LFS for large test files (22 MB).
-Most users do not need them.
-
-Clone without downloading LFS files:
-
-    GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/TUMFTM/PointCloudCrafter.git
-
-To download them later:
-
-    git lfs pull
-
-<h2> Third-Party Licenses </h2>
-
-<details>
-<summary>More information</summary>
-<br>
+## Third-Party Libraries
 
 This project uses the following third-party libraries:
 
@@ -53,13 +21,7 @@ This project uses the following third-party libraries:
 
 > **Note:** This list may not be exhaustive. Please refer to the individual package documentation for complete license information.
 
-</details>
-
-<h2> More Point Cloud Handling </h2>
-
-<details>
-<summary>More information</summary>
-<br>
+## More Point Cloud Handling
 
 | Tool                                                              | Type            |
 | ----------------------------------------------------------------- | --------------- |
@@ -70,5 +32,3 @@ This project uses the following third-party libraries:
 | [PCL](https://github.com/PointCloudLibrary/pcl)                   | Library & CLI   |
 | [PDAL](https://pdal.io/)                                          | Library & CLI   |
 | [PointCloudEditor](https://github.com/JohannesKrueger/pointcloudeditor) | GUI       |
-
-</details>

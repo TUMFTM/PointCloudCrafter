@@ -41,4 +41,8 @@ extra_css:
 
 nav:
     - Home: 'index.md'
+    - docker.md
+    - getting_started.md
+    - usage.md
+    - third-party.md
     - API: docs_cpp/index.html
