@@ -1,0 +1,44 @@
+site_name: "PointCloudCrafter"
+site_author: TUMFTM
+repo_url: https://github.com/TUMFTM/PointCloudCrafter
+site_url: https://PointCloudCrafter.github.io/site
+site_description: "PointCloudCrafter: A tool for crafting and modifying point clouds."
+
+theme:
+    name: material
+    palette:
+        primary: indigo
+    logo: assets/icon.svg
+    favicon: assets/icon.svg
+    front:
+        text: Roboto
+
+use_directory_urls: false
+
+markdown_extensions:
+    - meta
+    - attr_list
+    - admonition
+    - pymdownx.highlight:
+        anchor_linenums: true
+    - pymdownx.inlinehilite
+    - pymdownx.snippets
+    - pymdownx.superfences
+    - pymdownx.emoji:
+        emoji_index: !!python/name:material.extensions.emoji.twemoji
+        emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+copyright: Copyright &copy; 2025 - 2026 TUMFTM
+extra:
+    social:
+        - icon: material/home
+          link: https://www.mos.ed.tum.de/ftm/startseite/
+        - icon: fontawesome/brands/github
+          link: https://github.com/TUMFTM/PointCloudCrafter
+
+extra_css:
+    - "https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css"
+
+nav:
+    - Home: 'index.md'
+    - API: docs_cpp/index.html
