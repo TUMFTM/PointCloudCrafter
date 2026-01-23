@@ -82,6 +82,7 @@ PCFile::PCFile(const config::FileConfig & cfg)
  */
 void PCFile::run()
 {
+  bool last_file = false;
   int64_t file_index = 0;
   rclcpp::Clock wall_clock{};
   const int64_t total_files = static_cast<int64_t>(pc_files_.size());
@@ -107,7 +108,10 @@ void PCFile::run()
     RCLCPP_INFO_THROTTLE(logger_, wall_clock, 1000, "Processed %ld of %ld files [% 5.1f%%]",
       file_index, total_files, progress);
 
-    process_pointcloud(pc_files_[i], file_index);
+    if (file_index == total_files - 1 || processed_frames_ == cfg_.max_frames - 1) {
+      last_file = true;
+    }
+    process_pointcloud(pc_files_[i], file_index, last_file);
 
     processed_frames_++;
     stride_frames_ = cfg_.stride_frames - 1;
@@ -121,8 +125,10 @@ void PCFile::run()
  * @brief Process a single pointcloud file
  * @param input_path Path to the input point cloud file
  * @param file_index Index of the file being processed
+ * @param last_file Whether this is the last file to be processed
  */
-void PCFile::process_pointcloud(const std::string & input_path, size_t file_index)
+void PCFile::process_pointcloud(const std::string & input_path,
+  const size_t & file_index, const bool & last_file)
 {
   // Modify the pointclouds with pointcloudmodifierlib
   pointcloudmodifierlib::Modifier modifier;
@@ -188,11 +194,23 @@ void PCFile::process_pointcloud(const std::string & input_path, size_t file_inde
     modifier.transform(transform);
   }
 
-  // Generate output path
-  std::filesystem::path input_p(input_path);
-  std::string stem = cfg_.sequential_names ?
+  // Merge clouds
+  std::string stem{};
+  if (cfg_.merge_clouds) {
+    *merged_cloud += *modifier.getOutputCloud();
+    if (last_file) {
+      modifier.setCloud(merged_cloud);
+      stem = "merged_cloud";
+    } else {
+    return;
+    }
+  } else {
+    std::filesystem::path input_p(input_path);
+    stem = cfg_.sequential_names ?
     fmt::format("{:06d}", processed_frames_) : pointcloudcrafter::tools::formats::get_stem(input_p);
+  }
 
+  // Generate output path
   auto save_fmt = cfg_.get_save_format();
   std::string output_path = cfg_.out_dir + "/" + stem +
     pointcloudcrafter::tools::formats::format_to_extension(save_fmt);
@@ -200,6 +218,11 @@ void PCFile::process_pointcloud(const std::string & input_path, size_t file_inde
   // Save with configured format
   if (!modifier.save(output_path, save_fmt)) {
     RCLCPP_ERROR(logger_, "Failed to save: %s", output_path.c_str());
+  }
+
+  // Save timestamps if enabled
+  if (cfg_.timestamps) {
+    modifier.timestampAnalyzer(cfg_.out_dir + "/" + stem + "_stamps.txt");
   }
 }
 

@@ -44,9 +44,11 @@
 #include <pcl/conversions.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
+#include <pcl/PCLPointCloud2.h>
 
 #include "formats.hpp"
 
+// TODO(ga58lar): unify the usage of pcl::PCLPointCloud2
 using PointCloud = pcl::PCLPointCloud2;
 namespace pointcloudmodifierlib
 {
@@ -314,7 +316,6 @@ public:
     return *this;
   }
 
-  // TODO(ga58lar): integrate timestampAnalyzer into pointcloudcrafter pcd/rosbag
   // Analysis
   /**
    * @brief Save timestamps to a file and print basic statistics

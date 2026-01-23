@@ -42,6 +42,7 @@ struct ModifierConfig
   int64_t skip_frames{0};
   int64_t stride_frames{1};
   std::string out_dir{};
+  bool timestamps{false};
   bool sequential_names{false};
   bool inverse_crop{false};
   bool load_pcd{true};
@@ -91,6 +92,9 @@ struct ModifierConfig
   void add_modifier_options(CLI::App * app)
   {
     // Output
+    app->add_flag("--timestamps", timestamps, "Save point cloud timestamps to a text file")
+      ->group("Output");
+
     app->add_flag("--sequential-name", sequential_names, "Use sequential file names")
       ->group("Output");
 
@@ -169,6 +173,7 @@ struct FileConfig : public ModifierConfig
   std::vector<double> translation{};
   std::vector<double> rotation{};
   bool degree{false};
+  bool merge_clouds{false};
 
   /**
    * @brief Add FileConfig CLI options to the given app
@@ -210,6 +215,9 @@ struct FileConfig : public ModifierConfig
     app->add_flag("--deg", degree, "Rotation in degrees instead of radians")
       ->group("Transforms");
 
+    app->add_flag("--merge-clouds", merge_clouds, "Merge all point clouds into a single file")
+      ->group("Transforms");
+
     add_modifier_options(app);
   }
 };
@@ -222,7 +230,6 @@ struct RosbagConfig : public ModifierConfig
   std::string bag_path{};
   std::vector<std::string> topics{};
   std::string target_frame{};
-  bool timestamps{false};
 
   /**
    * @brief Add Rosbag CLI options to the given app
@@ -241,9 +248,6 @@ struct RosbagConfig : public ModifierConfig
     app->add_option("topic-names", topics, "PointCloud2 topic names")
       ->required()
       ->group("Required");
-
-    app->add_flag("--timestamps", timestamps, "Save point cloud timestamps to a text file")
-      ->group("Output");
 
     app->add_option("-t,--target-frame", target_frame, "Target TF frame for all point clouds")
       ->group("Transforms");
