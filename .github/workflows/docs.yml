@@ -2,7 +2,7 @@ name: docs
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, 37-github-pages ]
   workflow_dispatch:
 
 jobs:
