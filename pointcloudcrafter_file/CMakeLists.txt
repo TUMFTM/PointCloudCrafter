@@ -14,34 +14,34 @@
 # limitations under the License.
 
 # Library
-add_library(pointcloudcrafter_pcd SHARED
-  src/pointcloudcrafter_pcd.cpp)
+add_library(pointcloudcrafter_file SHARED
+  src/pointcloudcrafter_file.cpp)
 
-target_include_directories(pointcloudcrafter_pcd
+target_include_directories(pointcloudcrafter_file
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
     ${PCL_INCLUDE_DIRS})
 
-ament_target_dependencies(pointcloudcrafter_pcd PUBLIC
+ament_target_dependencies(pointcloudcrafter_file PUBLIC
   rclcpp)
 
-target_link_libraries(pointcloudcrafter_pcd PUBLIC
+target_link_libraries(pointcloudcrafter_file PUBLIC
   ${PCL_LIBRARIES}
   fmt::fmt
   pointcloudmodifierlib
   utils)
 
 # Executable
-add_executable(pcd
-  src/pointcloudcrafter_pcd_main.cpp)
+add_executable(file
+  src/pointcloudcrafter_file_main.cpp)
 
-target_link_libraries(pcd PRIVATE
-  pointcloudcrafter_pcd)
+target_link_libraries(file PRIVATE
+  pointcloudcrafter_file)
 
 # Installation
-install(TARGETS pointcloudcrafter_pcd
+install(TARGETS pointcloudcrafter_file
   LIBRARY DESTINATION lib)
 
-install(TARGETS pcd
+install(TARGETS file
   RUNTIME DESTINATION lib/${PROJECT_NAME})

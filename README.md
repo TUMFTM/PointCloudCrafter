@@ -92,14 +92,14 @@ Example:
     --voxel-filter 0.1 0.1 0.1 --stride-frames 5
 ```
 
-<h3> Modify PCD files </h3>
+<h3> Modify point clouds from files </h3>
 
 ```
-Usage: ros2 run pointcloudcrafter pcd [OPTIONS] input-path out-dir
+Usage: ros2 run pointcloudcrafter file [OPTIONS] input-path out-dir
 
 Positionals:
-  input-path TEXT REQUIRED    Path to PCD file or directory
-  out-dir TEXT REQUIRED       Output directory for .pcd files
+  input-path TEXT REQUIRED    Path to point cloud file or directory
+  out-dir TEXT REQUIRED       Output directory for point cloud file(s)
 
 Options:
   -h,--help                   Print this help message and exit
@@ -121,9 +121,9 @@ File Format:
 
 Transforms:
   -t,--translation FLOAT FLOAT FLOAT x 3
-                              Translation [x y z]]
+                              Translation [x y z]
   -r,--rotation FLOAT FLOAT FLOAT x 3
-                              Rotation [roll pitch yaw]]
+                              Rotation [roll pitch yaw]
   --deg                       Rotation in degrees instead of radians
   --tf,--transform-file TEXT  TXT file with transform ([frame_id] r1 r2 r3 x r4 r5 r6 y r7 r8 r9 z)
 
@@ -153,7 +153,7 @@ Filtering:
 
 
 Example:
-  ros2 run pointcloudcrafter pcd /datasets/input/ /datasets/out/ 
+  ros2 run pointcloudcrafter file /datasets/input/ /datasets/out/ 
     --voxel-filter 0.1 0.1 0.1 -m 5
 ```
 

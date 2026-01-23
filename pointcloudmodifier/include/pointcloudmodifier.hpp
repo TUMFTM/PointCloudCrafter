@@ -405,7 +405,7 @@ public:
     pcl::fromPCLPointCloud2(*input_cloud, *input_xyz);
     pcl::fromPCLPointCloud2(*output_cloud, *output_xyz);
 
-    pcl::visualization::PCLVisualizer viewer("PCD Viewer");
+    pcl::visualization::PCLVisualizer viewer("Point Cloud Viewer");
 
     // Add input cloud with white color
 
