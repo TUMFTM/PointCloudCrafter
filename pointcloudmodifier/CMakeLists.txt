@@ -27,7 +27,8 @@ target_include_directories(pointcloudmodifierlib
 
 target_link_libraries(pointcloudmodifierlib
   INTERFACE
-    ${PCL_LIBRARIES})
+    ${PCL_LIBRARIES}
+    utils)
 
 # Installation
 install(TARGETS pointcloudmodifierlib

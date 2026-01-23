@@ -14,7 +14,7 @@
 # limitations under the License.
 
 cmake_minimum_required(VERSION 3.10)
-project(pointcloudcrafter VERSION 1.1.0)
+project(pointcloudcrafter VERSION 1.2.0)
 
 if(POLICY CMP0074)
   cmake_policy(SET CMP0074 NEW)
@@ -35,7 +35,7 @@ find_package(ament_cmake REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(fmt REQUIRED)
 find_package(geometry_msgs REQUIRED)
-find_package(PCL REQUIRED)
+find_package(PCL REQUIRED QUIET)
 find_package(pcl_conversions REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rosbag2_cpp REQUIRED)

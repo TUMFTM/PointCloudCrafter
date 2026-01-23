@@ -22,6 +22,7 @@
 #include <vector>
 
 #include "cli/CLI11.hpp"
+#include "formats.hpp"
 
 namespace config
 {
@@ -43,9 +44,45 @@ struct ModifierConfig
   std::string out_dir{};
   bool sequential_names{false};
   bool inverse_crop{false};
-  std::vector<double> translation{};
-  std::vector<double> rotation{};
-  bool degree{false};
+  bool load_pcd{true};
+  bool load_ply{false};
+  bool load_txt{false};
+  bool load_kitti{false};
+  bool load_nuscenes{false};
+  bool load_obj{false};
+  bool save_pcd{false};
+  bool save_ply{false};
+  bool save_txt{false};
+  bool save_kitti{false};
+  bool save_nuscenes{false};
+
+  /**
+   * @brief Get the load format based on flags
+   * @return FileFormat enum value
+   */
+  pointcloudcrafter::tools::formats::FileFormat get_load_format() const
+  {
+    if (load_ply) return pointcloudcrafter::tools::formats::FileFormat::PLY;
+    if (load_txt) return pointcloudcrafter::tools::formats::FileFormat::TXT;
+    if (load_kitti) return pointcloudcrafter::tools::formats::FileFormat::KITTI;
+    if (load_nuscenes) return pointcloudcrafter::tools::formats::FileFormat::NUSCENES;
+    if (load_obj) return pointcloudcrafter::tools::formats::FileFormat::OBJ;
+    return pointcloudcrafter::tools::formats::FileFormat::PCD;
+  }
+
+  /**
+   * @brief Get the save format based on flags
+   * @return FileFormat enum value (default: same as load format)
+   */
+  pointcloudcrafter::tools::formats::FileFormat get_save_format() const
+  {
+    if (save_pcd) return pointcloudcrafter::tools::formats::FileFormat::PCD;
+    if (save_ply) return pointcloudcrafter::tools::formats::FileFormat::PLY;
+    if (save_txt) return pointcloudcrafter::tools::formats::FileFormat::TXT;
+    if (save_kitti) return pointcloudcrafter::tools::formats::FileFormat::KITTI;
+    if (save_nuscenes) return pointcloudcrafter::tools::formats::FileFormat::NUSCENES;
+    return get_load_format();
+  }
 
   /**
    * @brief Add common modifier CLI options to the given app
@@ -66,6 +103,18 @@ struct ModifierConfig
 
     app->add_option("-s,--stride-frames", stride_frames, "Write every Nth frame")
       ->group("General");
+
+    // File format
+    app->add_flag("--save-pcd", save_pcd, "Save PCD files (default)")
+      ->group("File Format");
+    app->add_flag("--save-ply", save_ply, "Save PLY files")
+      ->group("File Format");
+    app->add_flag("--save-txt", save_txt, "Save TXT ASCII files")
+      ->group("File Format");
+    app->add_flag("--save-kitti", save_kitti, "Save KITTI binary files")
+      ->group("File Format");
+    app->add_flag("--save-nuscenes", save_nuscenes, "Save nuScenes binary files")
+      ->group("File Format");
 
     // Transforms
     app->add_option(
@@ -117,6 +166,9 @@ struct ModifierConfig
 struct PCDConfig : public ModifierConfig
 {
   std::string input_path{};
+  std::vector<double> translation{};
+  std::vector<double> rotation{};
+  bool degree{false};
 
   /**
    * @brief Add PCD CLI options to the given app
@@ -132,8 +184,21 @@ struct PCDConfig : public ModifierConfig
       ->required()
       ->group("Required");
 
+    app->add_flag("--load-pcd", load_pcd, "Load PCD files (default)")
+      ->group("File Format");
+    app->add_flag("--load-ply", load_ply, "Load PLY files")
+      ->group("File Format");
+    app->add_flag("--load-txt", load_txt, "Load TXT ASCII files")
+      ->group("File Format");
+    app->add_flag("--load-kitti", load_kitti, "Load KITTI binary files")
+      ->group("File Format");
+    app->add_flag("--load-nuscenes", load_nuscenes, "Load nuScenes binary files")
+      ->group("File Format");
+    app->add_flag("--load-obj", load_obj, "Load OBJ files")
+      ->group("File Format");
+
     app->add_option("-t,--translation", translation, "Translation [x y z]]")
-      ->expected(2)
+      ->expected(3)
       ->type_name("FLOAT FLOAT FLOAT")
       ->group("Transforms");
 

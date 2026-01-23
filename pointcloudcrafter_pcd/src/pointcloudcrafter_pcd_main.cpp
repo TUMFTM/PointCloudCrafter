@@ -33,7 +33,7 @@ int main(int argc, char * argv[])
 
   app.footer(
     "\nExample:\n"
-    "  ros2 run pointcloudcrafter pcd input/ out/ \n"
+    "  ros2 run pointcloudcrafter pcd /datasets/input/ /datasets/out/ \n"
     "    --voxel-filter 0.1 0.1 0.1 -m 5\n");
 
   CLI11_PARSE(app, argc, argv);

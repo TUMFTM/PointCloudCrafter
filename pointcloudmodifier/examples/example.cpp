@@ -17,7 +17,9 @@
 
 #include <iostream>
 #include <string>
+#include <filesystem>  // NOLINT
 
+#include "formats.hpp"
 #include "pointcloudmodifier.hpp"
 int main(int argc, char * argv[])
 {
@@ -27,10 +29,12 @@ int main(int argc, char * argv[])
   }
 
   std::string input_file = argv[1];
+  std::filesystem::path output_path(input_file);
   pointcloudmodifierlib::Modifier modifier;
+  auto format = pointcloudcrafter::tools::formats::FileFormat::PCD;
 
   // Load the PCD file
-  if (!modifier.loadPCD(input_file)) {
+  if (!modifier.load(input_file, format)) {
     return 1;
   }
 
@@ -40,13 +44,15 @@ int main(int argc, char * argv[])
   auto out = modifier.getOutputCloud();
   modifier.setCloud(out);
 
-  modifier.cropSphere(10.0).timestampAnalyzer("time.txt");
+  modifier.cropSphere(10.0).timestampAnalyzer(output_path.parent_path().string() + "/time.txt");
 
   auto check = modifier.getOutputCloud();
   std::cout << "Output cloud size: " << check->width * check->height << std::endl;
 
   // Save the result
-  if (!modifier.savePCD(input_file + "_mod")) {
+
+  output_path.replace_filename("modified_" + output_path.filename().string());
+  if (!modifier.save(output_path.string(), format)) {
     return 1;
   }
 

@@ -57,11 +57,11 @@ namespace pointcloudcrafter
  * @param cfg Configuration
  */
 Rosbag::Rosbag(const config::RosbagConfig & cfg)
-: reader_(cfg_.bag_path),
+: cfg_(cfg),
   tf2_buffer_(std::make_shared<rclcpp::Clock>()),
   logger_(rclcpp::get_logger("pointcloudcrafter_rosbag")),
   num_sensors_(cfg_.topics.size()),
-  cfg_(cfg)
+  reader_(cfg_.bag_path)
 {
   // Check for number of topics
   if (cfg_.topics.size() > 4) {
@@ -214,8 +214,13 @@ void Rosbag::process_pointclouds(
   // Save output cloud
   auto ts = tools::utils::timestamp_to_ros(base_time);
   std::string name = fmt::format("{}_{:09}", ts.sec, ts.nanosec);
-  if (!modifier.savePCD(cfg_.out_dir + "/" + name + ".pcd")) {
-    RCLCPP_ERROR(logger_, "Failed to save pointcloud to %s", name.c_str());
+
+  auto save_fmt = cfg_.get_save_format();
+  std::string output_path = cfg_.out_dir + "/" + name +
+    pointcloudcrafter::tools::formats::format_to_extension(save_fmt);
+
+  if (!modifier.save(output_path, save_fmt)) {
+    RCLCPP_ERROR(logger_, "Failed to save: %s", output_path.c_str());
     return;
   }
 
