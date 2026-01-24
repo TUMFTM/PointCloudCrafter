@@ -1,0 +1,13 @@
+<map id="CLI::ConstructionError" name="CLI::ConstructionError">
+<area shape="rect" id="Node000001" title="Construction errors (not in parsing)" alt="" coords="195,152,357,177"/>
+<area shape="rect" id="Node000004" href="$classCLI_1_1BadNameString.html" title="Thrown on construction of a bad name." alt="" coords="5,225,157,251"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="233,184,114,228,112,223,231,179"/>
+<area shape="rect" id="Node000005" href="$classCLI_1_1IncorrectConstruction.html" title="Thrown when an option is set to conflicting values (non&#45;vector and multi args, for example)" alt="" coords="181,225,371,251"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="279,191,279,225,273,225,273,191"/>
+<area shape="rect" id="Node000006" href="$classCLI_1_1OptionAlreadyAdded.html" title="Thrown when an option already exists." alt="" coords="395,225,579,251"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="323,179,453,223,452,228,322,184"/>
+<area shape="rect" id="Node000002" href="$classCLI_1_1Error.html" title="All errors derive from this one." alt="" coords="235,79,317,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="279,118,279,152,273,152,273,118"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="207,5,345,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="279,44,279,79,273,79,273,44"/>
+</map>
