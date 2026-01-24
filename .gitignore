@@ -3,3 +3,6 @@ install
 build
 log
 .vscode
+site
+.html
+docs/docs_cpp
