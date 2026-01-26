@@ -52,7 +52,7 @@ The *rosbag* mode enables extraction of `sensor_msgs::msg::PointCloud2` topics f
 
 The *file* mode focuses on batch processing of static point cloud files. Supported formats include common text and binary formats such as PLY, PCD, OBJ, and TXT, as well as dataset-specific binary formats used in KITTI [@KITTI2012] and nuScenes [@nuScenes2019]. 
 Both execution modes rely internally on the `PCLPointCloud2` data structure, enabling schema-agnostic handling of point attributes. They allow users to apply rigid-body transformations, merge multiple point clouds into a single representation, and perform filtering operations. Implemented filters include geometric cropping using box, sphere, or cylindrical regions, voxel grid downsampling, and statistical or radius-based outlier removal. As a result of the implemented data formats, the processed point clouds can also be converted into other data formats.
-All processing steps are fully parameterized via command-line options, enabling deterministic, reproducible execution across datasets.
+All processing steps are fully parameterized via command-line options, enabling deterministic, reproducible execution across datasets. A comprehensive overview of the functions and the parameterization can be found at \url{https://tumftm.github.io/PointCloudCrafter/usage.html}
 
 A typical use case is the extraction of LiDAR scans from ROS2 bag recordings, transformation into a global reference frame using an externally estimated trajectory, and aggregation into a static map for offline evaluation. This workflow can be executed in a single batch process while preserving sensor-specific scalar fields required for subsequent analysis.
 
