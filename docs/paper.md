@@ -59,7 +59,7 @@ A comprehensive overview of the functions and the parameterization can be found 
 
 A typical use case is the extraction of LiDAR scans from ROS2 bag recordings, transformation into a global reference frame using an externally estimated trajectory, and aggregation into a static map for offline evaluation. This workflow can be executed in a single batch process while preserving sensor-specific scalar fields required for subsequent analysis.
 
-Early versions of PointCloudCrafter have been used in diverse student research projects, scientific publications [@Leitenstern2025; @Kulmer2025-2], and the creation of datasets [@Kulmer2025-1].
+Early versions of PointCloudCrafter have been used in diverse student research projects, scientific publications [@Leitenstern2025; @Kulmer2025-1], and the creation of datasets [@Kulmer2025-2].
 
 # Acknowledgements
 
