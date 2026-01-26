@@ -15,7 +15,7 @@ authors:
     equal-contrib: true
     affiliation: 1
 affiliations:
- - name: Institute of Automotive Technology, Department of Mobility System Engineering, School of Engineering and Design, Technical University of Munich, Germany
+ - name: Institute of Automotive Technology, Department of Mobility System Engineering, School of Engineering and Design, Technical University of Munich, Germany.
    index: 1
 date: 25.January 2026  
 bibliography: paper.bib
@@ -40,7 +40,7 @@ The Point Cloud Library (PCL) [@Rusu2011] provides a comprehensive set of data s
 PDAL [@PDAL2022] is a mature framework for large-scale geospatial point cloud processing and provides a flexible pipeline abstraction for working with formats such as LAS and LAZ. While PDAL is well-suited for geospatial analysis and national lidar datasets, it does not natively integrate with robotic middleware or support time-resolved transformations based on sensor pose information.
 Recent toolkits such as PointClouds.jl [@Schmid2025] provide efficient and flexible programmatic interfaces for point cloud processing within the Julia ecosystem, with a focus on interactive development and integration with geospatial data sources. While well-suited for algorithm development and exploratory analysis, such approaches require users to implement custom processing logic and are not designed as standalone command-line tools for automated conversion of robotic middleware data. Libraries such as libpointmatcher [@Pomerleau2013] focus on modular implementations of point cloud registration algorithms and are typically embedded within state estimation or SLAM systems rather than used for dataset-level preprocessing and format conversion.
 
-A further limitation of many existing tools is the implicit assumption of fixed-point schemas. Conversion utilities and parsers often restrict data to spatial coordinates and optional color information, discarding non-standard scalar fields. However, many scientific applications depend on additional per-point attributes. Automotive LiDAR sensors provide channels such as intensity, timestamp, and ring index, which are required for calibration, motion correction, and mapping. Furthermore, novel imaging RaDAR sensors export point cloud data with metadata, such as Doppler velocity, RaDAR-cross-section, or signal-to-noise-ratio. In other domains, including structural biology, point clouds may encode physicochemical properties such as hydrophobicity or electrostatic potential [@Parigger2024, @Bazzano2025]. Preserving these attributes across processing steps is essential for reproducibility and downstream analysis.
+A further limitation of many existing tools is the implicit assumption of fixed-point schemas. Conversion utilities and parsers often restrict data to spatial coordinates and optional color information, discarding non-standard scalar fields. However, many scientific applications depend on additional per-point attributes. Automotive LiDAR sensors provide channels such as intensity, timestamp, and ring index, which are required for calibration, motion correction, and mapping. Furthermore, novel imaging RaDAR sensors export point cloud data with metadata, such as Doppler velocity, RaDAR-cross-section, or signal-to-noise-ratio. In other domains, including structural biology, point clouds may encode physicochemical properties such as hydrophobicity or electrostatic potential [@Parigger2024; @Bazzano2025]. Preserving these attributes across processing steps is essential for reproducibility and downstream analysis.
 
 PointCloudCrafter addresses these needs by providing a lightweight CLI toolkit focused on batch-oriented point cloud conversion and processing. The primary software contribution is a schema-agnostic, command-line-driven framework that unifies middleware-based and file-based point cloud processing while preserving arbitrary per-point attributes. Arbitrary scalar fields refer to dynamically discovered per-point attributes whose names, data types, and memory layout are preserved without enforcing a predefined schema.
 
@@ -51,10 +51,14 @@ PointCloudCrafter provides two primary execution modes, *rosbag* and *file*, for
 The *rosbag* mode enables extraction of `sensor_msgs::msg::PointCloud2` topics from ROS2 bag recordings. This mode integrates with the `TF2` library [@Foote2013] to perform time-resolved pose lookups based on the recorded transform tree. Each point cloud can be transformed from the sensor coordinate frame into a user-specified fixed reference frame using the pose corresponding to the exact acquisition timestamp. This enables motion-consistent export of point cloud data from dynamic sensor platforms and a timestamp-based fusion of different point cloud sensor topics.
 
 The *file* mode focuses on batch processing of static point cloud files. Supported formats include common text and binary formats such as PLY, PCD, OBJ, and TXT, as well as dataset-specific binary formats used in KITTI [@KITTI2012] and nuScenes [@nuScenes2019]. 
+
 Both execution modes rely internally on the `PCLPointCloud2` data structure, enabling schema-agnostic handling of point attributes. They allow users to apply rigid-body transformations, merge multiple point clouds into a single representation, and perform filtering operations. Implemented filters include geometric cropping using box, sphere, or cylindrical regions, voxel grid downsampling, and statistical or radius-based outlier removal. As a result of the implemented data formats, the processed point clouds can also be converted into other data formats.
-All processing steps are fully parameterized via command-line options, enabling deterministic, reproducible execution across datasets. A comprehensive overview of the functions and the parameterization can be found at \url{https://tumftm.github.io/PointCloudCrafter/usage.html}
+All processing steps are fully parameterized via command-line options, enabling deterministic, reproducible execution across datasets.
+
+A comprehensive overview of the functions and the parameterization can be found at \url{https://tumftm.github.io/PointCloudCrafter/usage.html}
 
 A typical use case is the extraction of LiDAR scans from ROS2 bag recordings, transformation into a global reference frame using an externally estimated trajectory, and aggregation into a static map for offline evaluation. This workflow can be executed in a single batch process while preserving sensor-specific scalar fields required for subsequent analysis.
+Early versions of PointCloudCrafter have been used in diverse student research projects, scientific publications [@Leitenstern2025; @Kulmer2025-2], and the creation of datasets [@Kulmer2025-1].
 
 # Acknowledgements
 
