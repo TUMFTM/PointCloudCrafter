@@ -4,9 +4,9 @@ on:
   release:
     types: [published]
   push:
-    branches: ["main"]
+    branches: ["18-python-bindings"]
   pull_request:
-    branches: ["main"]
+    branches: ["18-python-bindings"]
 
 jobs:
   build_wheel:
