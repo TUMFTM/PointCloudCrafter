@@ -25,7 +25,7 @@ classifiers = [
     "Intended Audience :: Other Audience",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: Apache Software License",
-    "Operating System :: Linux",
+    "Operating System :: POSIX :: Linux",
     "Programming Language :: C++",
 ]
 dependencies = []
