@@ -52,8 +52,7 @@ To download them later:
 
 <h2> Usage </h2>
 
-We provide a standalone Pip package, which is self-contained, so you do not have to worry about any dependencies and possible conflicts.  
-We also provide the tool as ROS2 package. Both feature the full functionality, so you can decide what suits your needs best.
+We provide a standalone Pip package, which is self-contained, so you do not have to worry about any dependencies and possible conflicts. We also provide the tool as ROS2 package. Both feature the full functionality, so you can decide what suits your needs best.
 
 For rosbag-processing:
 

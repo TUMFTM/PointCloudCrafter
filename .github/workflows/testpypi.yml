@@ -1,0 +1,65 @@
+name: Build and Publish to test.pypi.org
+
+on:
+  release:
+    types: [published]
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build_wheel:
+    name: Build Linux Wheel (ROS 2 Humble)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker
+        run: docker build -t pointcloudcrafter-build-docker -f docker/Dockerfile .
+
+      - name: Build Wheel
+        run: |
+          docker run --rm -v $PWD:/ros_ws -w /ros_ws pointcloudcrafter-build-docker /bin/bash -c "
+            set -e
+
+            python3 -m build --wheel --no-isolation -Cbuild-dir=/ros_ws/python/build
+            
+            LD_LIBRARY_PATH=$(find /ros_ws/python/build -name "*.so*" -exec dirname {} + | sort -u | tr '\n' ':'):$LD_LIBRARY_PATH \
+            auditwheel repair /ros_ws/dist/*.whl -w /ros_ws/dist/auditwheel/
+            
+            pip3 install --force-reinstall /ros_ws/dist/auditwheel/*.whl
+            pointcloudcrafter-file --help
+            pointcloudcrafter-rosbag --help
+          "
+
+      - name: Upload Wheel
+        uses: actions/upload-artifact@v4
+        with:
+          name: pypi-wheel
+          path: dist/auditwheel/*.whl
+          if-no-files-found: error
+
+  publish_pypi:
+    name: Publish to PyPI
+    needs: [build_wheel]
+    # if: github.event_name == 'release' && github.event.action == 'published'
+    runs-on: ubuntu-latest
+    
+    environment: pypi
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: pypi-wheel
+          path: dist/auditwheel
+
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          packages-dir: dist/auditwheel/
