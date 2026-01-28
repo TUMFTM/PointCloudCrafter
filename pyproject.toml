@@ -24,7 +24,7 @@ classifiers = [
     "Intended Audience :: Education",
     "Intended Audience :: Other Audience",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: Apache-2.0 License",
+    "License :: OSI Approved :: Apache Software License",
     "Operating System :: Linux",
     "Programming Language :: C++",
 ]
