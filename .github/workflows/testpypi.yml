@@ -79,4 +79,5 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
-          packages-dir: dist/auditwheel/
+          packages-dir: dist/auditwheel
+          verbose: true
