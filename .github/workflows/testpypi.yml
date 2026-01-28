@@ -20,8 +20,10 @@ jobs:
 
       - name: Build Wheel
         run: |
-          docker run --rm -v $PWD:/ros_ws -w /ros_ws pointcloudcrafter-build-docker /bin/bash -c "
+          docker run --rm --entrypoint /bin/bash -v $PWD:/ros_ws -w /ros_ws pointcloudcrafter-build-docker /bin/bash -c "
             set -e
+
+            source /opt/ros/humble/setup.bash
 
             python3 -m build --wheel --no-isolation -Cbuild-dir=/ros_ws/python/build
             
