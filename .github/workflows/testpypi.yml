@@ -25,7 +25,7 @@ jobs:
 
             python3 -m build --wheel --no-isolation -Cbuild-dir=/ros_ws/python/build
             
-            LD_LIBRARY_PATH=$(find /ros_ws/python/build -name "*.so*" -exec dirname {} + | sort -u | tr '\n' ':'):$LD_LIBRARY_PATH \
+            LD_LIBRARY_PATH=\$(find /ros_ws/python/build -name '*.so*' -exec dirname {} + | sort -u | tr '\n' ':'):\$LD_LIBRARY_PATH \
             auditwheel repair /ros_ws/dist/*.whl -w /ros_ws/dist/auditwheel/
             
             pip3 install --force-reinstall /ros_ws/dist/auditwheel/*.whl
