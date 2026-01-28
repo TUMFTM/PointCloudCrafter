@@ -38,6 +38,9 @@ jobs:
             -c "
               source /opt/ros/humble/setup.bash
 
+              apt-get update && apt-get install -y python3-pip python3-build
+              pip3 install --upgrade pip ninja scikit-build-core auditwheel
+
               python3 -m build --wheel --no-isolation -Cbuild-dir=/ros_ws/python/build
 
               LD_LIBRARY_PATH=\$(find /ros_ws/python/build -name '*.so*' -exec dirname {} + | sort -u | tr '\n' ':'):\$LD_LIBRARY_PATH \
