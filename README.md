@@ -13,6 +13,22 @@ A toolkit for extracting, manipulating, and evaluating point clouds and 3D spati
 [![docs](https://github.com/TUMFTM/PointCloudCrafter/actions/workflows/docs.yml/badge.svg)](https://github.com/TUMFTM/PointCloudCrafter/actions/workflows/docs.yml)
 </div>
 
+<h2> Install </h2>
+
+```bash
+    pip install pointcloudcrafter
+```
+Next, follow the instructions on how to run the system by typing:
+
+```bash
+    pointcloudcrafter-rosbag -h
+```
+
+or:
+```bash
+    pointcloudcrafter-file -h
+```
+
 <h2> Documentation</h2>
 
 Github Pages: [https://TUMFTM.github.io/PointCloudCrafter](https://TUMFTM.github.io/PointCloudCrafter)
@@ -36,15 +52,22 @@ To download them later:
 
 <h2> Usage </h2>
 
+We provide a standalone Pip package, which is self-contained, so you do not have to worry about any dependencies and possible conflicts.  
+We also provide the tool as ROS2 package. Both feature the full functionality, so you can decide what suits your needs best.
+
 For rosbag-processing:
 
 ```bash
+    pointcloudcrafter-rosbag -h
+
     ros2 run pointcloudcrafter rosbag -h
 ```
 
 For file-processing:
 
 ```bash
+    pointcloudcrafter-file -h
+
     ros2 run pointcloudcrafter file -h
 ```
 

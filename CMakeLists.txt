@@ -13,12 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 3.10)
-project(pointcloudcrafter VERSION 1.2.0)
+cmake_minimum_required(VERSION 3.22.1...4.2.1)
 
-if(POLICY CMP0074)
-  cmake_policy(SET CMP0074 NEW)
-endif()
+# Suppress PCL warnings
+set(CMAKE_POLICY_DEFAULT_CMP0144 OLD)
+set(CMAKE_POLICY_DEFAULT_CMP0167 OLD)
+
+project(pointcloudcrafter VERSION 1.2.0)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 20)
@@ -39,6 +40,8 @@ find_package(PCL REQUIRED QUIET)
 find_package(pcl_conversions REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rosbag2_cpp REQUIRED)
+find_package(rosbag2_storage_mcap REQUIRED)
+find_package(rosbag2_storage_default_plugins REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 
@@ -49,3 +52,18 @@ add_subdirectory(pointcloudmodifier)
 add_subdirectory(utils)
 
 ament_package()
+
+# Python wheel install
+set(CMAKE_INSTALL_BINDIR "bin")
+set(CMAKE_INSTALL_LIBDIR "lib")
+
+# Baking dependencies into wheel
+if(SKBUILD)
+    install(CODE [[
+        execute_process(
+            COMMAND /bin/bash
+                    "${CMAKE_SOURCE_DIR}/python/bake_libs.sh"
+                    "${CMAKE_INSTALL_PREFIX}"
+        )
+    ]])
+endif()

@@ -25,14 +25,18 @@ int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
 
-  CLI::App app{"pointcloudcrafter_file"};
-  app.name("ros2 run pointcloudcrafter file");
+  CLI::App app{"Modify point clouds from files"};
+  app.name("pointcloudcrafter-file");
+  app.alias("ros2 run pointcloudcrafter file");
 
   config::FileConfig cfg;
   cfg.add_cli_options(&app);
 
   app.footer(
-    "\nExample:\n"
+    "\nPip package install example:\n"
+    "  pointcloudcrafter-file /datasets/input/ /datasets/out/ \n"
+    "    --voxel-filter 0.1 0.1 0.1 -m 5\n"
+    "\nROS2 install example:\n"
     "  ros2 run pointcloudcrafter file /datasets/input/ /datasets/out/ \n"
     "    --voxel-filter 0.1 0.1 0.1 -m 5\n");
 

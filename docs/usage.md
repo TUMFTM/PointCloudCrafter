@@ -3,11 +3,13 @@
 ## Create and modify point clouds from rosbags
 
 ```bash
+Usage: pointcloudcrafter-rosbag [OPTIONS] bag-path out-dir topic-names...
+or
 Usage: ros2 run pointcloudcrafter rosbag [OPTIONS] bag-path out-dir topic-names...
 
 Positionals:
   bag-path TEXT REQUIRED      Path to ROS 2 bag
-  out-dir TEXT REQUIRED       Output directory for .pcd files
+  out-dir TEXT REQUIRED       Output directory for point cloud file(s)
   topic-names TEXT ... REQUIRED
                               PointCloud2 topic names
 
@@ -15,14 +17,14 @@ Options:
   -h,--help                   Print this help message and exit
 
 
-Output:
-  --timestamps                Save point cloud timestamps to a text file
-  --sequential-name           Use sequential file names
-
-
 Transforms:
   -t,--target-frame TEXT      Target TF frame for all point clouds
   --tf,--transform-file TEXT  TXT file with transform ([frame_id] r1 r2 r3 x r4 r5 r6 y r7 r8 r9 z)
+
+
+Output:
+  --timestamps                Save point cloud timestamps to a text file
+  --sequential-name           Use sequential file names
 
 
 General:
@@ -47,13 +49,17 @@ Filtering:
   --inverse-crop              Inverse crop filters
   --vf,--voxel-filter FLOAT FLOAT FLOAT x 3
                               Voxel size [x y z]
-  --orf,--outlier-radius-filter FLOAT INT x 2
+  --orf,--outlier-radius-filter FLOAT INT
                               Radius outlier removal [radius min_neighbors]
-  --osf,--outlier-stat-filter FLOAT INT x 2
+  --osf,--outlier-stat-filter FLOAT INT
                               Statistical outlier removal [threshold mean_k]
 
 
-Example:
+Pip package install example:
+  pointcloudcrafter-rosbag /datasets/bag.mcap /datasets/out/ /points_raw 
+    --voxel-filter 0.1 0.1 0.1 --stride-frames 5
+
+ROS2 install example:
   ros2 run pointcloudcrafter rosbag /datasets/bag.mcap /datasets/out/ /points_raw 
     --voxel-filter 0.1 0.1 0.1 --stride-frames 5
 ```
@@ -61,6 +67,8 @@ Example:
 ## Modify point clouds from files
 
 ```bash
+Usage: pointcloudcrafter-file [OPTIONS] input-path out-dir
+or
 Usage: ros2 run pointcloudcrafter file [OPTIONS] input-path out-dir
 
 Positionals:
@@ -91,10 +99,12 @@ Transforms:
   -r,--rotation FLOAT FLOAT FLOAT x 3
                               Rotation [roll pitch yaw]
   --deg                       Rotation in degrees instead of radians
+  --merge-clouds              Merge all point clouds into a single file
   --tf,--transform-file TEXT  TXT file with transform ([frame_id] r1 r2 r3 x r4 r5 r6 y r7 r8 r9 z)
 
 
 Output:
+  --timestamps                Save point cloud timestamps to a text file
   --sequential-name           Use sequential file names
 
 
@@ -112,13 +122,17 @@ Filtering:
   --inverse-crop              Inverse crop filters
   --vf,--voxel-filter FLOAT FLOAT FLOAT x 3
                               Voxel size [x y z]
-  --orf,--outlier-radius-filter FLOAT INT x 2
+  --orf,--outlier-radius-filter FLOAT INT
                               Radius outlier removal [radius min_neighbors]
-  --osf,--outlier-stat-filter FLOAT INT x 2
+  --osf,--outlier-stat-filter FLOAT INT
                               Statistical outlier removal [threshold mean_k]
 
 
-Example:
+Pip package install example:
+  pointcloudcrafter-file /datasets/input/ /datasets/out/ 
+    --voxel-filter 0.1 0.1 0.1 -m 5
+
+ROS2 install example:
   ros2 run pointcloudcrafter file /datasets/input/ /datasets/out/ 
     --voxel-filter 0.1 0.1 0.1 -m 5
 ```

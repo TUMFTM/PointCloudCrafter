@@ -1,0 +1,50 @@
+[build-system]
+requires = ["scikit-build-core"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "pointcloudcrafter"
+version = "1.2.0"
+description = "Tools for Handling, Manipulating and Analyzing of Point Clouds"
+readme = "README.md"
+authors = [
+    { name = "Dominik Kulmer", email = "dominik.kulmer@tum.de" },
+    { name = "Maximilian Leitenstern", email = "maxi.leitenstern@tum.de" },
+]
+requires-python = ">=3.8"
+keywords = [
+    "point cloud",
+    "LiDAR",
+    "C++",
+    "ROS2",
+    "PCL",
+]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Other Audience",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache-2.0 License",
+    "Operating System :: Linux",
+    "Programming Language :: C++",
+]
+dependencies = []
+
+[project.scripts]
+pointcloudcrafter-file = "python.wrapper:run_file"
+pointcloudcrafter-rosbag = "python.wrapper:run_rosbag"
+
+[project.urls]
+Homepage = "https://github.com/TUMFTM/PointCloudCrafter"
+
+[tool.scikit-build]
+wheel.packages = ["python"]
+wheel.install-dir = "python"
+cmake.args = [
+    "-DBUILD_TESTING=OFF",
+    "-DCMAKE_BUILD_TYPE=Release"
+]
+
+[tool.scikit-build.cmake.define]
+CMAKE_INSTALL_BINDIR = "bin"
+CMAKE_INSTALL_LIBDIR = "lib"

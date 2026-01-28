@@ -43,5 +43,10 @@ target_link_libraries(file PRIVATE
 install(TARGETS pointcloudcrafter_file
   LIBRARY DESTINATION lib)
 
+# ROS2
 install(TARGETS file
   RUNTIME DESTINATION lib/${PROJECT_NAME})
+
+# Python wheel
+install(TARGETS file
+  RUNTIME DESTINATION bin)
