@@ -50,6 +50,12 @@ jobs:
               pointcloudcrafter-file --help
               pointcloudcrafter-rosbag --help
             "
+      - name: Upload Wheel
+        uses: actions/upload-artifact@v4
+        with:
+          name: pypi-wheel
+          path: dist/auditwheel/*.whl
+          if-no-files-found: error
 
   publish_pypi:
     name: Publish to PyPI
