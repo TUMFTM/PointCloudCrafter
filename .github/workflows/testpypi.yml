@@ -20,7 +20,7 @@ jobs:
 
       - name: Build Wheel
         run: |
-          docker run --rm --entrypoint /bin/bash -v $PWD:/ros_ws -w /ros_ws pointcloudcrafter-build-docker /bin/bash -c "
+          docker run --rm --entrypoint /bin/bash -v $PWD:/ros_ws -w /ros_ws pointcloudcrafter-build-docker -c "
             set -e
 
             source /opt/ros/humble/setup.bash
