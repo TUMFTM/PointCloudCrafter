@@ -14,6 +14,16 @@ jobs:
     permissions:
       contents: read
       packages: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - python_version: "3.10"
+            python_tag: "cp310"
+            ubuntu_test: "22.04"
+          - python_version: "3.12"
+            python_tag: "cp312"
+            ubuntu_test: "24.04"
 
     steps:
       - uses: actions/checkout@v4
@@ -28,7 +38,7 @@ jobs:
       - name: Pull prebuilt image
         run: docker pull ghcr.io/tumftm/pointcloudcrafter:latest
 
-      - name: Build wheel
+      - name: Build wheel for Python ${{ matrix.python_version }}
         run: |
           docker run --rm \
             --entrypoint /bin/bash \
@@ -38,19 +48,25 @@ jobs:
             -c "
               source /opt/ros/humble/setup.bash
 
-              apt-get update && apt-get install -y python3-pip python3-build patchelf
-              pip3 install --upgrade pip ninja scikit-build-core auditwheel
+              apt-get update && apt-get install -y software-properties-common patchelf
+              add-apt-repository -y ppa:deadsnakes/ppa
+              apt-get update && apt-get install -y python${{ matrix.python_version }} python${{ matrix.python_version }}-venv python${{ matrix.python_version }}-dev
 
-              python3 -m build --wheel --no-isolation -Cbuild-dir=/ros_ws/package/build
+              python${{ matrix.python_version }} -m venv /tmp/buildenv
+              source /tmp/buildenv/bin/activate
+
+              pip install --upgrade pip ninja scikit-build-core auditwheel build catkin_pkg pyyaml
+
+              python -m build --wheel --no-isolation -Cbuild-dir=/ros_ws/package/build
 
               LD_LIBRARY_PATH=\$(find /ros_ws/package/build -name '*.so*' -exec dirname {} + | sort -u | tr '\n' ':'):\$LD_LIBRARY_PATH \
-              auditwheel repair /ros_ws/dist/*.whl -w /ros_ws/dist/auditwheel/
+              auditwheel repair /ros_ws/dist/*${{ matrix.python_tag }}*.whl -w /ros_ws/dist/auditwheel/
             "
 
       - name: Upload wheel for testing
         uses: actions/upload-artifact@v4
         with:
-          name: pypi-wheel
+          name: pypi-wheel-${{ matrix.python_tag }}
           path: dist/auditwheel/*.whl
           if-no-files-found: error
           retention-days: 1
@@ -61,7 +77,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ubuntu_version: ["22.04", "24.04"]
+        include:
+          - python_version: "3.10"
+            python_tag: "cp310"
+            ubuntu_version: "22.04"
+          - python_version: "3.12"
+            python_tag: "cp312"
+            ubuntu_version: "24.04"
 
     steps:
       - uses: actions/checkout@v4
@@ -78,10 +100,10 @@ jobs:
       - name: Download wheel
         uses: actions/download-artifact@v4
         with:
-          name: pypi-wheel
+          name: pypi-wheel-${{ matrix.python_tag }}
           path: dist/auditwheel
 
-      - name: Test wheel on Ubuntu ${{ matrix.ubuntu_version }}
+      - name: Test wheel on Ubuntu ${{ matrix.ubuntu_version }} with Python ${{ matrix.python_version }}
         run: |
           docker run --rm \
             -v "$PWD:/ros_ws" \
@@ -90,8 +112,9 @@ jobs:
             /bin/bash -c "
               set -e
 
-              apt-get update && apt-get install -y python3-pip
-              pip3 install --break-system-packages /ros_ws/dist/auditwheel/*.whl || \
+              apt-get update && apt-get install -y python3-pip python3-venv
+              python3 -m venv ~/.venv/pointcloudcrafter
+              source ~/.venv/pointcloudcrafter/bin/activate
               pip3 install /ros_ws/dist/auditwheel/*.whl
 
               echo '========================================'
