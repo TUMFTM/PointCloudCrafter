@@ -41,21 +41,21 @@ jobs:
               apt-get update && apt-get install -y python3-pip python3-build patchelf
               pip3 install --upgrade pip ninja scikit-build-core auditwheel
 
-              python3 -m build --wheel --no-isolation -Cbuild-dir=/ros_ws/python/build
+              python3 -m build --wheel --no-isolation -Cbuild-dir=/ros_ws/package/build
 
-              LD_LIBRARY_PATH=\$(find /ros_ws/python/build -name '*.so*' -exec dirname {} + | sort -u | tr '\n' ':'):\$LD_LIBRARY_PATH \
+              LD_LIBRARY_PATH=\$(find /ros_ws/package/build -name '*.so*' -exec dirname {} + | sort -u | tr '\n' ':'):\$LD_LIBRARY_PATH \
               auditwheel repair /ros_ws/dist/*.whl -w /ros_ws/dist/auditwheel/
 
               pip3 install --force-reinstall /ros_ws/dist/auditwheel/*.whl
               pointcloudcrafter-file --help
               pointcloudcrafter-rosbag --help
             "
-      - name: Upload Wheel
-        uses: actions/upload-artifact@v4
-        with:
-          name: pypi-wheel
-          path: dist/auditwheel/*.whl
-          if-no-files-found: error
+      # - name: Upload Wheel
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: pypi-wheel
+      #     path: dist/auditwheel/*.whl
+      #     if-no-files-found: error
 
   publish_pypi:
     name: Publish to PyPI
@@ -69,15 +69,15 @@ jobs:
       id-token: write
 
     steps:
-      - name: Download Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: pypi-wheel
-          path: dist/auditwheel
+      # - name: Download Artifacts
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: pypi-wheel
+      #     path: dist/auditwheel
 
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
-          packages-dir: dist/auditwheel
+          packages-dir: $PWD/dist/auditwheel
           verbose: true

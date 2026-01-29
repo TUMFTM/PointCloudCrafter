@@ -17,9 +17,9 @@ First, build the Docker environment. Follow the steps in [Docker](https://tumftm
 
 Inside the container, execute the following commands:
 ```
-python3 -m build --wheel --no-isolation -Cbuild-dir=/ros_ws/python/build
+python3 -m build --wheel --no-isolation -Cbuild-dir=/ros_ws/package/build
 
-LD_LIBRARY_PATH=$(find /ros_ws/python/build -name "*.so*" -exec dirname {} + | sort -u | tr '\n' ':'):$LD_LIBRARY_PATH \
+LD_LIBRARY_PATH=$(find /ros_ws/package/build -name "*.so*" -exec dirname {} + | sort -u | tr '\n' ':'):$LD_LIBRARY_PATH \
 auditwheel repair /ros_ws/dist/*.whl -w /ros_ws/dist/auditwheel/
 ```
 This creates the `.whl` file that is needed for the Pip installation.

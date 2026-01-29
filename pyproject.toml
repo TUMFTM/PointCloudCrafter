@@ -4,7 +4,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "pointcloudcrafter"
-version = "1.2.2"
+version = "1.2.3"
 description = "Tools for Handling, Manipulating and Analyzing of Point Clouds"
 readme = "README.md"
 authors = [
@@ -31,15 +31,15 @@ classifiers = [
 dependencies = []
 
 [project.scripts]
-pointcloudcrafter-file = "python.wrapper:run_file"
-pointcloudcrafter-rosbag = "python.wrapper:run_rosbag"
+pointcloudcrafter-file = "package.wrapper:run_file"
+pointcloudcrafter-rosbag = "package.wrapper:run_rosbag"
 
 [project.urls]
 Homepage = "https://github.com/TUMFTM/PointCloudCrafter"
 
 [tool.scikit-build]
-wheel.packages = ["python"]
-wheel.install-dir = "python"
+wheel.packages = ["package"]
+wheel.install-dir = "package"
 cmake.args = [
     "-DBUILD_TESTING=OFF",
     "-DCMAKE_BUILD_TYPE=Release"

@@ -19,7 +19,7 @@ cmake_minimum_required(VERSION 3.22.1...4.2.1)
 set(CMAKE_POLICY_DEFAULT_CMP0144 OLD)
 set(CMAKE_POLICY_DEFAULT_CMP0167 OLD)
 
-project(pointcloudcrafter VERSION 1.2.1)
+project(pointcloudcrafter VERSION 1.2.3)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 20)
@@ -62,7 +62,7 @@ if(SKBUILD)
     install(CODE [[
         execute_process(
             COMMAND /bin/bash
-                    "${CMAKE_SOURCE_DIR}/python/bake_libs.sh"
+                    "${CMAKE_SOURCE_DIR}/package/bake_libs.sh"
                     "${CMAKE_INSTALL_PREFIX}"
         )
     ]])
