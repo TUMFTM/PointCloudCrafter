@@ -92,11 +92,6 @@ jobs:
         run: |
           git clone --depth 1 https://github.com/ga58lar/rosbag-test.git test_data
 
-      - name: Verify test data
-        run: |
-          ls -lh test_data/
-          file test_data/rosbag/rosbag_0.mcap
-
       - name: Download wheel
         uses: actions/download-artifact@v4
         with:
@@ -118,12 +113,12 @@ jobs:
               pip3 install /ros_ws/dist/auditwheel/*.whl
 
               echo '========================================'
-              echo 'Testing on Ubuntu \${{ matrix.ubuntu_version }}'
+              echo 'Testing on Ubuntu ${{ matrix.ubuntu_version }}'
               echo '========================================'
 
               # === Test Data Paths ===
-              TEST_ROSBAG=/ros_ws/test_data/rosbag
-              TEST_TRANSFORM=/ros_ws/test_data/transform
+              TEST_ROSBAG=/ros_ws/test_data/tests/rosbag
+              TEST_TRANSFORM=/ros_ws/test_data/tests/transform
               OUT_DIR=/tmp/test_output
               mkdir -p \$OUT_DIR
               TOPIC1=/edgar/sensor/lidar/ouster/frontleft/points
@@ -272,7 +267,7 @@ jobs:
               pointcloudcrafter-file \$FILE_INPUT \$OUT_DIR/file_out -s 2
 
               echo '========================================'
-              echo 'All tests passed on Ubuntu \${{ matrix.ubuntu_version }}!'
+              echo 'All tests passed on Ubuntu ${{ matrix.ubuntu_version }}!'
               echo '========================================'
             "
 
