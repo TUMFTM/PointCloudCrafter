@@ -120,7 +120,6 @@ jobs:
               TEST_ROSBAG=/ros_ws/test_data/tests/rosbag
               TEST_TRANSFORM=/ros_ws/test_data/tests/transform
               OUT_DIR=/tmp/test_output
-              mkdir -p \$OUT_DIR
               TOPIC1=/edgar/sensor/lidar/ouster/frontleft/points
               TOPIC2=/edgar/sensor/lidar/ouster/frontright/points
 
@@ -163,10 +162,10 @@ jobs:
               pointcloudcrafter-rosbag \$TEST_ROSBAG \$OUT_DIR \$TOPIC1 \$TOPIC2 --cs 10.0 --inverse-crop -m 2
 
               echo 'Test: Outlier radius filter'
-              pointcloudcrafter-rosbag \$TEST_ROSBAG \$OUT_DIR \$TOPIC1 \$TOPIC2 --orf 1.0 2 -m 2
+              pointcloudcrafter-rosbag \$TEST_ROSBAG \$OUT_DIR \$TOPIC1 \$TOPIC2 --orf 1.0 2 -m 1
 
               echo 'Test: Outlier statistical filter'
-              pointcloudcrafter-rosbag \$TEST_ROSBAG \$OUT_DIR \$TOPIC1 \$TOPIC2 --osf 1.0 5 -m 2
+              pointcloudcrafter-rosbag \$TEST_ROSBAG \$OUT_DIR \$TOPIC1 \$TOPIC2 --osf 1.0 5 -m 1
 
               # Output options
               echo 'Test: Timestamps'
@@ -231,10 +230,10 @@ jobs:
               pointcloudcrafter-file \$FILE_INPUT \$OUT_DIR/file_out --cs 10.0 --inverse-crop
 
               echo 'Test: Outlier radius filter'
-              pointcloudcrafter-file \$FILE_INPUT \$OUT_DIR/file_out --orf 1.0 2
+              pointcloudcrafter-file \$FILE_INPUT \$OUT_DIR/file_out --orf 1.0 2 -m 1
 
               echo 'Test: Outlier statistical filter'
-              pointcloudcrafter-file \$FILE_INPUT \$OUT_DIR/file_out --osf 1.0 5
+              pointcloudcrafter-file \$FILE_INPUT \$OUT_DIR/file_out --osf 1.0 5 -m 1
 
               # Transforms
               echo 'Test: Translation'
@@ -286,8 +285,9 @@ jobs:
       - name: Download wheel artifact
         uses: actions/download-artifact@v4
         with:
-          name: pypi-wheel-*
+          pattern: pypi-wheel-* 
           path: dist/auditwheel
+          merge-multiple: true
 
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1

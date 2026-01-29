@@ -46,3 +46,7 @@ done
 
 mkdir -p "$DEST_SHARE/ament_index/resource_index/rmw_typesupport"
 touch "$DEST_SHARE/ament_index/resource_index/rmw_typesupport/rmw_fastrtps_cpp"
+
+# Clean up problematic files
+rm -rf "$DEST_SHARE"/rosbag2_*/test
+rm -rf "$DEST_SHARE"/*/cmake
