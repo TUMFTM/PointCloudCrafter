@@ -73,7 +73,7 @@ The license is Apache-2.0.
 
 # AI usage disclosure
 
-Artificial intelligence tools were used in a limited and transparent manner during the development of this work. Claude Opus 4.5 was used to assist with code structuring and to generate code comments. GitHub Copilot was partially used to review Pull Request. The manuscript text was reviewed for grammar and clarity using OpenAI GPT-5.2 and Grammarly, and selected passages were rephrased to improve readability and flow. All scientific content, software design decisions, and final wording were reviewed and approved by the authors, who retain full responsibility for the work.
+Artificial intelligence tools were used in a limited and transparent manner during the development of this work. Claude Opus 4.5 was used to assist with code structuring and to generate code comments, as well as test cases. GitHub Copilot was used to review Pull Request. The manuscript text was reviewed for grammar and clarity using OpenAI GPT-5.2 and Grammarly, and selected passages were rephrased to improve readability and flow. All scientific content, software design decisions, and final wording were reviewed and approved by the authors, who retain full responsibility for the work.
 
 # Acknowledgements
 
