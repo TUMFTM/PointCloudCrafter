@@ -8,7 +8,8 @@ ROS_PATH="/opt/ros/humble"
 # TODO(ga58lar): find a way to automate this
 # Manual copy plugins, which are not detected by auditwheel
 cp /opt/ros/humble/lib/librmw_fastrtps_*.so* "$DEST_LIB/"
-cp /opt/ros/humble/lib/librosbag2_storage_*.so* "$DEST_LIB/"
+cp /opt/ros/humble/lib/librosbag2_storage_default_plugins.so* "$DEST_LIB/"
+cp /opt/ros/humble/lib/librosbag2_storage_mcap.so* "$DEST_LIB/"
 cp /opt/ros/humble/lib/libfast*.so* "$DEST_LIB/"
 
 # Copy full ament index
@@ -38,7 +39,7 @@ for pkg in "${ALL_PKGS[@]}"; do
         cp -aL "$ROS_PATH/share/$pkg" "$DEST_SHARE/"
     fi
 
-    find "$ROS_PATH/lib" -maxdepth 1 \
+    find "$ROS_PATH/lib" \
     -name "lib${pkg}*.so*" \
     ! -name "*__rosidl_generator_py.so" \
     -exec cp -P {} "$DEST_LIB/" \;
@@ -47,6 +48,8 @@ done
 mkdir -p "$DEST_SHARE/ament_index/resource_index/rmw_typesupport"
 touch "$DEST_SHARE/ament_index/resource_index/rmw_typesupport/rmw_fastrtps_cpp"
 
-# Clean up problematic files
-rm -rf "$DEST_SHARE"/rosbag2_*/test
-rm -rf "$DEST_SHARE"/*/cmake
+# Clean up test plugins and data
+find "$DEST_LIB" "$DEST_SHARE" -name "*.cmake" -delete
+find "$DEST_SHARE" -name "*.pc" -delete
+find "$DEST_SHARE" -name "*ConfigVersion.cmake" -delete
+find "$DEST_SHARE" -name "*Targets.cmake" -delete
