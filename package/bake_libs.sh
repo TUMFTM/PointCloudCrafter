@@ -45,12 +45,11 @@ for pkg in "${ALL_PKGS[@]}"; do
     -exec cp -P {} "$DEST_LIB/" \;
 done
 
-mkdir -p "$DEST_SHARE/ament_index/resource_index/rmw_typesupport"
-touch "$DEST_SHARE/ament_index/resource_index/rmw_typesupport/rmw_fastrtps_cpp"
-
 # Clean up test plugins and data
-rm -f "$DEST_SHARE/rosbag2_storage/plugin_description.xml"
-rm -f "$DEST_SHARE/ament_index/resource_index/rosbag2_storage_plugin/rosbag2_storage"
+find "$DEST_SHARE/ament_index/resource_index" \
+     -name "rosbag2_storage" \
+     -path "*plugin*" \
+     -delete
 find "$DEST_LIB" "$DEST_SHARE" -name "*.cmake" -delete
 find "$DEST_SHARE" -name "*.pc" -delete
 find "$DEST_SHARE" -name "*ConfigVersion.cmake" -delete
