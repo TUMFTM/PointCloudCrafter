@@ -1,12 +1,9 @@
 name: Build, Test and Publish to test.pypi.org
 
 on:
-  release:
-    types: [published]
   push:
-    branches: ["18-python-bindings"]
-  pull_request:
-    branches: ["18-python-bindings"]
+    tags:
+      - "test-*"
 
 jobs:
   build_wheel:
@@ -66,7 +63,7 @@ jobs:
       - name: Upload wheel for testing
         uses: actions/upload-artifact@v4
         with:
-          name: pypi-wheel-${{ matrix.python_tag }}
+          name: testpypi-wheel-${{ matrix.python_tag }}
           path: dist/auditwheel/*.whl
           if-no-files-found: error
           retention-days: 1
@@ -95,7 +92,7 @@ jobs:
       - name: Download wheel
         uses: actions/download-artifact@v4
         with:
-          name: pypi-wheel-${{ matrix.python_tag }}
+          name: testpypi-wheel-${{ matrix.python_tag }}
           path: dist/auditwheel
 
       - name: Test wheel on Ubuntu ${{ matrix.ubuntu_version }} with Python ${{ matrix.python_version }}
@@ -270,10 +267,9 @@ jobs:
               echo '========================================'
             "
 
-  publish_pypi:
-    name: Publish to PyPI
+  publish_testpypi:
+    name: Publish to TestPyPI
     needs: [build_wheel, test_wheel]
-    if: github.event_name == 'release' && github.event.action == 'published'
     runs-on: ubuntu-latest
 
     environment: testpypi
@@ -285,11 +281,11 @@ jobs:
       - name: Download wheel artifact
         uses: actions/download-artifact@v4
         with:
-          pattern: pypi-wheel-* 
+          pattern: testpypi-wheel-* 
           path: dist/auditwheel
           merge-multiple: true
 
-      - name: Publish package distributions to PyPI
+      - name: Publish package distributions to TestPyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
