@@ -273,7 +273,7 @@ jobs:
   publish_pypi:
     name: Publish to PyPI
     needs: [build_wheel, test_wheel]
-    # if: github.event_name == 'release'
+    if: github.event_name == 'release'
     runs-on: ubuntu-latest
 
     environment: pypi
