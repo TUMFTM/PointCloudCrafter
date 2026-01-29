@@ -35,7 +35,7 @@ ALL_PKGS=("${PKGS[@]}" "${EXTRA_PKGS[@]}")
 
 for pkg in "${ALL_PKGS[@]}"; do
     if [ -d "$ROS_PATH/share/$pkg" ]; then
-        rsync -aL "$ROS_PATH/share/$pkg" "$DEST_SHARE/"
+        cp -aL "$ROS_PATH/share/$pkg" "$DEST_SHARE/"
     fi
 
     find "$ROS_PATH/lib" -maxdepth 1 \
