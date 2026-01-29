@@ -2,8 +2,7 @@ name: Build, Test and Publish to test.pypi.org
 
 on:
   push:
-    tags:
-      - "test-*"
+    branches: ["testpypi-*"]
 
 jobs:
   build_wheel:
