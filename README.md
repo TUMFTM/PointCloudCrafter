@@ -18,37 +18,6 @@ A toolkit for extracting, manipulating, and evaluating point clouds and 3D spati
 ```bash
     pip install pointcloudcrafter
 ```
-Next, follow the instructions on how to run the system by typing:
-
-```bash
-    pointcloudcrafter-rosbag -h
-```
-
-or:
-```bash
-    pointcloudcrafter-file -h
-```
-
-<h2> Documentation</h2>
-
-Github Pages: [https://TUMFTM.github.io/PointCloudCrafter](https://TUMFTM.github.io/PointCloudCrafter)
-
-<h2> Cloning without test data (recommended) </h2>
-
-This repository uses Git LFS for large test files (22 MB).
-Most users do not need them.
-
-Clone without downloading LFS files:
-
-```bash
-    GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/TUMFTM/PointCloudCrafter.git
-```
-
-To download them later:
-
-```bash
-    git lfs pull
-```
 
 <h2> Usage </h2>
 
@@ -70,7 +39,27 @@ For file-processing:
     ros2 run pointcloudcrafter file -h
 ```
 
-For more details on functionalities and usage, see the [documentation](https://TUMFTM.github.io/PointCloudCrafter)
+<h2> Documentation</h2>
+
+For more details on the features and how to use them, take a look at the [documentation](https://TUMFTM.github.io/PointCloudCrafter) hosted on GitHub Pages:  
+[**https://TUMFTM.github.io/PointCloudCrafter**](https://TUMFTM.github.io/PointCloudCrafter)
+
+<h2> Cloning without test data (recommended) </h2>
+
+This repository uses Git LFS for large test files (22 MB).
+Most users do not need them.
+
+Clone without downloading LFS files:
+
+```bash
+    GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/TUMFTM/PointCloudCrafter.git
+```
+
+To download them later:
+
+```bash
+    git lfs pull
+```
 
 ## Contact
 

@@ -24,7 +24,6 @@
 
 int main(int argc, char * argv[])
 {
-  setenv("ROS_LOG_DIR", "/tmp/pointcloudcrafter_logs", 0);
   rclcpp::init(argc, argv);
 
   CLI::App app{"Create and modify point clouds from rosbags"};

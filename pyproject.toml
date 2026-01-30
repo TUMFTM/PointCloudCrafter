@@ -11,7 +11,7 @@ authors = [
     { name = "Dominik Kulmer", email = "dominik.kulmer@tum.de" },
     { name = "Maximilian Leitenstern", email = "maxi.leitenstern@tum.de" },
 ]
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 keywords = [
     "point cloud",
     "LiDAR",
