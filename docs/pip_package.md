@@ -7,7 +7,15 @@ It is as simple as running:
 pip3 install pointcloudcrafter
 ```
 
-(requires pip3: `sudo apt-get install python3-pip`)
+We recommend using a virtual environment:
+```
+python3 -m venv ~/.venv/pointcloudcrafter
+source ~/.venv/pointcloudcrafter/bin/activate
+
+pip3 install pointcloudcrafter
+```
+
+(requires: `sudo apt-get install python3-pip python3-venv`)
 
 ## Source Build
 
