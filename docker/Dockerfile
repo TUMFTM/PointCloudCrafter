@@ -14,6 +14,9 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
     lsb-release \
     python3-pip \
     python3-tk \
+    python3-build \
+    python3-colcon-common-extensions \
+    patchelf \
     git \
     git-lfs \
     cmake \
@@ -22,10 +25,11 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
     libpcl-dev \
     libfmt-dev \
     ros-${ROS_DISTRO}-pcl-conversions \
-    ros-${ROS_DISTRO}-rviz2 \
     ros-${ROS_DISTRO}-rosbag2-cpp \
     ros-${ROS_DISTRO}-rosbag2-storage-mcap \
     && rm -rf /var/lib/apt/lists/*
+
+RUN pip3 install --upgrade pip ninja scikit-build-core auditwheel
 
 WORKDIR /ros_ws
 

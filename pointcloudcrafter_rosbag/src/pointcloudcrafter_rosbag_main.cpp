@@ -26,14 +26,18 @@ int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
 
-  CLI::App app{"pointcloudcrafter_rosbag"};
-  app.name("ros2 run pointcloudcrafter rosbag");
+  CLI::App app{"Create and modify point clouds from rosbags"};
+  app.name("pointcloudcrafter-rosbag");
+  app.alias("ros2 run pointcloudcrafter rosbag");
 
   config::RosbagConfig cfg;
   cfg.add_cli_options(&app);
 
   app.footer(
-    "\nExample:\n"
+    "\nPip package install example:\n"
+    "  pointcloudcrafter-rosbag /datasets/bag.mcap /datasets/out/ /points_raw \n"
+    "    --voxel-filter 0.1 0.1 0.1 --stride-frames 5\n"
+    "\nROS2 install example:\n"
     "  ros2 run pointcloudcrafter rosbag /datasets/bag.mcap /datasets/out/ /points_raw \n"
     "    --voxel-filter 0.1 0.1 0.1 --stride-frames 5\n");
 

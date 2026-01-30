@@ -1,0 +1,333 @@
+name: Build & Test
+
+on:
+  release:
+    types: [published]
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    strategy:
+      matrix:
+        DISTRO: [jammy]
+        TOOLCHAIN: [gcc]
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      
+      - name: Login to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{github.actor}}
+          password: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Build and deploy latest docker
+        run: |
+          ./docker/build_docker.sh
+          docker run --rm ghcr.io/tumftm/pointcloudcrafter:latest /bin/bash -c "cd /ros_ws && colcon test && colcon test-result --verbose --all"
+          docker push ghcr.io/tumftm/pointcloudcrafter:latest
+
+      - name: Tag and push release docker image
+        if: github.event_name == 'release'
+        run: |
+          docker pull ghcr.io/tumftm/pointcloudcrafter:latest
+          docker tag ghcr.io/tumftm/pointcloudcrafter:latest ghcr.io/tumftm/pointcloudcrafter:${{ github.event.release.tag_name }}
+          docker push ghcr.io/tumftm/pointcloudcrafter:${{ github.event.release.tag_name }}
+
+  build_wheel:
+    needs: [build-and-push-image]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - python_version: "3.10"
+            python_tag: "cp310"
+            ubuntu_test: "22.04"
+          - python_version: "3.12"
+            python_tag: "cp312"
+            ubuntu_test: "24.04"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull prebuilt image
+        run: docker pull ghcr.io/tumftm/pointcloudcrafter:latest
+
+      - name: Build wheel for Python ${{ matrix.python_version }}
+        run: |
+          docker run --rm \
+            --entrypoint /bin/bash \
+            -v "$PWD:/ros_ws" \
+            -w /ros_ws \
+            ghcr.io/tumftm/pointcloudcrafter:latest \
+            -c "
+              source /opt/ros/humble/setup.bash
+
+              apt-get update && apt-get install -y software-properties-common patchelf
+              add-apt-repository -y ppa:deadsnakes/ppa
+              apt-get update && apt-get install -y python${{ matrix.python_version }} python${{ matrix.python_version }}-venv python${{ matrix.python_version }}-dev
+
+              python${{ matrix.python_version }} -m venv /tmp/buildenv
+              source /tmp/buildenv/bin/activate
+
+              pip install --upgrade pip ninja scikit-build-core auditwheel build catkin_pkg pyyaml
+
+              python -m build --wheel --no-isolation -Cbuild-dir=/ros_ws/package/build
+
+              LD_LIBRARY_PATH=\$(find /ros_ws/package/build -name '*.so*' -exec dirname {} + | sort -u | tr '\n' ':'):\$LD_LIBRARY_PATH \
+              auditwheel repair /ros_ws/dist/*${{ matrix.python_tag }}*.whl -w /ros_ws/dist/auditwheel/
+            "
+
+      - name: Upload wheel for testing
+        uses: actions/upload-artifact@v4
+        with:
+          name: pypi-wheel-${{ matrix.python_tag }}
+          path: dist/auditwheel/*.whl
+          if-no-files-found: error
+          retention-days: 1
+
+  test_wheel:
+    needs: [build_wheel]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - python_version: "3.10"
+            python_tag: "cp310"
+            ubuntu_version: "22.04"
+          - python_version: "3.12"
+            python_tag: "cp312"
+            ubuntu_version: "24.04"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download test data from external repo
+        run: |
+          git clone --depth 1 https://github.com/ga58lar/rosbag-test.git test_data
+
+      - name: Download wheel
+        uses: actions/download-artifact@v4
+        with:
+          name: pypi-wheel-${{ matrix.python_tag }}
+          path: dist/auditwheel
+
+      - name: Test wheel on Ubuntu ${{ matrix.ubuntu_version }} with Python ${{ matrix.python_version }}
+        run: |
+          docker run --rm \
+            -v "$PWD:/ros_ws" \
+            -w /ros_ws \
+            ubuntu:${{ matrix.ubuntu_version }} \
+            /bin/bash -c "
+              set -e
+
+              apt-get update && apt-get install -y python3-pip python3-venv
+              python3 -m venv ~/.venv/pointcloudcrafter
+              source ~/.venv/pointcloudcrafter/bin/activate
+              pip3 install /ros_ws/dist/auditwheel/*.whl
+
+              echo '========================================'
+              echo 'Testing on Ubuntu ${{ matrix.ubuntu_version }}'
+              echo '========================================'
+
+              # === Test Data Paths ===
+              TEST_ROSBAG=/ros_ws/test_data/tests/rosbag
+              TEST_TRANSFORM=/ros_ws/test_data/tests/transform
+              OUT_DIR=/tmp/test_output
+              TOPIC1=/edgar/sensor/lidar/ouster/frontleft/points
+              TOPIC2=/edgar/sensor/lidar/ouster/frontright/points
+
+              # ========================================
+              # pointcloudcrafter-rosbag tests
+              # ========================================
+              echo '=== Testing pointcloudcrafter-rosbag ==='
+
+              # Basic rosbag extraction
+              echo 'Test: Basic rosbag extraction'
+              pointcloudcrafter-rosbag \$TEST_ROSBAG \$OUT_DIR \$TOPIC1 \$TOPIC2 -m 2
+
+              # File format outputs
+              echo 'Test: Save as PLY'
+              pointcloudcrafter-rosbag \$TEST_ROSBAG \$OUT_DIR \$TOPIC1 \$TOPIC2 --save-ply -m 2
+
+              echo 'Test: Save as TXT'
+              pointcloudcrafter-rosbag \$TEST_ROSBAG \$OUT_DIR \$TOPIC1 \$TOPIC2 --save-txt -m 2
+
+              echo 'Test: Save as KITTI'
+              pointcloudcrafter-rosbag \$TEST_ROSBAG \$OUT_DIR \$TOPIC1 \$TOPIC2 --save-kitti -m 2
+
+              echo 'Test: Save as nuScenes'
+              pointcloudcrafter-rosbag \$TEST_ROSBAG \$OUT_DIR \$TOPIC1 \$TOPIC2 --save-nuscenes -m 2
+
+              # Filtering
+              echo 'Test: Voxel filter'
+              pointcloudcrafter-rosbag \$TEST_ROSBAG \$OUT_DIR \$TOPIC1 \$TOPIC2 --vf 0.1 0.1 0.1 -m 2
+
+              echo 'Test: Crop box'
+              pointcloudcrafter-rosbag \$TEST_ROSBAG \$OUT_DIR \$TOPIC1 \$TOPIC2 --cb -10 -10 -10 10 10 10 -m 2
+
+              echo 'Test: Crop sphere'
+              pointcloudcrafter-rosbag \$TEST_ROSBAG \$OUT_DIR \$TOPIC1 \$TOPIC2 --cs 10.0 -m 2
+
+              echo 'Test: Crop cylinder'
+              pointcloudcrafter-rosbag \$TEST_ROSBAG \$OUT_DIR \$TOPIC1 \$TOPIC2 --cc 10.0 -m 2
+
+              echo 'Test: Inverse crop'
+              pointcloudcrafter-rosbag \$TEST_ROSBAG \$OUT_DIR \$TOPIC1 \$TOPIC2 --cs 10.0 --inverse-crop -m 2
+
+              echo 'Test: Outlier radius filter'
+              pointcloudcrafter-rosbag \$TEST_ROSBAG \$OUT_DIR \$TOPIC1 \$TOPIC2 --orf 1.0 2 -m 1
+
+              echo 'Test: Outlier statistical filter'
+              pointcloudcrafter-rosbag \$TEST_ROSBAG \$OUT_DIR \$TOPIC1 \$TOPIC2 --osf 1.0 5 -m 1
+
+              # Output options
+              echo 'Test: Timestamps'
+              pointcloudcrafter-rosbag \$TEST_ROSBAG \$OUT_DIR \$TOPIC1 \$TOPIC2 --timestamps -m 1
+
+              echo 'Test: Sequential naming'
+              pointcloudcrafter-rosbag \$TEST_ROSBAG \$OUT_DIR \$TOPIC1 \$TOPIC2 --sequential-name -m 2
+
+              # General options
+              echo 'Test: Skip frames'
+              pointcloudcrafter-rosbag \$TEST_ROSBAG \$OUT_DIR \$TOPIC1 \$TOPIC2 -j 1 -m 1
+
+              echo 'Test: Stride frames'
+              pointcloudcrafter-rosbag \$TEST_ROSBAG \$OUT_DIR \$TOPIC1 -s 2 -m 2
+
+              # Transform file
+              echo 'Test: Transform file'
+              pointcloudcrafter-rosbag \$TEST_ROSBAG \$OUT_DIR \$TOPIC1 \$TOPIC2 --tf \$TEST_TRANSFORM/rosbag_example.txt -m 1
+
+              echo 'Test: Transform'
+              pointcloudcrafter-rosbag \$TEST_ROSBAG \$OUT_DIR \$TOPIC1 \$TOPIC2 -t base_link -m 1
+
+              # ========================================
+              # pointcloudcrafter-file tests
+              # ========================================
+              echo '=== Testing pointcloudcrafter-file ==='
+
+              # Use output from previous rosbag test as input
+              FILE_INPUT=\$OUT_DIR
+
+              # Basic file conversion
+              echo 'Test: Load PCD, save PCD'
+              pointcloudcrafter-file \$FILE_INPUT \$OUT_DIR/file_out --load-pcd --save-pcd -m 1
+
+              # File format conversions
+              echo 'Test: PCD to PLY'
+              pointcloudcrafter-file \$FILE_INPUT \$OUT_DIR/file_out --save-ply
+
+              echo 'Test: PCD to TXT'
+              pointcloudcrafter-file \$FILE_INPUT \$OUT_DIR/file_out --save-txt
+
+              echo 'Test: PCD to KITTI'
+              pointcloudcrafter-file \$FILE_INPUT \$OUT_DIR/file_out --save-kitti
+
+              echo 'Test: PCD to nuScenes'
+              pointcloudcrafter-file \$FILE_INPUT \$OUT_DIR/file_out --save-nuscenes
+
+              # Filtering
+              echo 'Test: Voxel filter'
+              pointcloudcrafter-file \$FILE_INPUT \$OUT_DIR/file_out --vf 0.1 0.1 0.1
+
+              echo 'Test: Crop box'
+              pointcloudcrafter-file \$FILE_INPUT \$OUT_DIR/file_out --cb -10 -10 -10 10 10 10
+
+              echo 'Test: Crop sphere'
+              pointcloudcrafter-file \$FILE_INPUT \$OUT_DIR/file_out --cs 10.0
+
+              echo 'Test: Crop cylinder'
+              pointcloudcrafter-file \$FILE_INPUT \$OUT_DIR/file_out --cc 10.0
+
+              echo 'Test: Inverse crop'
+              pointcloudcrafter-file \$FILE_INPUT \$OUT_DIR/file_out --cs 10.0 --inverse-crop
+
+              echo 'Test: Outlier radius filter'
+              pointcloudcrafter-file \$FILE_INPUT \$OUT_DIR/file_out --orf 1.0 2 -m 1
+
+              echo 'Test: Outlier statistical filter'
+              pointcloudcrafter-file \$FILE_INPUT \$OUT_DIR/file_out --osf 1.0 5 -m 1
+
+              # Transforms
+              echo 'Test: Translation'
+              pointcloudcrafter-file \$FILE_INPUT \$OUT_DIR/file_out -t 1.0 2.0 3.0
+
+              echo 'Test: Rotation (radians)'
+              pointcloudcrafter-file \$FILE_INPUT \$OUT_DIR/file_out -r 0.1 0.2 0.3
+
+              echo 'Test: Rotation (degrees)'
+              pointcloudcrafter-file \$FILE_INPUT \$OUT_DIR/file_out -r 10 20 30 --deg
+
+              echo 'Test: Merge clouds'
+              pointcloudcrafter-file \$FILE_INPUT \$OUT_DIR/file_out --merge-clouds
+
+              echo 'Test: Transform file'
+              pointcloudcrafter-file \$FILE_INPUT \$OUT_DIR/file_out --tf \$TEST_TRANSFORM/pcd_example.txt
+
+              # Output options
+              echo 'Test: Timestamps'
+              pointcloudcrafter-file \$FILE_INPUT \$OUT_DIR/file_out --timestamps -m 1
+
+              echo 'Test: Sequential naming'
+              pointcloudcrafter-file \$FILE_INPUT \$OUT_DIR/file_out --sequential-name
+
+              # General options
+              echo 'Test: Skip frames'
+              pointcloudcrafter-file \$FILE_INPUT \$OUT_DIR/file_out -j 1
+
+              echo 'Test: Stride frames'
+              pointcloudcrafter-file \$FILE_INPUT \$OUT_DIR/file_out -s 2
+
+              echo '========================================'
+              echo 'All tests passed on Ubuntu ${{ matrix.ubuntu_version }}!'
+              echo '========================================'
+            "
+
+  publish_pypi:
+    name: Publish to PyPI
+    needs: [build_wheel, test_wheel]
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+
+    environment: pypi
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Download wheel artifact
+        uses: actions/download-artifact@v4
+        with:
+          pattern: pypi-wheel-* 
+          path: dist/auditwheel
+          merge-multiple: true
+
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/auditwheel

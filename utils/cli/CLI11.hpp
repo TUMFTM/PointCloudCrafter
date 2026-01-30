@@ -9899,6 +9899,10 @@ CLI11_INLINE std::string Formatter::make_help(const App *app,
 
     out << make_description(app);
     out << make_usage(app, name);
+    if (app->get_aliases().size() > 0) {
+        out << "or\n";
+        out << make_usage(app, app->get_aliases()[0]);
+    }
     out << make_positionals(app);
     out << make_groups(app, mode);
     out << make_subcommands(app, mode);

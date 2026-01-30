@@ -47,5 +47,10 @@ target_link_libraries(rosbag PRIVATE
 install(TARGETS pointcloudcrafter_rosbag
   LIBRARY DESTINATION lib)
 
+# ROS2
 install(TARGETS rosbag
   RUNTIME DESTINATION lib/${PROJECT_NAME})
+
+# Python wheel
+install(TARGETS rosbag
+  RUNTIME DESTINATION bin)

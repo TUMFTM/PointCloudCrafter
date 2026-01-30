@@ -9,13 +9,40 @@ A toolkit for extracting, manipulating, and evaluating point clouds and 3D spati
 [![Linux](https://img.shields.io/badge/os-linux-blue.svg)](https://www.linux.org/)
 [![Docker](https://badgen.net/badge/icon/docker?icon=docker&label)](https://www.docker.com/)
 [![ROS2humble](https://img.shields.io/badge/ros2-humble-blue.svg)](https://docs.ros.org/en/humble/index.html)
-[![build_test](https://github.com/TUMFTM/PointCloudCrafter/actions/workflows/build_test.yml/badge.svg)](https://github.com/TUMFTM/PointCloudCrafter/actions/workflows/build_test.yml)
+[![PyPI](https://github.com/TUMFTM/PointCloudCrafter/actions/workflows/pypi.yml/badge.svg)](https://github.com/TUMFTM/PointCloudCrafter/actions/workflows/pypi.yml)
 [![docs](https://github.com/TUMFTM/PointCloudCrafter/actions/workflows/docs.yml/badge.svg)](https://github.com/TUMFTM/PointCloudCrafter/actions/workflows/docs.yml)
 </div>
 
+<h2> Install </h2>
+
+```bash
+    pip install pointcloudcrafter
+```
+
+<h2> Usage </h2>
+
+We provide a standalone Pip package, which is self-contained, so you do not have to worry about any dependencies and possible conflicts. We also provide the tool as ROS2 package. Both feature the full functionality, so you can decide what suits your needs best.
+
+For rosbag-processing:
+
+```bash
+    pointcloudcrafter-rosbag -h
+
+    ros2 run pointcloudcrafter rosbag -h
+```
+
+For file-processing:
+
+```bash
+    pointcloudcrafter-file -h
+
+    ros2 run pointcloudcrafter file -h
+```
+
 <h2> Documentation</h2>
 
-Github Pages: [https://TUMFTM.github.io/PointCloudCrafter](https://TUMFTM.github.io/PointCloudCrafter)
+For more details on the features and how to use them, take a look at the [documentation](https://TUMFTM.github.io/PointCloudCrafter) hosted on GitHub Pages:  
+[**https://TUMFTM.github.io/PointCloudCrafter**](https://TUMFTM.github.io/PointCloudCrafter)
 
 <h2> Cloning without test data (recommended) </h2>
 
@@ -33,22 +60,6 @@ To download them later:
 ```bash
     git lfs pull
 ```
-
-<h2> Usage </h2>
-
-For rosbag-processing:
-
-```bash
-    ros2 run pointcloudcrafter rosbag -h
-```
-
-For file-processing:
-
-```bash
-    ros2 run pointcloudcrafter file -h
-```
-
-For more details on functionalities and usage, see the [documentation](https://TUMFTM.github.io/PointCloudCrafter)
 
 ## Contact
 

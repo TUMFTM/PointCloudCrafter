@@ -36,6 +36,7 @@ extra_css:
 nav:
     - Home: 'index.md'
     - docker.md
+    - pip_package.md
     - getting_started.md
     - usage.md
     - third-party.md
