@@ -39,12 +39,12 @@ jobs:
           docker run --rm ghcr.io/tumftm/pointcloudcrafter:latest /bin/bash -c "cd /ros_ws && colcon test && colcon test-result --verbose --all"
           docker push ghcr.io/tumftm/pointcloudcrafter:latest
 
-      - name: Build and deploy release docker
+      - name: Tag and push release docker image
         if: github.event_name == 'release'
         run: |
-          ./docker/build_docker.sh --tag release
-          docker run --rm ghcr.io/tumftm/pointcloudcrafter:release /bin/bash -c "cd /ros_ws && colcon test && colcon test-result --verbose --all"
-          docker push ghcr.io/tumftm/pointcloudcrafter:release
+          docker pull ghcr.io/tumftm/pointcloudcrafter:latest
+          docker tag ghcr.io/tumftm/pointcloudcrafter:latest ghcr.io/tumftm/pointcloudcrafter:${{ github.event.release.tag_name }}
+          docker push ghcr.io/tumftm/pointcloudcrafter:${{ github.event.release.tag_name }}
 
   build_wheel:
     needs: [build-and-push-image]
