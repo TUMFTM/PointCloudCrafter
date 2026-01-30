@@ -25,7 +25,7 @@ bibliography: paper.bib
 # Summary
 
 PointCloudCrafter is a C++ command-line interface (CLI) toolkit for the processing, manipulation, and analysis of three-dimensional point cloud data. The software provides a collection of compiled executables for integration into automated research pipelines, enabling common point cloud operations without requiring custom code.  
-The toolkit supports the conversion and processing of data from multiple acquisition and storage formats, including ROS2 bag recordings, binary files, plain-text files, and standard PLY and PCD files. A central design feature of PointCloudCrafter is its schema-agnostic handling of per-point attributes. Arbitrary scalar fields associated with individual points are preserved throughout conversion, transformation, filtering, and aggregation steps, ensuring that auxiliary metadata remains available for downstream analysis. Furthermore, it allows the accumulation of multiple point clouds based on their timestamps and transforms.  
+The toolkit supports the conversion and processing of data from multiple acquisition and storage formats, including ROS2 bag recordings, binary files, plain-text files, and standard OBJ, PLY and PCD files. A central design feature of PointCloudCrafter is its schema-agnostic handling of per-point attributes. Arbitrary scalar fields associated with individual points are preserved throughout conversion, transformation, filtering, and aggregation steps, ensuring that auxiliary metadata remains available for downstream analysis. Furthermore, it allows the accumulation of multiple point clouds based on their timestamps and transforms.  
 By combining support for robotic middleware data with batch-oriented file processing, PointCloudCrafter facilitates reproducible workflows across a range of scientific and engineering applications that rely on large-scale three-dimensional point cloud data.
 
 # Statement of need
@@ -67,6 +67,7 @@ By providing a middleware-aware, schema-agnostic CLI toolkit, PointCloudCrafter 
 # Availability
 
 The source code is available at \url{https://github.com/TUMFTM/PointCloudCrafter}.  
+The Python package is available at \url{https://pypi.org/project/pointcloudcrafter}.  
 The Docker is available at \url{https://ghcr.io/tumftm/pointcloudcrafter:latest}.  
 The documentation is available at \url{https://tumftm.github.io/PointCloudCrafter}.  
 The license is Apache-2.0.  

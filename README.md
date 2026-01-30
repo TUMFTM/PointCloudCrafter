@@ -11,6 +11,7 @@ A toolkit for extracting, manipulating, and evaluating point clouds and 3D spati
 [![ROS2humble](https://img.shields.io/badge/ros2-humble-blue.svg)](https://docs.ros.org/en/humble/index.html)
 [![PyPI](https://github.com/TUMFTM/PointCloudCrafter/actions/workflows/pypi.yml/badge.svg)](https://github.com/TUMFTM/PointCloudCrafter/actions/workflows/pypi.yml)
 [![docs](https://github.com/TUMFTM/PointCloudCrafter/actions/workflows/docs.yml/badge.svg)](https://github.com/TUMFTM/PointCloudCrafter/actions/workflows/docs.yml)
+![Tested on](https://img.shields.io/badge/Tested%20on-Ubuntu%2022.04%20%7C%2024.04-E95420?logo=ubuntu&logoColor=white)
 </div>
 
 <h2> Install </h2>
