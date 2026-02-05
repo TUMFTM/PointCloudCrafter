@@ -15,6 +15,8 @@
 
 cmake_minimum_required(VERSION 3.22.1...4.2.1)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Suppress PCL warnings
 set(CMAKE_POLICY_DEFAULT_CMP0144 OLD)
 set(CMAKE_POLICY_DEFAULT_CMP0167 OLD)
@@ -44,6 +46,7 @@ find_package(rosbag2_storage_mcap REQUIRED)
 find_package(rosbag2_storage_default_plugins REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
+find_package(urdf REQUIRED)
 
 # Add subdirectories
 add_subdirectory(pointcloudcrafter_file)
