@@ -15,7 +15,6 @@
 
 cmake_minimum_required(VERSION 3.22.1...4.2.1)
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Suppress PCL warnings
 set(CMAKE_POLICY_DEFAULT_CMP0144 OLD)
