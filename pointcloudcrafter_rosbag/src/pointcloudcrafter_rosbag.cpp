@@ -31,6 +31,7 @@
 #include <pcl/point_cloud.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <tf2_ros/buffer.h>
+#include <urdf/model.h>
 
 #include <Eigen/Eigen>
 #include <filesystem>  // NOLINT
@@ -86,6 +87,39 @@ Rosbag::Rosbag(const config::RosbagConfig & cfg)
   reader_.add_listener<tf2_msgs::msg::TFMessage>(
     "/tf_static", std::bind(&Rosbag::tf_callback, this, std::placeholders::_1));
   tf2_buffer_.setUsingDedicatedThread(true);
+
+  if (!cfg.urdf_file.empty()) {
+    urdf::Model urdf_model;
+    if (!urdf_model.initFile(cfg.urdf_file)) {
+      RCLCPP_WARN(logger_, "Could not open URDF file: %s", cfg.urdf_file.c_str());
+    } else {
+      for (auto const & joint_kv : urdf_model.joints_) {
+        urdf::JointSharedPtr joint = joint_kv.second;
+        geometry_msgs::msg::TransformStamped t;
+        t.header.frame_id = joint->parent_link_name;
+        t.child_frame_id = joint->child_link_name;
+
+        auto xyz = joint->parent_to_joint_origin_transform.position;
+        auto rpy = joint->parent_to_joint_origin_transform.rotation;
+
+        double roll, pitch, yaw;
+        rpy.getRPY(roll, pitch, yaw);  // extract Euler angles from urdf::Rotation
+
+        tf2::Quaternion q;
+        q.setRPY(roll, pitch, yaw);
+
+        t.transform.translation.x = xyz.x;
+        t.transform.translation.y = xyz.y;
+        t.transform.translation.z = xyz.z;
+        t.transform.rotation.x = q.x();
+        t.transform.rotation.y = q.y();
+        t.transform.rotation.z = q.z();
+        t.transform.rotation.w = q.w();
+
+        tf2_buffer_.setTransform(t, "urdf", true);
+      }
+    }
+  }
 
   // Load transforms from file
   if (!cfg_.transform_file.empty()) {

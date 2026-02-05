@@ -42,6 +42,7 @@ struct ModifierConfig
   int64_t skip_frames{0};
   int64_t stride_frames{1};
   std::string out_dir{};
+  std::string urdf_file{};
   bool timestamps{false};
   bool sequential_names{false};
   bool inverse_crop{false};
@@ -188,6 +189,8 @@ struct FileConfig : public ModifierConfig
     app->add_option("out-dir", out_dir, "Output directory for point cloud file(s)")
       ->required()
       ->group("Required");
+
+    app->add_option("urdf-file", urdf_file, "URDF file with transformations");
 
     app->add_flag("--load-pcd", load_pcd, "Load PCD files (default)")
       ->group("File Format");

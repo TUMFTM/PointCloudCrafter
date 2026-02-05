@@ -28,7 +28,8 @@ ament_target_dependencies(pointcloudcrafter_rosbag PUBLIC
   rosbag2_cpp
   sensor_msgs
   pcl_conversions
-  tf2_ros)
+  tf2_ros
+  urdf)
 
 target_link_libraries(pointcloudcrafter_rosbag PUBLIC
   ${PCL_LIBRARIES}
