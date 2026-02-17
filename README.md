@@ -46,21 +46,13 @@ For file-processing:
 For more details on the features and how to use them, take a look at the [documentation](https://TUMFTM.github.io/PointCloudCrafter) hosted on GitHub Pages:  
 [**https://TUMFTM.github.io/PointCloudCrafter**](https://TUMFTM.github.io/PointCloudCrafter)
 
-<h2> Cloning without test data (recommended) </h2>
+<h2> Test Data </h2>
 
-This repository uses Git LFS for large test files (22 MB).
-Most users do not need them.
+Download ROS2 test data from an external repository.
 
-Clone without downloading LFS files:
-
-```bash
-    GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/TUMFTM/PointCloudCrafter.git
 ```
-
-To download them later:
-
-```bash
-    git lfs pull
+git clone https://github.com/ga58lar/rosbag-test.git /tmp/rosbag-test
+mv /tmp/rosbag-test/tests /path/to/pointcloudcrafter-root/.
 ```
 
 ## Contact
