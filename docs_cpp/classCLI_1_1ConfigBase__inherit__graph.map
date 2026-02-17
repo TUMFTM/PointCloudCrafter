@@ -1,0 +1,7 @@
+<map id="CLI::ConfigBase" name="CLI::ConfigBase">
+<area shape="rect" id="Node000001" title="This converter works with INI/TOML files; to write INI files use ConfigINI." alt="" coords="5,79,128,104"/>
+<area shape="rect" id="Node000003" href="$classCLI_1_1ConfigINI.html" title="ConfigINI generates a &quot;standard&quot; INI compliant output." alt="" coords="12,152,121,177"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="69,118,69,152,64,152,64,118"/>
+<area shape="rect" id="Node000002" href="$classCLI_1_1Config.html" title="This class provides a converter for configuration files." alt="" coords="21,5,112,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="69,44,69,79,64,79,64,44"/>
+</map>

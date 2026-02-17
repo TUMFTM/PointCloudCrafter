@@ -1,0 +1,11 @@
+<map id="CLI::CallForVersion" name="CLI::CallForVersion">
+<area shape="rect" id="Node000001" title="&#45;v or –version on command line" alt="" coords="5,299,148,324"/>
+<area shape="rect" id="Node000002" href="$classCLI_1_1Success.html" title="This is a successful completion on parsing, supposed to exit." alt="" coords="25,225,128,251"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="79,264,79,299,74,299,74,264"/>
+<area shape="rect" id="Node000003" href="$classCLI_1_1ParseError.html" title="Anything that can error in Parse." alt="" coords="19,152,135,177"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="79,191,79,225,74,225,74,191"/>
+<area shape="rect" id="Node000004" href="$classCLI_1_1Error.html" title="All errors derive from this one." alt="" coords="36,79,117,104"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="79,118,79,152,74,152,74,118"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="7,5,146,31"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="79,44,79,79,74,79,74,44"/>
+</map>

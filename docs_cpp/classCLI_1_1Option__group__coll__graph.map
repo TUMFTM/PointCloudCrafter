@@ -1,0 +1,15 @@
+<map id="CLI::Option_group" name="CLI::Option_group">
+<area shape="rect" id="Node000001" title="Extension of App to better manage groups of options." alt="" coords="284,300,421,325"/>
+<area shape="rect" id="Node000002" href="$classCLI_1_1App.html" title="Creates a command line program, with very few defaults." alt="" coords="227,168,302,193"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="316,198,336,216,347,237,354,260,356,299,351,300,348,261,343,239,332,219,312,202"/>
+<area shape="poly" id="edge7_Node000002_Node000002" title=" " alt="" coords="317,171,325,174,329,181,320,189,303,191,302,186,318,184,323,180,322,179,315,176"/>
+<area shape="rect" id="Node000005" href="$classCLI_1_1Option.html" title=" " alt="" coords="118,300,211,325"/>
+<area shape="poly" id="edge6_Node000005_Node000002" title=" " alt="" coords="215,199,180,210,163,219,155,238,154,260,163,299,157,300,148,261,150,237,159,216,178,205,213,194"/>
+<area shape="rect" id="Node000003" href="$classCLI_1_1OptionDefaults.html" title=" " alt="" coords="191,80,339,105"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="267,119,267,167,262,167,262,119"/>
+<area shape="rect" id="Node000004" href="$classCLI_1_1OptionBase.html" title=" " alt="" coords="138,5,391,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="267,45,267,80,262,80,262,45"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="199,291,217,274,227,260,232,247,242,216,255,192,260,195,247,218,237,249,232,262,221,278,202,295"/>
+<area shape="rect" id="Node000006" href="$classCLI_1_1OptionBase.html" title=" " alt="" coords="5,168,204,193"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="113,206,122,240,138,275,155,298,151,301,133,277,117,241,107,207"/>
+</map>

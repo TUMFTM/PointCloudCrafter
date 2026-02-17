@@ -1,0 +1,9 @@
+<map id="CLI::FileError" name="CLI::FileError">
+<area shape="rect" id="Node000001" title="Thrown when parsing an INI file and it is missing." alt="" coords="23,225,127,251"/>
+<area shape="rect" id="Node000002" href="$classCLI_1_1ParseError.html" title="Anything that can error in Parse." alt="" coords="17,152,133,177"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="77,191,77,225,72,225,72,191"/>
+<area shape="rect" id="Node000003" href="$classCLI_1_1Error.html" title="All errors derive from this one." alt="" coords="34,79,115,104"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="77,118,77,152,72,152,72,118"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="5,5,144,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="77,44,77,79,72,79,72,44"/>
+</map>
