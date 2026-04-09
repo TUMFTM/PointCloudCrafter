@@ -140,11 +140,11 @@ public:
 
       // Get the first message time
       if (first_msg_time < 0) {
-        first_msg_time = bag_msg->time_stamp;
+        first_msg_time = bag_msg->send_timestamp;
       }
 
       // Log progress
-      double time_done = static_cast<double>((bag_msg->time_stamp - first_msg_time) / 1e9);
+      double time_done = static_cast<double>((bag_msg->send_timestamp - first_msg_time) / 1e9);
       RCLCPP_INFO_THROTTLE(
         logger_, wall_clock, 1000, "Processed %.3f sec of bag [% 5.1f%%]", time_done,
         100 * time_done / total_duration);
