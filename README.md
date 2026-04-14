@@ -8,7 +8,7 @@ A toolkit for extracting, manipulating, and evaluating point clouds and 3D spati
 
 [![Linux](https://img.shields.io/badge/os-linux-blue.svg)](https://www.linux.org/)
 [![Docker](https://badgen.net/badge/icon/docker?icon=docker&label)](https://www.docker.com/)
-[![ROS2humble](https://img.shields.io/badge/ros2-humble-blue.svg)](https://docs.ros.org/en/humble/index.html)
+[![ROS2jazzy](https://img.shields.io/badge/ros2-jazzy-blue.svg)](https://docs.ros.org/en/jazzy/index.html)
 [![PyPI](https://github.com/TUMFTM/PointCloudCrafter/actions/workflows/pypi.yml/badge.svg)](https://github.com/TUMFTM/PointCloudCrafter/actions/workflows/pypi.yml)
 [![docs](https://github.com/TUMFTM/PointCloudCrafter/actions/workflows/docs.yml/badge.svg)](https://github.com/TUMFTM/PointCloudCrafter/actions/workflows/docs.yml)
 ![Tested on](https://img.shields.io/badge/Tested%20on-Ubuntu%2022.04%20%7C%2024.04-E95420?logo=ubuntu&logoColor=white)
