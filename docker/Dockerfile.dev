@@ -45,6 +45,7 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
     libpcl-dev \
     libfmt-dev \
     ros-${ROS_DISTRO}-ros-base \
+    ros-${ROS_DISTRO}-rmw-fastrtps-cpp \
     ros-${ROS_DISTRO}-pcl-conversions \
     ros-${ROS_DISTRO}-rosbag2-cpp \
     ros-${ROS_DISTRO}-rosbag2-storage-mcap \
