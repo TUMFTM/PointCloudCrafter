@@ -42,7 +42,7 @@ jobs:
             -w /ros_ws \
             ghcr.io/tumftm/pointcloudcrafter:latest \
             -c "
-              source /opt/ros/humble/setup.bash
+              source /opt/ros/jazzy/setup.bash
 
               apt-get update && apt-get install -y software-properties-common patchelf
               add-apt-repository -y ppa:deadsnakes/ppa
