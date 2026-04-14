@@ -90,24 +90,11 @@ jobs:
               python${{ matrix.python_version }} -m venv /tmp/buildenv
               source /tmp/buildenv/bin/activate
 
-              pip install --upgrade pip ninja scikit-build-core auditwheel build wheel catkin_pkg pyyaml
+              pip install --upgrade pip ninja scikit-build-core auditwheel build catkin_pkg pyyaml
 
               python -m build --wheel --no-isolation -Cbuild-dir=/ros_ws/package/build
 
-              # Force auditwheel to bundle the Fast DDS RMW implementation.
-              # ROS loads RMW plugins via dlopen at runtime, which auditwheel cannot
-              # detect. Adding librmw_fastrtps_cpp.so as a NEEDED entry on the wheel's
-              # .so files makes auditwheel treat it as a direct dep and bundle it plus
-              # its transitive deps (fastrtps, fastcdr, foonathan_memory, ...).
-              WHEEL_FILE=\$(ls /ros_ws/dist/*${{ matrix.python_tag }}*.whl)
-              UNPACK_DIR=\$(mktemp -d)
-              wheel unpack -d \$UNPACK_DIR \$WHEEL_FILE
-              find \$UNPACK_DIR -name '*.so*' -type f -exec patchelf --add-needed librmw_fastrtps_cpp.so {} +
-              rm \$WHEEL_FILE
-              wheel pack -d /ros_ws/dist/ \$UNPACK_DIR/*/
-              rm -rf \$UNPACK_DIR
-
-              LD_LIBRARY_PATH=\$(find /ros_ws/package/build -name '*.so*' -exec dirname {} + | sort -u | tr '\n' ':'):/opt/ros/jazzy/lib:\$LD_LIBRARY_PATH \
+              LD_LIBRARY_PATH=\$(find /ros_ws/package/build -name '*.so*' -exec dirname {} + | sort -u | tr '\n' ':'):\$LD_LIBRARY_PATH \
               auditwheel repair /ros_ws/dist/*${{ matrix.python_tag }}*.whl -w /ros_ws/dist/auditwheel/
             "
 
