@@ -14,7 +14,7 @@ ENV ROS_PYTHON_VERSION=3
 ENV RCUTILS_CONSOLE_OUTPUT_FORMAT="[{severity} {time}]: {message}"
 
 # Install necessary dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
   locales \
   curl \
   gnupg2 \
