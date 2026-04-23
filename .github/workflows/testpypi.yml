@@ -3,6 +3,8 @@ name: Build, Test and Publish to test.pypi.org
 on:
   push:
     branches: ["testpypi-*"]
+  pull_request:
+    branches: ["main"]
 
 jobs:
   build_wheel:
