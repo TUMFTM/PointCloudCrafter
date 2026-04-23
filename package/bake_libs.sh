@@ -26,6 +26,7 @@ EXTRA_PKGS=(
     "std_msgs" "builtin_interfaces" "geometry_msgs" "action_msgs" "unique_identifier_msgs"
     "rcl_interfaces" "rosgraph_msgs" "statistics_msgs" "pcl_msgs" "tf2_msgs" "tf2"
     "rosbag2_storage" "rosbag2_storage_default_plugins" "rosbag2_storage_mcap"
+    "rosbag2_storage_sqlite3"
     "rosbag2_compression" "rosbag2_compression_zstd"
     "ament_index" "rcutils" "pluginlib"
     "rosidl_typesupport_cpp" "rosidl_typesupport_c"
