@@ -19,6 +19,7 @@ Options:
 
 Transforms:
   -t,--target-frame TEXT      Target TF frame for all point clouds
+  --split FLOAT               Split point cloud into grid cells of given size
   --tf,--transform-file TEXT  TXT file with transform ([frame_id] r1 r2 r3 x r4 r5 r6 y r7 r8 r9 z)
 
 
@@ -100,6 +101,7 @@ Transforms:
                               Rotation [roll pitch yaw]
   --deg                       Rotation in degrees instead of radians
   --merge-clouds              Merge all point clouds into a single file
+  --split FLOAT               Split point cloud into grid cells of given size
   --tf,--transform-file TEXT  TXT file with transform ([frame_id] r1 r2 r3 x r4 r5 r6 y r7 r8 r9 z)
 
 

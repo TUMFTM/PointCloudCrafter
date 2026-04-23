@@ -46,6 +46,7 @@ struct ModifierConfig
   bool timestamps{false};
   bool sequential_names{false};
   bool inverse_crop{false};
+  double split_grid_size{0.0};
   bool load_pcd{true};
   bool load_ply{false};
   bool load_txt{false};
@@ -122,6 +123,12 @@ struct ModifierConfig
       ->group("File Format");
 
     // Transforms
+    app->add_option(
+        "--split", split_grid_size,
+        "Split point cloud into grid cells of given size")
+      ->type_name("FLOAT")
+      ->group("Transforms");
+
     app->add_option(
         "--tf, --transform-file", transform_file,
         "TXT file with transform ([frame_id] r1 r2 r3 x r4 r5 r6 y r7 r8 r9 z)")

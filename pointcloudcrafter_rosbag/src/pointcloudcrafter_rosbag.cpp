@@ -27,7 +27,7 @@
 #include <pcl/conversions.h>
 #include <pcl/filters/crop_box.h>
 #include <pcl/io/pcd_io.h>
-#include <pcl/make_shared.h>
+#include <pcl/memory.h>
 #include <pcl/point_cloud.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <tf2_ros/buffer.h>
@@ -44,6 +44,7 @@
 #include <sensor_msgs/msg/detail/point_cloud2__struct.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -250,11 +251,38 @@ void Rosbag::process_pointclouds(
   std::string name = fmt::format("{}_{:09}", ts.sec, ts.nanosec);
 
   auto save_fmt = cfg_.get_save_format();
-  std::string output_path = cfg_.out_dir + "/" + name +
-    pointcloudcrafter::tools::formats::format_to_extension(save_fmt);
+  std::string ext = pointcloudcrafter::tools::formats::format_to_extension(save_fmt);
 
-  if (!modifier.save(output_path, save_fmt)) {
-    RCLCPP_ERROR(logger_, "Failed to save: %s", output_path.c_str());
+  // Grid split path
+  if (cfg_.split_grid_size > 0.0) {
+    auto cells = modifier.split(cfg_.split_grid_size);
+
+    auto format_coord = [](double val) -> std::string {
+      if (val == std::floor(val)) {
+        std::ostringstream oss;
+        oss << static_cast<int64_t>(val);
+        return oss.str();
+      }
+      std::ostringstream oss;
+      oss << val;
+      return oss.str();
+    };
+
+    for (auto & [key, cell] : cells) {
+      double cx = key.first * cfg_.split_grid_size;
+      double cy = key.second * cfg_.split_grid_size;
+      std::string cell_path =
+        cfg_.out_dir + "/" + name + "_" + format_coord(cx) + "_" + format_coord(cy) + ext;
+      if (!cell.save(cell_path, save_fmt)) {
+        RCLCPP_ERROR(logger_, "Failed to save cell: %s", cell_path.c_str());
+      }
+    }
+    return;
+  }
+
+  // Normal single-frame save path
+  if (!modifier.save(cfg_.out_dir + "/" + name + ext, save_fmt)) {
+    RCLCPP_ERROR(logger_, "Failed to save: %s", (cfg_.out_dir + "/" + name + ext).c_str());
     return;
   }
 
