@@ -3,8 +3,6 @@ name: Build, Test and Publish to test.pypi.org
 on:
   push:
     branches: ["testpypi-*"]
-  pull_request:
-    branches: ["main"]
 
 jobs:
   build_wheel:
@@ -183,6 +181,11 @@ jobs:
               # Split option
               echo 'Test: Split option'
               pointcloudcrafter-rosbag \$TEST_ROSBAG \$OUT_DIR \$TOPIC1 \$TOPIC2 --split 5.0
+
+              # Cleanup
+              echo 'Cleanup'
+              rm -rf \$OUT_DIR/*
+              pointcloudcrafter-rosbag \$TEST_ROSBAG \$OUT_DIR \$TOPIC1 \$TOPIC2 -m 2
 
               # ========================================
               # pointcloudcrafter-file tests
