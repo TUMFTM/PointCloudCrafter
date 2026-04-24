@@ -25,9 +25,12 @@
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include <map>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <tuple>
+#include <utility>
 #include <vector>
 
 // PCL
@@ -314,6 +317,115 @@ public:
     }
 
     return *this;
+  }
+  /**
+   * @brief Split the point cloud into grid cells along x and y
+   * @param grid_size Size of each grid cell
+   * @return Map from grid cell index pair (ix, iy)
+   */
+  std::map<std::pair<int, int>, Modifier> split(const double & grid_size)
+  {
+    std::map<std::pair<int, int>, Modifier> result;
+
+    if (output_cloud->data.empty()) {
+      std::cerr << "Error: Cannot split empty point cloud" << std::endl;
+      return result;
+    }
+    if (grid_size <= 0.0) {
+      std::cerr << "Error: grid_size must be positive" << std::endl;
+      return result;
+    }
+
+    int x_offset = -1, y_offset = -1;
+    for (const auto & field : output_cloud->fields) {
+      if (field.name == "x") x_offset = static_cast<int>(field.offset);
+      else if (field.name == "y") y_offset = static_cast<int>(field.offset);
+    }
+    if (x_offset == -1 || y_offset == -1) {
+      std::cerr << "Error: Point cloud must have x and y fields" << std::endl;
+      return result;
+    }
+
+    const size_t num_points = output_cloud->width * output_cloud->height;
+    const size_t point_step = output_cloud->point_step;
+
+    // Collect point indices per grid cell
+    std::map<std::pair<int, int>, std::vector<size_t>> grid_index;
+    for (size_t i = 0; i < num_points; ++i) {
+      const uint8_t * pt_data = output_cloud->data.data() + i * point_step;
+      float x, y;
+      memcpy(&x, pt_data + x_offset, sizeof(float));
+      memcpy(&y, pt_data + y_offset, sizeof(float));
+      int ix = static_cast<int>(std::floor(x / grid_size));
+      int iy = static_cast<int>(std::floor(y / grid_size));
+      grid_index[{ix, iy}].push_back(i);
+    }
+
+    for (const auto & cell : grid_index) {
+      const auto & indices = cell.second;
+      PointCloud::Ptr cell_cloud = std::make_shared<PointCloud>(*output_cloud);
+      cell_cloud->width = indices.size();
+      cell_cloud->height = 1;
+      cell_cloud->is_dense = true;
+      cell_cloud->row_step = cell_cloud->point_step * cell_cloud->width;
+      cell_cloud->data.resize(indices.size() * point_step);
+
+      for (size_t j = 0; j < indices.size(); ++j) {
+        memcpy(
+          cell_cloud->data.data() + j * point_step,
+          output_cloud->data.data() + indices[j] * point_step,
+          point_step);
+      }
+
+      Modifier cell_modifier;
+      cell_modifier.setCloud(cell_cloud);
+      result.emplace(cell.first, std::move(cell_modifier));
+    }
+
+    return result;
+  }
+
+  /**
+   * @brief Write a metadata YAML for a grid split result
+   * @param cells Result map from split()
+   * @param grid_size Grid size used in split()
+   * @param file_path Full path for the output YAML file
+   * @param extension File extension for cell filenames (default ".pcd")
+   * @return True if successful, false otherwise
+   */
+  static bool writeGridMetadata(
+    const std::map<std::pair<int, int>, Modifier> & cells,
+    const double & grid_size,
+    const std::string & file_path,
+    const std::string & extension = ".pcd")
+  {
+    std::ofstream file(file_path);
+    if (!file.is_open()) {
+      std::cerr << "Error: Failed to write metadata file: " << file_path << std::endl;
+      return false;
+    }
+
+    auto format_coord = [](double val) -> std::string {
+      if (val == std::floor(val)) {
+        return std::to_string(static_cast<int64_t>(val));
+      }
+      std::ostringstream oss;
+      oss << val;
+      return oss.str();
+    };
+
+    file << "x_resolution: " << grid_size << "\n";
+    file << "y_resolution: " << grid_size << "\n";
+
+    for (const auto & cell : cells) {
+      double coord_x = cell.first.first * grid_size;
+      double coord_y = cell.first.second * grid_size;
+      std::string sx = format_coord(coord_x);
+      std::string sy = format_coord(coord_y);
+      file << sx << "_" << sy << extension << ": [" << sx << ", " << sy << "]\n";
+    }
+
+    return true;
   }
 
   // Analysis

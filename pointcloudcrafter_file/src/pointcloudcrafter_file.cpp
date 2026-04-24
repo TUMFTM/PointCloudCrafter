@@ -23,6 +23,7 @@
 
 #include <algorithm>
 #include <filesystem>  // NOLINT
+#include <sstream>
 #include <rclcpp/logging.hpp>
 #include <stdexcept>
 #include <string>
@@ -210,12 +211,46 @@ void PCFile::process_pointcloud(const std::string & input_path,
     fmt::format("{:06d}", processed_frames_) : pointcloudcrafter::tools::formats::get_stem(input_p);
   }
 
-  // Generate output path
   auto save_fmt = cfg_.get_save_format();
-  std::string output_path = cfg_.out_dir + "/" + stem +
-    pointcloudcrafter::tools::formats::format_to_extension(save_fmt);
+  std::string ext = pointcloudcrafter::tools::formats::format_to_extension(save_fmt);
 
-  // Save with configured format
+  // Grid split path
+  if (cfg_.split_grid_size > 0.0) {
+    std::string split_dir = cfg_.out_dir + "/" + stem;
+    if (!std::filesystem::exists(split_dir)) {
+      std::filesystem::create_directories(split_dir);
+    }
+
+    auto cells = modifier.split(cfg_.split_grid_size);
+
+    auto format_coord = [](double val) -> std::string {
+      if (val == std::floor(val)) {
+        std::ostringstream oss;
+        oss << static_cast<int64_t>(val);
+        return oss.str();
+      }
+      std::ostringstream oss;
+      oss << val;
+      return oss.str();
+    };
+
+    for (auto & [key, cell] : cells) {
+      double cx = key.first * cfg_.split_grid_size;
+      double cy = key.second * cfg_.split_grid_size;
+      std::string cell_path = split_dir + "/" + format_coord(cx) + "_" + format_coord(cy) + ext;
+      if (!cell.save(cell_path, save_fmt)) {
+        RCLCPP_ERROR(logger_, "Failed to save cell: %s", cell_path.c_str());
+      }
+    }
+
+    pointcloudmodifierlib::Modifier::writeGridMetadata(
+      cells, cfg_.split_grid_size,
+      split_dir + "/pointcloud_map_metadata.yaml", ext);
+    return;
+  }
+
+  // Normal single-file save path
+  std::string output_path = cfg_.out_dir + "/" + stem + ext;
   if (!modifier.save(output_path, save_fmt)) {
     RCLCPP_ERROR(logger_, "Failed to save: %s", output_path.c_str());
   }
