@@ -220,6 +220,15 @@ jobs:
               echo 'Test: Transform'
               pointcloudcrafter-rosbag \$TEST_ROSBAG \$OUT_DIR \$TOPIC1 \$TOPIC2 -t base_link -m 1
 
+              # Split option
+              echo 'Test: Split option'
+              pointcloudcrafter-rosbag \$TEST_ROSBAG \$OUT_DIR \$TOPIC1 \$TOPIC2 --split 5.0
+
+              # Cleanup
+              echo 'Cleanup'
+              rm -rf \$OUT_DIR/*
+              pointcloudcrafter-rosbag \$TEST_ROSBAG \$OUT_DIR \$TOPIC1 \$TOPIC2 -m 2
+
               # ========================================
               # pointcloudcrafter-file tests
               # ========================================
@@ -296,6 +305,10 @@ jobs:
 
               echo 'Test: Stride frames'
               pointcloudcrafter-file \$FILE_INPUT \$OUT_DIR/file_out -s 2
+
+              # Split option
+              echo 'Test: Split option'
+              pointcloudcrafter-file \$FILE_INPUT \$OUT_DIR/file_out --split 5.0
 
               echo '========================================'
               echo 'All tests passed on Ubuntu ${{ matrix.ubuntu_version }}!'
