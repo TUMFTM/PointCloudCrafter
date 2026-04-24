@@ -42,7 +42,6 @@ struct ModifierConfig
   int64_t skip_frames{0};
   int64_t stride_frames{1};
   std::string out_dir{};
-  std::string urdf_file{};
   bool timestamps{false};
   bool sequential_names{false};
   bool inverse_crop{false};
@@ -197,8 +196,6 @@ struct FileConfig : public ModifierConfig
       ->required()
       ->group("Required");
 
-    app->add_option("urdf-file", urdf_file, "URDF file with transformations");
-
     app->add_flag("--load-pcd", load_pcd, "Load PCD files (default)")
       ->group("File Format");
     app->add_flag("--load-ply", load_ply, "Load PLY files")
@@ -240,6 +237,7 @@ struct RosbagConfig : public ModifierConfig
   std::string bag_path{};
   std::vector<std::string> topics{};
   std::string target_frame{};
+  std::string urdf_file{};
 
   /**
    * @brief Add Rosbag CLI options to the given app
@@ -260,6 +258,11 @@ struct RosbagConfig : public ModifierConfig
       ->group("Required");
 
     app->add_option("-t,--target-frame", target_frame, "Target TF frame for all point clouds")
+      ->group("Transforms");
+
+    app->add_option(
+        "--urdf, --urdf-file", urdf_file,
+        "URDF file providing additional static TF transforms")
       ->group("Transforms");
 
     add_modifier_options(app);
