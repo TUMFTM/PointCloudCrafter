@@ -397,8 +397,7 @@ public:
     const std::map<std::pair<int, int>, Modifier> & cells,
     const double & grid_size,
     const std::string & file_path,
-    const std::string & extension = ".pcd",
-    const std::string & name_prefix = "")
+    const std::string & extension = ".pcd")
   {
     std::ofstream file(file_path);
     if (!file.is_open()) {
@@ -423,8 +422,7 @@ public:
       double coord_y = cell.first.second * grid_size;
       std::string sx = format_coord(coord_x);
       std::string sy = format_coord(coord_y);
-      file << name_prefix << sx << "_" << sy << extension
-           << ": [" << sx << ", " << sy << "]\n";
+      file << sx << "_" << sy << extension << ": [" << sx << ", " << sy << "]\n";
     }
 
     return true;

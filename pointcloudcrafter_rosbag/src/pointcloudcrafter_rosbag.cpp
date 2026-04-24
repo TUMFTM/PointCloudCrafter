@@ -255,6 +255,11 @@ void Rosbag::process_pointclouds(
 
   // Grid split path
   if (cfg_.split_grid_size > 0.0) {
+    std::string split_dir = cfg_.out_dir + "/" + name;
+    if (!std::filesystem::exists(split_dir)) {
+      std::filesystem::create_directories(split_dir);
+    }
+
     auto cells = modifier.split(cfg_.split_grid_size);
 
     auto format_coord = [](double val) -> std::string {
@@ -271,12 +276,15 @@ void Rosbag::process_pointclouds(
     for (auto & [key, cell] : cells) {
       double cx = key.first * cfg_.split_grid_size;
       double cy = key.second * cfg_.split_grid_size;
-      std::string cell_path =
-        cfg_.out_dir + "/" + name + "_" + format_coord(cx) + "_" + format_coord(cy) + ext;
+      std::string cell_path = split_dir + "/" + format_coord(cx) + "_" + format_coord(cy) + ext;
       if (!cell.save(cell_path, save_fmt)) {
         RCLCPP_ERROR(logger_, "Failed to save cell: %s", cell_path.c_str());
       }
     }
+
+    pointcloudmodifierlib::Modifier::writeGridMetadata(
+      cells, cfg_.split_grid_size,
+      split_dir + "/pointcloud_map_metadata.yaml", ext);
     return;
   }
 

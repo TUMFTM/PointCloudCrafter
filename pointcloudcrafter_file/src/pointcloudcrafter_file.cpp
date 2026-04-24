@@ -216,8 +216,12 @@ void PCFile::process_pointcloud(const std::string & input_path,
 
   // Grid split path
   if (cfg_.split_grid_size > 0.0) {
+    std::string split_dir = cfg_.out_dir + "/" + stem;
+    if (!std::filesystem::exists(split_dir)) {
+      std::filesystem::create_directories(split_dir);
+    }
+
     auto cells = modifier.split(cfg_.split_grid_size);
-    std::string prefix = cfg_.merge_clouds ? "" : (stem + "_");
 
     auto format_coord = [](double val) -> std::string {
       if (val == std::floor(val)) {
@@ -233,18 +237,15 @@ void PCFile::process_pointcloud(const std::string & input_path,
     for (auto & [key, cell] : cells) {
       double cx = key.first * cfg_.split_grid_size;
       double cy = key.second * cfg_.split_grid_size;
-      std::string cell_path =
-        cfg_.out_dir + "/" + prefix + format_coord(cx) + "_" + format_coord(cy) + ext;
+      std::string cell_path = split_dir + "/" + format_coord(cx) + "_" + format_coord(cy) + ext;
       if (!cell.save(cell_path, save_fmt)) {
         RCLCPP_ERROR(logger_, "Failed to save cell: %s", cell_path.c_str());
       }
     }
 
-    std::string metadata_name = cfg_.merge_clouds ?
-      "pointcloud_map_metadata.yaml" : (stem + "_pointcloud_map_metadata.yaml");
     pointcloudmodifierlib::Modifier::writeGridMetadata(
       cells, cfg_.split_grid_size,
-      cfg_.out_dir + "/" + metadata_name, ext, prefix);
+      split_dir + "/pointcloud_map_metadata.yaml", ext);
     return;
   }
 
