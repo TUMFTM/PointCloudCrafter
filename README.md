@@ -8,10 +8,11 @@ A toolkit for extracting, manipulating, and evaluating point clouds and 3D spati
 
 [![Linux](https://img.shields.io/badge/os-linux-blue.svg)](https://www.linux.org/)
 [![Docker](https://badgen.net/badge/icon/docker?icon=docker&label)](https://www.docker.com/)
-[![ROS2humble](https://img.shields.io/badge/ros2-humble-blue.svg)](https://docs.ros.org/en/humble/index.html)
+[![ROS2jazzy](https://img.shields.io/badge/ros2-jazzy-blue.svg)](https://docs.ros.org/en/jazzy/index.html)
 [![PyPI](https://github.com/TUMFTM/PointCloudCrafter/actions/workflows/pypi.yml/badge.svg)](https://github.com/TUMFTM/PointCloudCrafter/actions/workflows/pypi.yml)
 [![docs](https://github.com/TUMFTM/PointCloudCrafter/actions/workflows/docs.yml/badge.svg)](https://github.com/TUMFTM/PointCloudCrafter/actions/workflows/docs.yml)
 ![Tested on](https://img.shields.io/badge/Tested%20on-Ubuntu%2022.04%20%7C%2024.04-E95420?logo=ubuntu&logoColor=white)
+[![status](https://joss.theoj.org/papers/aaeee985344bdd07edb8119350bc69de/status.svg)](https://joss.theoj.org/papers/aaeee985344bdd07edb8119350bc69de)
 </div>
 
 <h2> Install </h2>
@@ -45,21 +46,13 @@ For file-processing:
 For more details on the features and how to use them, take a look at the [documentation](https://TUMFTM.github.io/PointCloudCrafter) hosted on GitHub Pages:  
 [**https://TUMFTM.github.io/PointCloudCrafter**](https://TUMFTM.github.io/PointCloudCrafter)
 
-<h2> Cloning without test data (recommended) </h2>
+<h2> Test Data </h2>
 
-This repository uses Git LFS for large test files (22 MB).
-Most users do not need them.
+Download ROS2 test data from an external repository.
 
-Clone without downloading LFS files:
-
-```bash
-    GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/TUMFTM/PointCloudCrafter.git
 ```
-
-To download them later:
-
-```bash
-    git lfs pull
+git clone https://github.com/ga58lar/rosbag-test.git /tmp/rosbag-test
+mv /tmp/rosbag-test/tests /path/to/pointcloudcrafter-root/.
 ```
 
 ## Contact

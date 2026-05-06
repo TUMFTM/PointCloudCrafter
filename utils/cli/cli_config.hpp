@@ -46,6 +46,7 @@ struct ModifierConfig
   bool timestamps{false};
   bool sequential_names{false};
   bool inverse_crop{false};
+  double split_grid_size{0.0};
   bool load_pcd{true};
   bool load_ply{false};
   bool load_txt{false};
@@ -122,6 +123,12 @@ struct ModifierConfig
       ->group("File Format");
 
     // Transforms
+    app->add_option(
+        "--split", split_grid_size,
+        "Split point cloud into grid cells of given size")
+      ->type_name("FLOAT")
+      ->group("Transforms");
+
     app->add_option(
         "--tf, --transform-file", transform_file,
         "TXT file with transform ([frame_id] r1 r2 r3 x r4 r5 r6 y r7 r8 r9 z)")
@@ -233,6 +240,7 @@ struct RosbagConfig : public ModifierConfig
   std::string bag_path{};
   std::vector<std::string> topics{};
   std::string target_frame{};
+  std::string urdf_file{};
 
   /**
    * @brief Add Rosbag CLI options to the given app
@@ -253,6 +261,11 @@ struct RosbagConfig : public ModifierConfig
       ->group("Required");
 
     app->add_option("-t,--target-frame", target_frame, "Target TF frame for all point clouds")
+      ->group("Transforms");
+
+    app->add_option(
+        "--urdf, --urdf-file", urdf_file,
+        "URDF file providing additional static TF transforms")
       ->group("Transforms");
 
     add_modifier_options(app);

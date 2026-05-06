@@ -1,21 +1,42 @@
-ARG ROS_DISTRO=humble
-FROM ros:${ROS_DISTRO}
+ARG UBUNTU_VERSION=24.04
+FROM ubuntu:${UBUNTU_VERSION}
 
+ARG ROS_DISTRO=jazzy
+ARG TZ=Europe/Berlin
+
+# Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
+ENV ROS_DISTRO=${ROS_DISTRO}
+ENV TZ=${TZ}
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+ENV ROS_PYTHON_VERSION=3
+ENV RCUTILS_CONSOLE_OUTPUT_FORMAT="[{severity} {time}]: {message}"
+
+# Install necessary dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  locales \
+  curl \
+  gnupg2 \
+  lsb-release \
+  ca-certificates \
+  gpg \
+  wget && \
+  locale-gen en_US en_US.UTF-8 && \
+  update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 && \
+  export LANG=en_US.UTF-8 && \
+  apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Add ROS 2 GPG key and repository
+RUN export ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest | grep -F "tag_name" | awk -F\" '{print $4}') && \
+  curl -L -o /tmp/ros2-apt-source.deb "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros2-apt-source_${ROS_APT_SOURCE_VERSION}.$(. /etc/os-release && echo ${VERSION_CODENAME})_all.deb" && \
+  dpkg -i /tmp/ros2-apt-source.deb && \
+  rm -f /tmp/ros2-apt-source.deb
 
 # Install dependencies
 RUN apt-get update && apt-get install -y -q --no-install-recommends \
-    wget \
-    curl \
     vim \
     build-essential \
-    ca-certificates \
-    gnupg2 \
-    lsb-release \
-    python3-pip \
-    python3-tk \
-    python3-build \
-    python3-colcon-common-extensions \
     patchelf \
     git \
     git-lfs \
@@ -24,12 +45,21 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
     apt-utils \
     libpcl-dev \
     libfmt-dev \
+    ros-${ROS_DISTRO}-ros-base \
+    ros-${ROS_DISTRO}-rmw-fastrtps-cpp \
     ros-${ROS_DISTRO}-pcl-conversions \
     ros-${ROS_DISTRO}-rosbag2-cpp \
     ros-${ROS_DISTRO}-rosbag2-storage-mcap \
+    cpplint \
+    clang-format \
+    gdb \
+    python3-pip \
+    python3-tk \
+    python3-build \
+    python3-colcon-common-extensions \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install --upgrade pip ninja scikit-build-core auditwheel
+RUN pip3 install --upgrade ninja scikit-build-core auditwheel --break-system-packages
 
 WORKDIR /ros_ws
 
@@ -41,7 +71,7 @@ RUN /bin/bash -c '. /opt/ros/$ROS_DISTRO/setup.bash && \
 # Set entrypoint by sourcing overlay workspace
 RUN echo 'source "/opt/ros/$ROS_DISTRO/setup.bash"' >> /root/.bashrc && \
     echo '. /ros_ws/install/setup.bash' >> /root/.bashrc && \
-    echo '#!/bin/bash\nset -e\n\n# setup ros environment\nsource "/opt/ros/$ROS_DISTRO/setup.bash"\n. /ros_ws/install/setup.bash\nexec "$@"' > /ros_entrypoint.sh && \
+    printf '#!/bin/bash\nset -e\n\n# setup ros environment\nsource "/opt/ros/$ROS_DISTRO/setup.bash"\n. /ros_ws/install/setup.bash\nexec "$@"\n' > /ros_entrypoint.sh && \
     chmod +x /ros_entrypoint.sh
 
 ENTRYPOINT ["/ros_entrypoint.sh"]

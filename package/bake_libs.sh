@@ -3,14 +3,14 @@
 PREFIX=$1
 DEST_LIB="$PREFIX/lib"
 DEST_SHARE="$PREFIX/share"
-ROS_PATH="/opt/ros/humble"
+ROS_PATH="/opt/ros/jazzy"
 
 # TODO(ga58lar): find a way to automate this
 # Manual copy plugins, which are not detected by auditwheel
-cp /opt/ros/humble/lib/librmw_fastrtps_*.so* "$DEST_LIB/"
-cp /opt/ros/humble/lib/librosbag2_storage_default_plugins.so* "$DEST_LIB/"
-cp /opt/ros/humble/lib/librosbag2_storage_mcap.so* "$DEST_LIB/"
-cp /opt/ros/humble/lib/libfast*.so* "$DEST_LIB/"
+cp /opt/ros/jazzy/lib/librmw_fastrtps_*.so* "$DEST_LIB/"
+cp /opt/ros/jazzy/lib/librosbag2_storage_default_plugins.so* "$DEST_LIB/"
+cp /opt/ros/jazzy/lib/librosbag2_storage_mcap.so* "$DEST_LIB/"
+cp /opt/ros/jazzy/lib/libfast*.so* "$DEST_LIB/"
 
 # Copy full ament index
 if [ -d "$ROS_PATH/share/ament_index" ]; then
@@ -26,6 +26,7 @@ EXTRA_PKGS=(
     "std_msgs" "builtin_interfaces" "geometry_msgs" "action_msgs" "unique_identifier_msgs"
     "rcl_interfaces" "rosgraph_msgs" "statistics_msgs" "pcl_msgs" "tf2_msgs" "tf2"
     "rosbag2_storage" "rosbag2_storage_default_plugins" "rosbag2_storage_mcap"
+    "rosbag2_storage_sqlite3"
     "rosbag2_compression" "rosbag2_compression_zstd"
     "ament_index" "rcutils" "pluginlib"
     "rosidl_typesupport_cpp" "rosidl_typesupport_c"
