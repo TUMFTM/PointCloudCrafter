@@ -268,13 +268,14 @@ struct RosbagConfig : public ModifierConfig
       ->group("Transforms");
 
     app->add_option(
-        "--save-rosbag", save_rosbag, 
+        "--save-rosbag", save_rosbag,
         "Save filtered point clouds as a new ROS 2 bag")
       ->group("File Format");
-    
+
     app->add_option(
         "--rosbag-topic", rosbag_topic,
-        "ROS topic to save processed point clouds to")->group("File Format");
+        "ROS topic to save processed point clouds to")
+      ->group("File Format");
 
     add_modifier_options(app);
   }

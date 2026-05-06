@@ -352,7 +352,7 @@ bool Rosbag::writePCLToRosbag(
   const std::string & frame_id,
   const rclcpp::Time & timestamp)
 {
-  if(!rosbag_writer_) {
+  if (!rosbag_writer_) {
     RCLCPP_ERROR(logger_, "Rosbag writer not initialized");
     return false;
   }
@@ -365,7 +365,8 @@ bool Rosbag::writePCLToRosbag(
   rclcpp::SerializedMessage serialized_ros_msg;
   serialization.serialize_message(&msg, &serialized_ros_msg);
 
-  rosbag2_storage::SerializedBagMessageSharedPtr serialized_msg = std::make_shared<rosbag2_storage::SerializedBagMessage>();
+  rosbag2_storage::SerializedBagMessageSharedPtr serialized_msg =
+    std::make_shared<rosbag2_storage::SerializedBagMessage>();
   serialized_msg->topic_name = topic;
   serialized_msg->serialized_data = std::shared_ptr<rcutils_uint8_array_t>(
     new rcutils_uint8_array_t(serialized_ros_msg.release_rcl_serialized_message()),
