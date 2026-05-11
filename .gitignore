@@ -4,6 +4,8 @@ build
 log
 .vscode
 site
-.html
+*.html
 docs/docs_cpp
 dist
+*.mcap
+metadata.yaml
