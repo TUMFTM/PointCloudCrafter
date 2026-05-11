@@ -18,15 +18,6 @@ This page is regenerated on every documentation build from the
 For other platforms or architectures, use the
 [Docker image](https://ghcr.io/tumftm/pointcloudcrafter) or build from source.
 
-## `pointcloudcrafter-file`
-
-CLI for processing point cloud files (PCD, PLY, TXT, KITTI, nuScenes).
-Equivalent ROS 2 invocation: `ros2 run pointcloudcrafter file`.
-
-```text
---8<-- "version_details/snippets/help_file_latest.txt"
-```
-
 ## `pointcloudcrafter-rosbag`
 
 CLI for extracting and processing point clouds from ROS 2 bag recordings.
@@ -34,4 +25,13 @@ Equivalent ROS 2 invocation: `ros2 run pointcloudcrafter rosbag`.
 
 ```text
 --8<-- "version_details/snippets/help_rosbag_latest.txt"
+```
+
+## `pointcloudcrafter-file`
+
+CLI for processing point cloud files (PCD, PLY, TXT, KITTI, nuScenes).
+Equivalent ROS 2 invocation: `ros2 run pointcloudcrafter file`.
+
+```text
+--8<-- "version_details/snippets/help_file_latest.txt"
 ```

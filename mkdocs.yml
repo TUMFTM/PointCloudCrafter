@@ -40,7 +40,14 @@ nav:
     - pip_package.md
     - getting_started.md
     - usage.md
-    - Version Details: version_details/index.md
+    - Version Details:
+        - Overview: version_details/index.md
+        - Latest: version_details/latest.md
+        # VERSION_NAV_START
+        - v1.4.1: version_details/v1.4.1.md
+        - v1.3.4: version_details/v1.3.4.md
+        - v1.2.4: version_details/v1.2.4.md
+        # VERSION_NAV_END
     - third-party.md
     - API: docs_cpp/index.html
 

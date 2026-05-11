@@ -79,28 +79,66 @@ Frozen snapshot captured from \`${IMAGE}\` at release time.
 | Wheel tag        | \`${PY_TAG}-${PY_TAG}-manylinux_*_${ARCH}\`              |
 | Architectures    | \`${ARCH}\` only                                         |
 
-## \`pointcloudcrafter-file\`
-
-\`\`\`text
---8<-- "version_details/snippets/help_file_${TAG}.txt"
-\`\`\`
-
 ## \`pointcloudcrafter-rosbag\`
 
 \`\`\`text
 --8<-- "version_details/snippets/help_rosbag_${TAG}.txt"
 \`\`\`
+
+## \`pointcloudcrafter-file\`
+
+\`\`\`text
+--8<-- "version_details/snippets/help_file_${TAG}.txt"
+\`\`\`
 EOF
 echo "Wrote ${PAGE}"
 
-# Insert the new version into the index table if not present.
+# Rebuild the version table in the index AND the mkdocs.yml nav section,
+# both sorted newest-first by version (sort -Vr).
 INDEX="${PAGE_DIR}/index.md"
-if ! grep -q "(${TAG}.md)" "${INDEX}"; then
-    ROW="| ${TAG} | released | [${TAG}](${TAG}.md) |"
-    awk -v row="${ROW}" '
-        /<!-- VERSION_TABLE_INSERT -->/ { print row }
-        { print }
-    ' "${INDEX}" > "${INDEX}.new"
-    mv "${INDEX}.new" "${INDEX}"
-    echo "Added ${TAG} to ${INDEX}"
-fi
+MKDOCS="${ROOT}/mkdocs.yml"
+VERSIONS=$(ls "${PAGE_DIR}"/v*.md 2>/dev/null \
+    | xargs -n1 basename 2>/dev/null \
+    | sed 's/\.md$//' \
+    | sort -Vr || true)
+
+{
+    awk '/^## Available versions/{exit} {print}' "${INDEX}"
+    echo "## Available versions"
+    echo
+    echo "| Version  | Status   | Page                                |"
+    echo "|----------|----------|-------------------------------------|"
+    echo "| latest   | rolling  | [Latest](latest.md)                 |"
+    for v in ${VERSIONS}; do
+        echo "| ${v} | released | [${v}](${v}.md) |"
+    done
+    echo "<!-- VERSION_TABLE_INSERT -->"
+    awk 'found{print} /<!-- VERSION_TABLE_INSERT -->/{found=1}' "${INDEX}"
+} > "${INDEX}.new"
+mv "${INDEX}.new" "${INDEX}"
+echo "Rebuilt version table in ${INDEX}"
+
+# Rebuild the mkdocs.yml nav block between # VERSION_NAW_START / # VERSION_NAV_END.
+{
+    awk '
+        /# VERSION_NAV_START/ { print; in_block=1; next }
+        /# VERSION_NAV_END/   { in_block=0 }
+        !in_block             { print }
+    ' "${MKDOCS}"
+} > "${MKDOCS}.new"
+
+# Insert version entries just before the END marker.
+awk -v versions="${VERSIONS}" '
+    /# VERSION_NAV_END/ {
+        n = split(versions, v, "\n")
+        for (i = 1; i <= n; i++) {
+            if (v[i] != "") {
+                printf "        - %s: version_details/%s.md\n", v[i], v[i]
+            }
+        }
+    }
+    { print }
+' "${MKDOCS}.new" > "${MKDOCS}.new2"
+mv "${MKDOCS}.new2" "${MKDOCS}"
+rm -f "${MKDOCS}.new"
+echo "Rebuilt Version Details nav in ${MKDOCS}"
