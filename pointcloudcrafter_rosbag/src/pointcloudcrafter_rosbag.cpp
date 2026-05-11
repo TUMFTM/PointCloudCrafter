@@ -22,7 +22,6 @@
 #include <fmt/core.h>
 #include <message_filters/subscriber.h>
 #include <message_filters/time_synchronizer.h>
-#include <pcl/PCLPointCloud2.h>
 #include <pcl/common/transforms.h>
 #include <pcl/conversions.h>
 #include <pcl/filters/crop_box.h>
@@ -41,6 +40,7 @@
 #include <rclcpp/logger.hpp>
 #include <rclcpp/logging.hpp>
 #include <rclcpp/rclcpp.hpp>
+#include <rclcpp/serialization.hpp>
 #include <sensor_msgs/msg/detail/point_cloud2__struct.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
@@ -68,6 +68,20 @@ Rosbag::Rosbag(const config::RosbagConfig & cfg)
   // Check for number of topics
   if (cfg_.topics.size() > 4) {
     throw std::runtime_error("Only a maximum of 4 topics are supported");
+  }
+  // Initialize rosbag writer if saving to rosbag is enabled
+  if (cfg_.save_rosbag && !cfg_.rosbag_topic.empty()) {
+    rosbag_writer_ = std::make_unique<rosbag2_cpp::writers::SequentialWriter>();
+     rosbag2_storage::StorageOptions writer_options;
+    writer_options.storage_id = "mcap";
+    std::filesystem::path out_path(cfg_.out_dir);
+    writer_options.uri = (out_path / "processed_rosbag").string();
+    rosbag_writer_->open(writer_options, rosbag2_cpp::ConverterOptions());
+    rosbag2_storage::TopicMetadata topic_metadata;
+    topic_metadata.name = cfg_.rosbag_topic;
+    topic_metadata.type = "sensor_msgs/msg/PointCloud2";
+    topic_metadata.serialization_format = "cdr";
+    rosbag_writer_->create_topic(topic_metadata);
   }
   // Initialize message to filter and sync to reader
   for (size_t i = 0; i < 4; i++) {
@@ -294,6 +308,11 @@ void Rosbag::process_pointclouds(
     return;
   }
 
+  if (cfg_.save_rosbag && !cfg_.rosbag_topic.empty()) {
+    writePCLToRosbag(
+      *modifier.getOutputCloud(), cfg_.rosbag_topic, cfg_.target_frame, rclcpp::Time(ts));
+  }
+
   // Save timestamps if enabled
   if (cfg_.timestamps) {
     modifier.timestampAnalyzer(cfg_.out_dir + "/" + name + "_stamps.txt");
@@ -317,5 +336,48 @@ void Rosbag::transform_pc(
   }
 
   tools::utils::transform_pointcloud2(transformation.cast<float>(), msg_in, msg_out);
+}
+/**
+ * @brief Write a point cloud to a rosbag
+ * @param cloud Point cloud to write
+ * @param topic ROS topic to write to
+ * @param frame_id Frame ID to set in the message header
+ * @param timestamp Timestamp to set in the message header
+ * @param writer Rosbag writer to use for writing the message
+ * @return True if successful, false otherwise
+ */
+bool Rosbag::writePCLToRosbag(
+  const pcl::PCLPointCloud2 & cloud,
+  const std::string & topic,
+  const std::string & frame_id,
+  const rclcpp::Time & timestamp)
+{
+  if (!rosbag_writer_) {
+    RCLCPP_ERROR(logger_, "Rosbag writer not initialized");
+    return false;
+  }
+  sensor_msgs::msg::PointCloud2 msg;
+  pcl_conversions::fromPCL(cloud, msg);
+  msg.header.stamp = timestamp;
+  msg.header.frame_id = frame_id;
+
+  rclcpp::Serialization<sensor_msgs::msg::PointCloud2> serialization;
+  rclcpp::SerializedMessage serialized_ros_msg;
+  serialization.serialize_message(&msg, &serialized_ros_msg);
+
+  rosbag2_storage::SerializedBagMessageSharedPtr serialized_msg =
+    std::make_shared<rosbag2_storage::SerializedBagMessage>();
+  serialized_msg->topic_name = topic;
+  serialized_msg->serialized_data = std::shared_ptr<rcutils_uint8_array_t>(
+    new rcutils_uint8_array_t(serialized_ros_msg.release_rcl_serialized_message()),
+    [](rcutils_uint8_array_t * msg) {
+      rcutils_uint8_array_fini(msg);
+      delete msg;
+    });
+  serialized_msg->recv_timestamp = timestamp.nanoseconds();
+  serialized_msg->send_timestamp = timestamp.nanoseconds();
+
+  rosbag_writer_->write(serialized_msg);
+  return true;
 }
 }  // namespace pointcloudcrafter
