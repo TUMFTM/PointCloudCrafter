@@ -11,7 +11,7 @@ A toolkit for extracting, manipulating, and evaluating point clouds and 3D spati
 [![ROS2jazzy](https://img.shields.io/badge/ros2-jazzy-blue.svg)](https://docs.ros.org/en/jazzy/index.html)
 [![PyPI](https://github.com/TUMFTM/PointCloudCrafter/actions/workflows/pypi.yml/badge.svg)](https://github.com/TUMFTM/PointCloudCrafter/actions/workflows/pypi.yml)
 [![docs](https://github.com/TUMFTM/PointCloudCrafter/actions/workflows/docs.yml/badge.svg)](https://github.com/TUMFTM/PointCloudCrafter/actions/workflows/docs.yml)
-![Tested on](https://img.shields.io/badge/Tested%20on-Ubuntu%2022.04%20%7C%2024.04-E95420?logo=ubuntu&logoColor=white)
+![pip](https://img.shields.io/badge/pip-Ubuntu%2024.04%20x86__64-E95420?logo=ubuntu&logoColor=white)
 [![status](https://joss.theoj.org/papers/aaeee985344bdd07edb8119350bc69de/status.svg)](https://joss.theoj.org/papers/aaeee985344bdd07edb8119350bc69de)
 </div>
 
@@ -20,6 +20,8 @@ A toolkit for extracting, manipulating, and evaluating point clouds and 3D spati
 ```bash
     pip install pointcloudcrafter
 ```
+
+> **Supported platform:** Ubuntu 24.04 on x86_64 with CPython 3.12. The published PyPI wheel is built for `manylinux_2_39_x86_64` / `cp312` only. On other platforms, use the [Docker image](https://ghcr.io/tumftm/pointcloudcrafter) or build from source.
 
 <h2> Usage </h2>
 
