@@ -3,10 +3,17 @@ name: docs
 on:
   push:
     branches: [ main ]
+  release:
+    types: [published]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Optional image tag to freeze (e.g. v1.4.2). Leave empty for a normal docs build."
+        required: false
 
 permissions:
   contents: write
+  packages: read
 
 jobs:
   docs:
@@ -18,12 +25,52 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
+          ref: main
 
       - name : Install dependencies
         run: sudo apt-get install -y git cmake build-essential doxygen graphviz python3-dev
 
       - name: Install python dependencies
         run: python -m pip install mkdocs mkdocs-material
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Resolve release tag (if any)
+        id: release_tag
+        run: |
+          if [[ "${{ github.event_name }}" == "release" ]]; then
+            echo "value=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
+          elif [[ -n "${{ github.event.inputs.tag }}" ]]; then
+            echo "value=${{ github.event.inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Freeze Version Details page for release
+        if: steps.release_tag.outputs.value != ''
+        run: ./docs/scripts/capture_version.sh "${{ steps.release_tag.outputs.value }}"
+
+      - name: Commit frozen version page back to main
+        if: steps.release_tag.outputs.value != ''
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/version_details/
+          if git diff --cached --quiet; then
+            echo "No new version page to commit."
+          else
+            git commit -m "docs: add Version Details for ${{ steps.release_tag.outputs.value }}"
+            git push origin main
+          fi
+
+      - name: Capture CLI help output for :latest
+        working-directory: docs
+        run: make helpgen
 
       - name: Generate documentation
         working-directory: docs
