@@ -70,7 +70,7 @@ By providing a middleware-aware, schema-agnostic CLI toolkit, PointCloudCrafter 
 # Availability
 
 The source code is available at \url{https://github.com/TUMFTM/PointCloudCrafter}.  
-The Python package is available at \url{https://pypi.org/project/pointcloudcrafter}.  
+The Python package is available at \url{https://pypi.org/project/pointcloudcrafter}. The published wheel targets Linux x86_64 (manylinux) with CPython >=3.12; users on other platforms, architectures, or Python versions should build from source or use the Docker image.
 The Docker is available at \url{https://ghcr.io/tumftm/pointcloudcrafter:latest}.  
 The documentation is available at \url{https://tumftm.github.io/PointCloudCrafter}.  
 The license is Apache-2.0.  

@@ -7,6 +7,11 @@ cpp:
 	@echo "Building C++ documentation..."
 	doxygen Doxyfile
 
+.PHONY: helpgen
+helpgen:
+	@echo "Capturing CLI help output for :latest..."
+	./scripts/capture_version.sh latest
+
 .PHONY: mkdocs
 mkdocs:
 	@echo "Building MkDocs documentation..."
