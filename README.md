@@ -50,12 +50,17 @@ For more details on the features and how to use them, take a look at the [docume
 
 <h2> Test Data </h2>
 
-Download ROS2 test data from an external repository.
+A small ROS 2 bag and example transforms are published as a pinned release
+asset on this repository. To download the current test data:
 
+```bash
+curl -L https://github.com/TUMFTM/PointCloudCrafter/releases/download/testdata-v1/test-data.tar.gz \
+    | tar xz -C /path/to/pointcloudcrafter-root/
 ```
-git clone https://github.com/ga58lar/rosbag-test.git /tmp/rosbag-test
-mv /tmp/rosbag-test/tests /path/to/pointcloudcrafter-root/.
-```
+
+The same asset is used by the CI test job, so you get exactly the data the
+project is validated against. When the test data is updated, the tag is bumped
+(e.g. `testdata-v2`).
 
 ## Contact
 
