@@ -1,0 +1,15 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" title=" " alt="" coords="5,173,124,198"/>
+<area shape="rect" id="Node000001" href="$structCLI_1_1detail_1_1is__mutable__container.html" title=" " alt="" coords="177,5,344,45"/>
+<area shape="poly" id="edge28_Node000000_Node000001" title=" " alt="" coords="78,159,116,107,142,79,170,55,191,43,194,48,174,60,145,83,120,111,83,162"/>
+<area shape="rect" id="Node000002" href="$structCLI_1_1detail_1_1is__readable__container.html" title=" " alt="" coords="175,69,346,109"/>
+<area shape="poly" id="edge29_Node000000_Node000002" title=" " alt="" coords="94,163,171,119,199,107,201,112,173,124,97,168"/>
+<area shape="rect" id="Node000003" href="$structCLI_1_1detail_1_1is__wrapper.html" title=" " alt="" coords="177,133,344,173"/>
+<area shape="poly" id="edge30_Node000000_Node000003" title=" " alt="" coords="137,171,177,164,178,170,138,176"/>
+<area shape="rect" id="Node000004" href="$structCLI_1_1detail_1_1pair__adaptor.html" title=" " alt="" coords="172,197,349,237"/>
+<area shape="poly" id="edge31_Node000000_Node000004" title=" " alt="" coords="138,195,172,200,171,205,137,200"/>
+<area shape="rect" id="Node000005" href="$structCLI_1_1is__bool.html" title="Check to see if something is bool (fail check by default)" alt="" coords="193,262,328,287"/>
+<area shape="poly" id="edge32_Node000000_Node000005" title=" " alt="" coords="97,204,132,226,173,247,208,259,206,264,171,252,130,231,94,208"/>
+<area shape="rect" id="Node000006" href="$structCLI_1_1is__shared__ptr.html" title="Check to see if something is a shared pointer." alt="" coords="173,311,348,337"/>
+<area shape="poly" id="edge33_Node000000_Node000006" title=" " alt="" coords="84,208,122,253,146,276,173,296,200,309,198,314,171,301,143,281,118,257,80,211"/>
+</map>

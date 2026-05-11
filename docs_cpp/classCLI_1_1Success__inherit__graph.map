@@ -1,0 +1,15 @@
+<map id="CLI::Success" name="CLI::Success">
+<area shape="rect" id="Node000001" title="This is a successful completion on parsing, supposed to exit." alt="" coords="184,225,287,251"/>
+<area shape="rect" id="Node000005" href="$classCLI_1_1CallForAllHelp.html" title="Usually something like –help&#45;all on command line." alt="" coords="5,299,148,324"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="199,259,104,301,102,296,197,254"/>
+<area shape="rect" id="Node000006" href="$classCLI_1_1CallForHelp.html" title="&#45;h or –help on command line" alt="" coords="173,299,298,324"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="238,264,238,299,233,299,233,264"/>
+<area shape="rect" id="Node000007" href="$classCLI_1_1CallForVersion.html" title="&#45;v or –version on command line" alt="" coords="323,299,465,324"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="274,254,369,296,367,301,272,259"/>
+<area shape="rect" id="Node000002" href="$classCLI_1_1ParseError.html" title="Anything that can error in Parse." alt="" coords="177,152,293,177"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="238,191,238,225,233,225,233,191"/>
+<area shape="rect" id="Node000003" href="$classCLI_1_1Error.html" title="All errors derive from this one." alt="" coords="195,79,276,104"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="238,118,238,152,233,152,233,118"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="166,5,305,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="238,44,238,79,233,79,233,44"/>
+</map>
