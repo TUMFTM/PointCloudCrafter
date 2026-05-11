@@ -120,9 +120,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download test data from external repo
+      - name: Download test data from release asset
         run: |
-          git clone --depth 1 https://github.com/ga58lar/rosbag-test.git test_data
+          mkdir -p test_data
+          curl -fsSL https://github.com/TUMFTM/PointCloudCrafter/releases/download/testdata-v1/test-data.tar.gz \
+              | tar xz -C test_data
 
       - name: Download wheel
         uses: actions/download-artifact@v4
@@ -338,3 +340,4 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: dist/auditwheel
+
