@@ -17,6 +17,7 @@ authors:
 affiliations:
  - name: Institute of Automotive Technology, Department of Mobility System Engineering, School of Engineering and Design, Technical University of Munich, Germany.
    index: 1
+   ror: "02kkvpp62"
 date: 25.January 2026  
 bibliography: paper.bib
 
