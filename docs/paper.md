@@ -25,8 +25,8 @@ bibliography: paper.bib
 
 # Summary
 
-PointCloudCrafter is a C++ command-line interface (CLI) toolkit for the processing, manipulation, and analysis of three-dimensional point cloud data. The software provides a collection of compiled executables for integration into automated research pipelines, enabling common point cloud operations without requiring custom code.  
-The toolkit supports the conversion and processing of data from multiple acquisition and storage formats, including ROS2 bag recordings, binary files, plain-text files, and standard OBJ, PLY and PCD files. A central design feature of PointCloudCrafter is its schema-agnostic handling of per-point attributes. Arbitrary scalar fields associated with individual points are preserved throughout conversion, transformation, filtering, and aggregation steps, ensuring that auxiliary metadata remains available for downstream analysis. Furthermore, it allows the accumulation of multiple point clouds based on their timestamps and transforms.  
+PointCloudCrafter is a C++ command-line interface (CLI) toolkit for the processing, manipulation, and analysis of three-dimensional point cloud data. The software provides a collection of compiled executables for integration into automated research pipelines, enabling common point cloud operations without requiring custom code.
+The toolkit supports the conversion and processing of data from multiple acquisition and storage formats, including ROS2 bag recordings, binary files, plain-text files, and standard OBJ, PLY and PCD files. A central design feature of PointCloudCrafter is its schema-agnostic handling of per-point attributes. Arbitrary scalar fields associated with individual points are preserved throughout conversion, transformation, filtering, and aggregation steps, ensuring that auxiliary metadata remains available for downstream analysis. Furthermore, it allows the accumulation of multiple point clouds based on their timestamps and transforms.
 By combining support for robotic middleware data with batch-oriented file processing, PointCloudCrafter facilitates reproducible workflows across a range of scientific and engineering applications that rely on large-scale three-dimensional point cloud data.
 
 # State of the field
@@ -51,12 +51,12 @@ PointCloudCrafter is implemented in C++ and is designed primarily as a command-l
 
 The software is developed using modern C++ design practices, including a clear separation between executable logic and shared processing components. This design improves maintainability and allows new command-line tools to be added in the future without altering existing workflows. Documentation of the codebase and available commands is generated with Doxygen and published as a static website on GitHub.
 
-The toolkit consists of two main executables that target distinct workflows. These executables share a common internal library that implements functionality for loading, saving, analyzing, transforming, filtering, and merging point clouds. Its purpose is to ensure consistent behavior and reduce code duplication across the executables, while keeping the user-facing interface focused on command-line usage.  
+The toolkit consists of two main executables that target distinct workflows. These executables share a common internal library that implements functionality for loading, saving, analyzing, transforming, filtering, and merging point clouds. Its purpose is to ensure consistent behavior and reduce code duplication across the executables, while keeping the user-facing interface focused on command-line usage.
 Internally, all point cloud data is represented using the `PCLPointCloud2` data structure. This representation enables schema-agnostic handling of point clouds by allowing arbitrary per-point attributes to be discovered and preserved at runtime without enforcing a predefined schema.
 
 PointCloudCrafter provides two primary execution modes, *rosbag* and *file*, for streaming and static data workflows, respectively.
-The *rosbag* executable enables extraction of `sensor_msgs::msg::PointCloud2` topics from ROS2 bag recordings. This mode integrates with the `TF2` library [@Foote2013] to perform time-resolved pose lookups based on the recorded transform tree. Each point cloud can be transformed from the sensor coordinate frame into a user-specified fixed reference frame using the pose corresponding to the exact acquisition timestamp. This enables motion-consistent export of point cloud data from dynamic sensor platforms and a timestamp-based fusion of different point cloud sensor topics.  
-The *file* executable focuses on batch-oriented processing of static point cloud files. Supported formats include common text and binary formats such as PLY, PCD, OBJ, and TXT, as well as dataset-specific binary formats used in KITTI [@KITTI2012] and nuScenes [@nuScenes2019].  
+The *rosbag* executable enables extraction of `sensor_msgs::msg::PointCloud2` topics from ROS2 bag recordings. This mode integrates with the `TF2` library [@Foote2013] to perform time-resolved pose lookups based on the recorded transform tree. Each point cloud can be transformed from the sensor coordinate frame into a user-specified fixed reference frame using the pose corresponding to the exact acquisition timestamp. This enables motion-consistent export of point cloud data from dynamic sensor platforms and a timestamp-based fusion of different point cloud sensor topics.
+The *file* executable focuses on batch-oriented processing of static point cloud files. Supported formats include common text and binary formats such as PLY, PCD, OBJ, and TXT, as well as dataset-specific binary formats used in KITTI [@KITTI2012] and nuScenes [@nuScenes2019].
 Both executables support a common set of processing operations implemented in the shared internal codebase. It allows users to apply rigid-body transformations, merge multiple point clouds into a single representation, analyse timestamps, and perform filtering operations. Filters include geometric cropping using box, sphere, or cylindrical regions, voxel grid downsampling, and statistical or radius-based outlier removal. All processing steps are fully parameterized via command-line options, enabling deterministic and reproducible execution across datasets. Due to the schema-agnostic internal representation, per-point attributes, such as sensor-specific metadata or domain-specific properties, are preserved throughout processing whenever supported by the input and output formats.
 
 A comprehensive overview of the available commands, parameters, and usage examples is provided in the online documentation at \url{https://tumftm.github.io/PointCloudCrafter/usage.html}.
@@ -73,11 +73,11 @@ By providing a middleware-aware, schema-agnostic CLI toolkit, PointCloudCrafter 
 
 # Availability
 
-The source code is available at \url{https://github.com/TUMFTM/PointCloudCrafter}.  
+The source code is available at \url{https://github.com/TUMFTM/PointCloudCrafter}.
 The Python package is available at \url{https://pypi.org/project/pointcloudcrafter}. The published wheel targets Linux x86_64 (manylinux) with CPython >=3.12; users on other platforms, architectures, or Python versions should build from source or use the Docker image.
-The Docker is available at \url{https://ghcr.io/tumftm/pointcloudcrafter:latest}.  
-The documentation is available at \url{https://tumftm.github.io/PointCloudCrafter}.  
-The license is Apache-2.0.  
+The Docker is available at \url{https://ghcr.io/tumftm/pointcloudcrafter:latest}.
+The documentation is available at \url{https://tumftm.github.io/PointCloudCrafter}.
+The license is Apache-2.0.
 
 # AI usage disclosure
 
@@ -85,7 +85,7 @@ Artificial intelligence tools were used in a limited and transparent manner duri
 
 # Acknowledgements
 
-The authors acknowledge the developers and maintainers of the Point Cloud Library (PCL) [@Rusu2011], upon which PointCloudCrafter is built. We also acknowledge the contributions of student researchers at the Institute of Automotive Technology at the Technical University of Munich who supported the development and evaluation of this software.  
+The authors acknowledge the developers and maintainers of the Point Cloud Library (PCL) [@Rusu2011], upon which PointCloudCrafter is built. We also acknowledge the contributions of student researchers at the Institute of Automotive Technology at the Technical University of Munich who supported the development and evaluation of this software.
 This work was funded by basic research funds of the Institute of Automotive Technology at the Technical University of Munich.
 
 # References
