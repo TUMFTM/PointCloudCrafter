@@ -9,7 +9,7 @@ on:
     branches: ["main"]
 
 jobs:
-  build-and-push-image:
+  build:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -18,60 +18,40 @@ jobs:
       id-token: write
     strategy:
       matrix:
-        DISTRO: [noble]
-        TOOLCHAIN: [gcc]
+        include:
+          - DISTRO: [noble]
+            TOOLCHAIN: [gcc]
+            python_version: "3.12"
+            python_tag: "cp312"
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
         with:
           submodules: recursive
-      
+
       - name: Login to Container Registry
+        if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{github.actor}}
           password: ${{secrets.GITHUB_TOKEN}}
 
-      - name: Build and deploy latest docker
-        run: |
-          ./docker/build_docker.sh
-          docker run --rm ghcr.io/tumftm/pointcloudcrafter:latest /bin/bash -c "cd /ros_ws && colcon test && colcon test-result --verbose --all"
-          docker push ghcr.io/tumftm/pointcloudcrafter:latest
+      - name: Build docker
+        run: ./docker/build_docker.sh
+
+      - name: Run tests
+        run: docker run --rm ghcr.io/tumftm/pointcloudcrafter:latest /bin/bash -c "cd /ros_ws && colcon test && colcon test-result --verbose --all"
+
+      - name: Push to GHCR
+        if: github.event_name != 'pull_request'
+        run: docker push ghcr.io/tumftm/pointcloudcrafter:latest
 
       - name: Tag and push release docker image
         if: github.event_name == 'release'
         run: |
-          docker pull ghcr.io/tumftm/pointcloudcrafter:latest
           docker tag ghcr.io/tumftm/pointcloudcrafter:latest ghcr.io/tumftm/pointcloudcrafter:${{ github.event.release.tag_name }}
           docker push ghcr.io/tumftm/pointcloudcrafter:${{ github.event.release.tag_name }}
-
-  build_wheel:
-    needs: [build-and-push-image]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: read
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - python_version: "3.12"
-            python_tag: "cp312"
-            ubuntu_test: "24.04"
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Pull prebuilt image
-        run: docker pull ghcr.io/tumftm/pointcloudcrafter:latest
 
       - name: Build wheel for Python ${{ matrix.python_version }}
         run: |
@@ -107,7 +87,7 @@ jobs:
           retention-days: 1
 
   test_wheel:
-    needs: [build_wheel]
+    needs: [build]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -319,7 +299,7 @@ jobs:
 
   publish_pypi:
     name: Publish to PyPI
-    needs: [build_wheel, test_wheel]
+    needs: [build, test_wheel]
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
 
@@ -332,7 +312,7 @@ jobs:
       - name: Download wheel artifact
         uses: actions/download-artifact@v4
         with:
-          pattern: pypi-wheel-* 
+          pattern: pypi-wheel-*
           path: dist/auditwheel
           merge-multiple: true
 
@@ -340,4 +320,3 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: dist/auditwheel
-
