@@ -4,7 +4,7 @@ jobs:
   cpplint:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-    - uses: actions/setup-python@v1
+    - uses: actions/checkout@v6
+    - uses: actions/setup-python@v6
     - run: pip install cpplint
     - run: python3 -m cpplint --recursive --exclude utils/cli/CLI11.hpp ./
