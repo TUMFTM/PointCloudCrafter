@@ -25,7 +25,7 @@ jobs:
             python_tag: "cp312"
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           submodules: recursive
 
@@ -79,7 +79,7 @@ jobs:
             "
 
       - name: Upload wheel for testing
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: pypi-wheel-${{ matrix.python_tag }}
           path: dist/auditwheel/*.whl
@@ -98,7 +98,7 @@ jobs:
             ubuntu_version: "24.04"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Download test data from release asset
         run: |
@@ -107,7 +107,7 @@ jobs:
               | tar xz -C test_data
 
       - name: Download wheel
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: pypi-wheel-${{ matrix.python_tag }}
           path: dist/auditwheel
@@ -310,7 +310,7 @@ jobs:
 
     steps:
       - name: Download wheel artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           pattern: pypi-wheel-*
           path: dist/auditwheel
