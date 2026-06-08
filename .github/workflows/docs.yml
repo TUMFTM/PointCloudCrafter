@@ -3,8 +3,9 @@ name: docs
 on:
   push:
     branches: [ main ]
-  release:
-    types: [published]
+  workflow_run:
+    workflows: ["Build & Test"]
+    types: [completed]
   workflow_dispatch:
     inputs:
       tag:
@@ -19,6 +20,10 @@ jobs:
   docs:
     name: Generate documentation
     runs-on: ubuntu-latest
+    if: >
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.event == 'release' &&
+       github.event.workflow_run.conclusion == 'success')
 
     steps:
       - name: Checkout Repo
@@ -43,8 +48,9 @@ jobs:
       - name: Resolve release tag (if any)
         id: release_tag
         run: |
-          if [[ "${{ github.event_name }}" == "release" ]]; then
-            echo "value=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
+          if [[ "${{ github.event_name }}" == "workflow_run" ]]; then
+            # For a release event, head_branch is the release tag (e.g. v1.4.2).
+            echo "value=${{ github.event.workflow_run.head_branch }}" >> "$GITHUB_OUTPUT"
           elif [[ -n "${{ github.event.inputs.tag }}" ]]; then
             echo "value=${{ github.event.inputs.tag }}" >> "$GITHUB_OUTPUT"
           else
