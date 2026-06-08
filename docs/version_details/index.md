@@ -12,6 +12,7 @@ snapshots captured at the time of release.
 | Version  | Status   | Page                                |
 |----------|----------|-------------------------------------|
 | latest   | rolling  | [Latest](latest.md)                 |
+| v1.4.3 | released | [v1.4.3](v1.4.3.md) |
 | v1.4.1 | released | [v1.4.1](v1.4.1.md) |
 | v1.3.4 | released | [v1.3.4](v1.3.4.md) |
 | v1.2.4 | released | [v1.2.4](v1.2.4.md) |
