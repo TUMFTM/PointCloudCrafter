@@ -238,6 +238,8 @@ struct RosbagConfig : public ModifierConfig
   std::vector<std::string> topics{};
   std::string target_frame{};
   std::string urdf_file{};
+  bool save_rosbag{false};
+  std::string rosbag_topic{};
 
   /**
    * @brief Add Rosbag CLI options to the given app
@@ -264,6 +266,16 @@ struct RosbagConfig : public ModifierConfig
         "--urdf, --urdf-file", urdf_file,
         "URDF file providing additional static TF transforms")
       ->group("Transforms");
+
+    app->add_option(
+        "--save-rosbag", save_rosbag,
+        "Save filtered point clouds as a new ROS 2 bag")
+      ->group("File Format");
+
+    app->add_option(
+        "--rosbag-topic", rosbag_topic,
+        "ROS topic to save processed point clouds to")
+      ->group("File Format");
 
     add_modifier_options(app);
   }
