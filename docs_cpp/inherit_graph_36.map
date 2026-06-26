@@ -1,0 +1,7 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$structconfig_1_1ModifierConfig.html" title="Common modifier configuration." alt="" coords="5,31,168,56"/>
+<area shape="rect" id="Node000001" href="$structconfig_1_1FileConfig.html" title="FileConfig input configuration." alt="" coords="229,5,362,31"/>
+<area shape="poly" id="edge24_Node000000_Node000001" title=" " alt="" coords="182,29,228,23,229,29,182,34"/>
+<area shape="rect" id="Node000002" href="$structconfig_1_1RosbagConfig.html" title="Rosbag input configuration." alt="" coords="216,55,375,80"/>
+<area shape="poly" id="edge25_Node000000_Node000002" title=" " alt="" coords="182,52,216,56,215,61,181,57"/>
+</map>

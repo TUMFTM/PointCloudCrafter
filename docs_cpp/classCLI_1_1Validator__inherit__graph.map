@@ -1,0 +1,33 @@
+<map id="CLI::Validator" name="CLI::Validator">
+<area shape="rect" id="Node000001" title="Some validators that are provided." alt="" coords="5,327,113,352"/>
+<area shape="rect" id="Node000002" href="$classCLI_1_1AsNumberWithUnit.html" title=" " alt="" coords="177,5,352,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="59,312,65,256,80,182,93,143,110,106,132,71,160,40,177,28,180,33,163,44,136,74,115,108,98,145,85,184,70,256,64,313"/>
+<area shape="rect" id="Node000004" href="$classCLI_1_1Bound.html" title="Produce a bounded range (factory). Min and max are inclusive." alt="" coords="219,55,310,80"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="61,312,70,264,87,204,116,142,136,114,160,89,188,73,218,66,220,71,190,78,163,93,140,117,121,145,92,205,75,265,66,313"/>
+<area shape="rect" id="Node000005" href="$classCLI_1_1CheckedTransformer.html" title="translate named items to other or a value set" alt="" coords="173,104,356,129"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="64,312,75,273,94,226,122,179,140,157,160,139,179,127,182,132,163,143,143,161,126,182,99,229,80,275,69,314"/>
+<area shape="rect" id="Node000006" href="$classCLI_1_1CustomValidator.html" title="Class wrapping some of the accessors of Validator." alt="" coords="185,153,344,179"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="68,313,102,250,128,216,160,188,184,176,186,180,163,192,132,220,107,253,73,315"/>
+<area shape="rect" id="Node000007" href="$classCLI_1_1FileOnDefaultPath.html" title=" " alt="" coords="181,203,348,228"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="76,314,112,274,135,254,160,237,187,226,189,230,163,242,138,258,116,278,80,317"/>
+<area shape="rect" id="Node000008" href="$classCLI_1_1IsMember.html" title="Verify items are in a set." alt="" coords="207,252,322,277"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="93,318,160,286,206,273,208,278,162,291,95,322"/>
+<area shape="rect" id="Node000009" href="$classCLI_1_1Range.html" title="Produce a range (factory). Min and max are inclusive." alt="" coords="219,301,310,327"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="127,328,219,317,219,322,127,334"/>
+<area shape="rect" id="Node000010" href="$classCLI_1_1Transformer.html" title="Translate named items to other or a value set." alt="" coords="201,351,329,376"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="127,345,201,353,200,359,127,350"/>
+<area shape="rect" id="Node000011" href="$classCLI_1_1TypeValidator.html" title="Validate the input as a particular type." alt="" coords="195,401,334,441"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="98,356,162,385,199,398,197,403,160,390,96,361"/>
+<area shape="rect" id="Node000012" href="$classCLI_1_1detail_1_1ExistingDirectoryValidator.html" title="Check for an existing directory (returns error message if check fails)" alt="" coords="161,465,368,505"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="78,362,114,407,137,430,163,450,185,462,183,467,160,455,133,434,110,411,74,365"/>
+<area shape="rect" id="Node000013" href="$classCLI_1_1detail_1_1ExistingFileValidator.html" title="Check for an existing file (returns error message if check fails)" alt="" coords="179,529,350,569"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="71,364,84,398,103,439,130,480,163,515,181,526,178,531,160,519,125,483,99,442,79,401,66,366"/>
+<area shape="rect" id="Node000014" href="$classCLI_1_1detail_1_1ExistingPathValidator.html" title="Check for an existing path." alt="" coords="177,593,352,633"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="67,365,76,411,94,469,122,528,141,555,163,579,180,590,177,595,160,583,137,558,118,531,89,471,71,413,62,366"/>
+<area shape="rect" id="Node000015" href="$classCLI_1_1detail_1_1IPV4Validator.html" title="Validate the given string is a legal ipv4 address." alt="" coords="173,657,356,683"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="64,365,69,423,84,498,97,537,114,576,136,612,163,643,181,655,178,659,160,647,131,615,109,578,92,539,79,499,64,424,59,366"/>
+<area shape="rect" id="Node000016" href="$classCLI_1_1detail_1_1NonexistentPathValidator.html" title="Check for an non&#45;existing path." alt="" coords="177,707,352,747"/>
+<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="63,365,66,431,80,518,92,565,110,611,133,654,163,692,180,705,176,709,159,696,129,657,105,613,87,567,74,519,61,431,58,366"/>
+<area shape="rect" id="Node000003" href="$classCLI_1_1AsSizeValue.html" title=" " alt="" coords="416,5,545,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="366,15,416,15,416,21,366,21"/>
+</map>

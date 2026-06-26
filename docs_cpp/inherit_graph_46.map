@@ -1,0 +1,15 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" title=" " alt="" coords="5,302,117,327"/>
+<area shape="rect" id="Node000001" href="$structCLI_1_1detail_1_1is__readable__container_3_01T_00_01conditional__t_3_01false_00_01void__t_a11f17935a0aadb8dce82cbccb9f2c68.html" title=" " alt="" coords="165,5,376,104"/>
+<area shape="poly" id="edge57_Node000000_Node000001" title=" " alt="" coords="68,288,102,205,130,158,163,114,176,102,180,106,167,118,134,161,107,208,73,290"/>
+<area shape="rect" id="Node000002" href="$structCLI_1_1detail_1_1is__wrapper_3_01T_00_01conditional__t_3_01false_00_01void__t_3_01typename64a0c6feb904f77c98810c843e4d2f1f.html" title=" " alt="" coords="169,128,372,197"/>
+<area shape="poly" id="edge58_Node000000_Node000002" title=" " alt="" coords="79,289,116,248,164,207,183,195,186,200,167,211,120,252,83,293"/>
+<area shape="rect" id="Node000003" href="$structCLI_1_1detail_1_1pair__adaptor_3_01T_00_01conditional__t_3_01false_00_01void__t_3_01typenac7f3d35561ff46242630d08443185a90.html" title=" " alt="" coords="169,221,372,320"/>
+<area shape="poly" id="edge59_Node000000_Node000003" title=" " alt="" coords="130,298,169,289,170,295,131,303"/>
+<area shape="rect" id="Node000004" href="$structCLI_1_1is__bool_3_01bool_01_4.html" title="Check to see if something is bool (true if actually a bool)" alt="" coords="193,345,348,370"/>
+<area shape="poly" id="edge60_Node000000_Node000004" title=" " alt="" coords="131,326,208,342,207,347,130,331"/>
+<area shape="rect" id="Node000005" href="$structCLI_1_1is__shared__ptr_3_01const_01std_1_1shared__ptr_3_01T_01_4_01_4.html" title="Check to see if something is a shared pointer (True if really a shared pointer)" alt="" coords="197,394,345,449"/>
+<area shape="poly" id="edge61_Node000000_Node000005" title=" " alt="" coords="93,333,167,379,197,393,195,398,164,384,90,338"/>
+<area shape="rect" id="Node000006" href="$structCLI_1_1is__shared__ptr_3_01std_1_1shared__ptr_3_01T_01_4_01_4.html" title="Check to see if something is a shared pointer (True if really a shared pointer)" alt="" coords="177,473,364,513"/>
+<area shape="poly" id="edge62_Node000000_Node000006" title=" " alt="" coords="76,339,112,399,137,431,167,458,190,471,187,476,164,462,133,434,107,402,72,341"/>
+</map>
