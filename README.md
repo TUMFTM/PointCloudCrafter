@@ -12,7 +12,7 @@ A toolkit for extracting, manipulating, and evaluating point clouds and 3D spati
 [![PyPI](https://github.com/TUMFTM/PointCloudCrafter/actions/workflows/pypi.yml/badge.svg)](https://github.com/TUMFTM/PointCloudCrafter/actions/workflows/pypi.yml)
 [![docs](https://github.com/TUMFTM/PointCloudCrafter/actions/workflows/docs.yml/badge.svg)](https://github.com/TUMFTM/PointCloudCrafter/actions/workflows/docs.yml)
 ![pip](https://img.shields.io/badge/pip-Ubuntu%2024.04%20x86__64-E95420?logo=ubuntu&logoColor=white)
-[![status](https://joss.theoj.org/papers/aaeee985344bdd07edb8119350bc69de/status.svg)](https://joss.theoj.org/papers/aaeee985344bdd07edb8119350bc69de)
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.10459/status.svg)](https://doi.org/10.21105/joss.10459)
 </div>
 
 <h2> Install </h2>

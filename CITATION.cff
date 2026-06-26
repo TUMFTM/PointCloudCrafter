@@ -1,0 +1,35 @@
+cff-version: "1.2.0"
+authors:
+- family-names: Kulmer
+  given-names: Dominik
+  orcid: "https://orcid.org/0000-0001-7886-7550"
+- family-names: Leitenstern
+  given-names: Maximilian
+  orcid: "https://orcid.org/0009-0008-6436-7967"
+doi: 10.5281/zenodo.20595313
+message: If you use this software, please cite our article in the
+  Journal of Open Source Software.
+preferred-citation:
+  authors:
+  - family-names: Kulmer
+    given-names: Dominik
+    orcid: "https://orcid.org/0000-0001-7886-7550"
+  - family-names: Leitenstern
+    given-names: Maximilian
+    orcid: "https://orcid.org/0009-0008-6436-7967"
+  date-published: 2026-06-26
+  doi: 10.21105/joss.10459
+  issn: 2475-9066
+  issue: 122
+  journal: Journal of Open Source Software
+  publisher:
+    name: Open Journals
+  start: 10459
+  title: "PointCloudCrafter: Tools for Handling, Manipulating and
+    Analyzing of Point Clouds"
+  type: article
+  url: "https://joss.theoj.org/papers/10.21105/joss.10459"
+  volume: 11
+title: "PointCloudCrafter: Tools for Handling, Manipulating and
+  Analyzing of Point Clouds"
+
