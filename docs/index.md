@@ -12,6 +12,25 @@
 ![pip](https://img.shields.io/badge/pip-Ubuntu%2024.04%20x86__64-E95420?logo=ubuntu&logoColor=white)
 [![DOI](https://joss.theoj.org/papers/10.21105/joss.10459/status.svg)](https://doi.org/10.21105/joss.10459)
 
+## Citation
+
+Please cite our [JOSS article](https://joss.theoj.org/papers/10.21105/joss.10459) if you use this software in an academic work.
+
+```
+@article{pointcloudcrafter,
+  author    = {Kulmer, Dominik and Leitenstern, Maximilian},
+  title     = {{PointCloudCrafter}: Tools for Handling, Manipulating and Analyzing of Point Clouds},
+  journal   = {Journal of Open Source Software},
+  year      = {2026},
+  volume    = {11},
+  number    = {122},
+  pages     = {10459},
+  publisher = {The Open Journal},
+  url       = {https://doi.org/10.21105/joss.10459},
+  doi       = {10.21105/joss.10459}
+}
+```
+
 ## Contact
 
 Dominik Kulmer [:material-home:](https://github.com/ga58lar) [:material-linkedin:](https://www.linkedin.com/in/dominik-kulmer/) [:material-mail:](mailto:dominik.kulmer@tum.de)  
