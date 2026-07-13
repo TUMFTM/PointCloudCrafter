@@ -1,0 +1,9 @@
+<map id="CLI::ArgumentMismatch" name="CLI::ArgumentMismatch">
+<area shape="rect" id="Node000001" title="Thrown when the wrong number of arguments has been received." alt="" coords="5,225,184,251"/>
+<area shape="rect" id="Node000002" href="$classCLI_1_1ParseError.html" title="Anything that can error in Parse." alt="" coords="37,152,153,177"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="97,191,97,225,92,225,92,191"/>
+<area shape="rect" id="Node000003" href="$classCLI_1_1Error.html" title="All errors derive from this one." alt="" coords="54,79,135,104"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="97,118,97,152,92,152,92,118"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="25,5,164,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="97,44,97,79,92,79,92,44"/>
+</map>
