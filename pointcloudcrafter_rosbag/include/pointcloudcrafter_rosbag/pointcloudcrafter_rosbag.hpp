@@ -33,6 +33,8 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#include <rosbag2_cpp/writers/sequential_writer.hpp>
+#include <pcl/PCLPointCloud2.h>
 
 #include "rosbag_reader.hpp"
 #include "cli/cli_config.hpp"
@@ -90,6 +92,21 @@ protected:
   void transform_pc(
     const sensor_msgs::msg::PointCloud2 & msg_in, sensor_msgs::msg::PointCloud2 & msg_out);
 
+  /**
+   * @brief Write a point cloud to a rosbag
+   * @param cloud Point cloud to write
+   * @param topic ROS topic to write to
+   * @param frame_id Frame ID to set in the message header
+   * @param timestamp Timestamp to set in the message header
+   * @param writer Rosbag writer to use for writing the message
+   * @return True if successful, false otherwise
+   */
+  bool writePCLToRosbag(
+    const pcl::PCLPointCloud2 & cloud,
+    const std::string & topic,
+    const std::string & frame_id,
+    const rclcpp::Time & timestamp);
+
 private:
   // CLI Configuration
   config::RosbagConfig cfg_;
@@ -106,6 +123,9 @@ private:
   message_filters::Connection sync_connection_{};
   // Map to store transforms given by file
   std::unordered_map<std::string, Eigen::Affine3d> file_transforms_{};
+
+  // Rosbag writer for saving processed pointclouds
+  std::unique_ptr<rosbag2_cpp::writers::SequentialWriter> rosbag_writer_;
 
   // Storage
   size_t num_sensors_{};
