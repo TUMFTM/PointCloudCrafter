@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <filesystem>  // NOLINT
 #include <fstream>
+#include <functional>
 #include <iomanip>
 #include <iostream>
 #include <limits>
@@ -319,11 +320,19 @@ public:
     return *this;
   }
   /**
+   * @brief Callback invoked to report split() progress: (stage, current, total)
+   */
+  using ProgressCallback = std::function<void (const std::string &, size_t, size_t)>;
+
+  /**
    * @brief Split the point cloud into grid cells along x and y
    * @param grid_size Size of each grid cell
+   * @param on_progress Optional callback reporting progress within each stage
    * @return Map from grid cell index pair (ix, iy)
    */
-  std::map<std::pair<int, int>, Modifier> split(const double & grid_size)
+  std::map<std::pair<int, int>, Modifier> split(
+    const double & grid_size,
+    const ProgressCallback & on_progress = nullptr)
   {
     std::map<std::pair<int, int>, Modifier> result;
 
@@ -351,6 +360,7 @@ public:
 
     // Collect point indices per grid cell
     std::map<std::pair<int, int>, std::vector<size_t>> grid_index;
+    const size_t bin_report_step = std::max<size_t>(num_points / 100, 1);
     for (size_t i = 0; i < num_points; ++i) {
       const uint8_t * pt_data = output_cloud->data.data() + i * point_step;
       float x, y;
@@ -359,11 +369,20 @@ public:
       int ix = static_cast<int>(std::floor(x / grid_size));
       int iy = static_cast<int>(std::floor(y / grid_size));
       grid_index[{ix, iy}].push_back(i);
+      if (on_progress && ((i + 1) % bin_report_step == 0 || i + 1 == num_points)) {
+        on_progress("Binning points", i + 1, num_points);
+      }
     }
 
+    const size_t total_cells = grid_index.size();
+    size_t cells_built = 0;
     for (const auto & cell : grid_index) {
       const auto & indices = cell.second;
-      PointCloud::Ptr cell_cloud = std::make_shared<PointCloud>(*output_cloud);
+      PointCloud::Ptr cell_cloud = std::make_shared<PointCloud>();
+      cell_cloud->header = output_cloud->header;
+      cell_cloud->fields = output_cloud->fields;
+      cell_cloud->is_bigendian = output_cloud->is_bigendian;
+      cell_cloud->point_step = point_step;
       cell_cloud->width = indices.size();
       cell_cloud->height = 1;
       cell_cloud->is_dense = true;
@@ -380,6 +399,11 @@ public:
       Modifier cell_modifier;
       cell_modifier.setCloud(cell_cloud);
       result.emplace(cell.first, std::move(cell_modifier));
+
+      ++cells_built;
+      if (on_progress) {
+        on_progress("Building cells", cells_built, total_cells);
+      }
     }
 
     return result;
