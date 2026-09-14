@@ -221,7 +221,13 @@ void PCFile::process_pointcloud(const std::string & input_path,
       std::filesystem::create_directories(split_dir);
     }
 
-    auto cells = modifier.split(cfg_.split_grid_size);
+    rclcpp::Clock split_clock{};
+    auto cells = modifier.split(cfg_.split_grid_size,
+      [this, &split_clock](const std::string & stage, size_t current, size_t total) {
+        double progress = 100.0 * static_cast<double>(current) / static_cast<double>(total);
+        RCLCPP_INFO_THROTTLE(logger_, split_clock, 1000, "%s: %zu of %zu [% 5.1f%%]",
+          stage.c_str(), current, total, progress);
+      });
 
     auto format_coord = [](double val) -> std::string {
       if (val == std::floor(val)) {
@@ -234,6 +240,9 @@ void PCFile::process_pointcloud(const std::string & input_path,
       return oss.str();
     };
 
+    rclcpp::Clock save_clock{};
+    const size_t total_cells = cells.size();
+    size_t saved_cells = 0;
     for (auto & [key, cell] : cells) {
       double cx = key.first * cfg_.split_grid_size;
       double cy = key.second * cfg_.split_grid_size;
@@ -241,6 +250,10 @@ void PCFile::process_pointcloud(const std::string & input_path,
       if (!cell.save(cell_path, save_fmt)) {
         RCLCPP_ERROR(logger_, "Failed to save cell: %s", cell_path.c_str());
       }
+      ++saved_cells;
+      double progress = 100.0 * static_cast<double>(saved_cells) / static_cast<double>(total_cells);
+      RCLCPP_INFO_THROTTLE(logger_, save_clock, 1000, "Saved %zu of %zu cells [% 5.1f%%]",
+        saved_cells, total_cells, progress);
     }
 
     pointcloudmodifierlib::Modifier::writeGridMetadata(
