@@ -1,0 +1,7 @@
+<map id="CLI::detail::is_mutable_container&lt; T, conditional_t&lt; false, void_t&lt; typename T::value_type, decltype(std::declval&lt; T &gt;().end()), decltype(std::declval&lt; T &gt;().clear()), decltype(std::declval&lt; T &gt;().insert(std::declval&lt; decltype(std::declval&lt; T &gt;().end())&gt;(), std::declval&lt; const typename T::value_type &amp; &gt;()))&gt;, void &gt; &gt;" name="CLI::detail::is_mutable_container&lt; T, conditional_t&lt; false, void_t&lt; typename T::value_type, decltype(std::declval&lt; T &gt;().end()), decltype(std::declval&lt; T &gt;().clear()), decltype(std::declval&lt; T &gt;().insert(std::declval&lt; decltype(std::declval&lt; T &gt;().end())&gt;(), std::declval&lt; const typename T::value_type &amp; &gt;()))&gt;, void &gt; &gt;">
+<area shape="rect" id="Node000001" title=" " alt="" coords="288,5,603,186"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="64,43,181,71"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,63,290,76,285,78,197,68"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,95,240,174"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="255,116,290,114,284,115,256,121"/>
+</map>

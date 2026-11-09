@@ -1,0 +1,7 @@
+<map id="CLI::is_bool&lt; bool &gt;" name="CLI::is_bool&lt; bool &gt;">
+<area shape="rect" id="Node000001" title="Check to see if something is bool (true if actually a bool)." alt="" coords="57,81,210,109"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,5,123,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="88,42,124,80,118,81,86,47"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="147,5,258,33"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="182,44,147,83,144,78,177,46"/>
+</map>

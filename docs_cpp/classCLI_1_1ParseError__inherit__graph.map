@@ -1,0 +1,39 @@
+<map id="CLI::ParseError" name="CLI::ParseError">
+<area shape="rect" id="Node000001" title="Anything that can error in Parse." alt="" coords="320,317,435,345"/>
+<area shape="rect" id="Node000004" href="$classCLI_1_1ArgumentMismatch.html" title="Thrown when the wrong number of arguments has been received." alt="" coords="483,5,661,33"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="379,301,387,247,404,178,417,142,435,106,456,73,482,44,503,32,499,35,485,48,460,76,439,109,422,144,409,179,392,248,384,303"/>
+<area shape="rect" id="Node000005" href="$classCLI_1_1ConfigError.html" title="Thrown when extra values are found in an INI file." alt="" coords="511,57,633,85"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="382,301,392,256,412,201,441,145,459,119,482,96,513,80,509,84,485,100,464,122,445,147,416,203,397,258,386,303"/>
+<area shape="rect" id="Node000006" href="$classCLI_1_1ConversionError.html" title="Thrown when conversion call back fails, such as when an int fails to coerce to a string." alt="" coords="495,109,649,137"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="386,301,399,266,420,225,447,183,482,148,506,136,502,139,485,152,451,187,424,228,404,268,390,304"/>
+<area shape="rect" id="Node000007" href="$classCLI_1_1ExcludesError.html" title="Thrown when an excludes option is present." alt="" coords="503,161,641,189"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="392,302,429,250,453,223,482,200,509,188,505,191,485,204,457,227,433,253,396,306"/>
+<area shape="rect" id="Node000008" href="$classCLI_1_1ExtrasError.html" title="Thrown when too many positionals or options are found." alt="" coords="511,213,633,241"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="404,305,440,277,482,251,515,240,511,243,485,256,443,282,408,309"/>
+<area shape="rect" id="Node000009" href="$classCLI_1_1FileError.html" title="Thrown when parsing an INI file and it is missing." alt="" coords="520,265,624,293"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="446,310,523,292,518,294,448,315"/>
+<area shape="rect" id="Node000010" href="$classCLI_1_1HorribleError.html" title=" " alt="" coords="506,317,638,345"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="451,329,508,330,503,332,452,334"/>
+<area shape="rect" id="Node000011" href="$classCLI_1_1InvalidError.html" title="Thrown when validation fails before parsing." alt="" coords="510,369,634,397"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="447,347,520,368,515,369,447,352"/>
+<area shape="rect" id="Node000012" href="$classCLI_1_1RequiredError.html" title="Thrown when a required option is missing." alt="" coords="503,421,641,449"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="406,353,443,381,485,406,516,421,511,421,482,411,440,385,406,358"/>
+<area shape="rect" id="Node000013" href="$classCLI_1_1RequiresError.html" title="Thrown when a requires option is missing." alt="" coords="503,473,641,501"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="395,356,433,409,457,436,485,458,510,473,504,473,482,463,453,439,429,412,393,361"/>
+<area shape="rect" id="Node000014" href="$classCLI_1_1RuntimeError.html" title=" " alt="" coords="504,525,640,553"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="389,357,404,394,424,435,451,476,485,510,507,525,501,524,482,515,447,479,420,437,399,396,387,362"/>
+<area shape="rect" id="Node000015" href="$classCLI_1_1Success.html" title="This is a successful completion on parsing, supposed to exit." alt="" coords="521,577,623,605"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="385,358,397,404,416,459,445,515,464,540,485,562,502,574,523,584,518,583,500,578,482,567,459,544,441,518,412,461,392,406,383,363"/>
+<area shape="rect" id="Node000019" href="$classCLI_1_1ValidationError.html" title="Thrown when validation of results fails." alt="" coords="499,629,645,657"/>
+<area shape="poly" id="edge18_Node000001_Node000019" title=" " alt="" coords="383,358,392,414,409,483,422,519,439,554,460,586,485,615,504,629,498,628,482,618,456,589,435,556,417,521,404,484,387,415,380,363"/>
+<area shape="rect" id="Node000002" href="$classCLI_1_1Error.html" title="All errors derive from this one." alt="" coords="192,317,272,345"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="287,329,322,330,317,332,289,334"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,317,144,345"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="158,329,194,330,189,333,161,334"/>
+<area shape="rect" id="Node000016" href="$classCLI_1_1CallForAllHelp.html" title="Usually something like –help&#45;all on command line." alt="" coords="709,525,850,553"/>
+<area shape="poly" id="edge15_Node000015_Node000016" title=" " alt="" coords="637,572,719,554,724,553,638,577"/>
+<area shape="rect" id="Node000017" href="$classCLI_1_1CallForHelp.html" title="&#45;h or –help on command line" alt="" coords="718,577,842,605"/>
+<area shape="poly" id="edge16_Node000015_Node000017" title=" " alt="" coords="638,589,720,591,715,591,638,594"/>
+<area shape="rect" id="Node000018" href="$classCLI_1_1CallForVersion.html" title="&#45;v or –version on command line" alt="" coords="709,629,851,657"/>
+<area shape="poly" id="edge17_Node000015_Node000018" title=" " alt="" coords="638,605,724,629,719,629,637,610"/>
+</map>

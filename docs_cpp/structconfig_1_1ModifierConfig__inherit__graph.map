@@ -1,0 +1,7 @@
+<map id="config::ModifierConfig" name="config::ModifierConfig">
+<area shape="rect" id="Node000001" title="Common modifier configuration." alt="" coords="74,5,237,33"/>
+<area shape="rect" id="Node000002" href="$structconfig_1_1FileConfig.html" title="FileConfig input configuration." alt="" coords="5,81,138,109"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="132,43,88,83,85,78,126,44"/>
+<area shape="rect" id="Node000003" href="$structconfig_1_1RosbagConfig.html" title="Rosbag input configuration." alt="" coords="162,81,320,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="183,41,228,81,223,80,181,46"/>
+</map>

@@ -1,0 +1,38 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" title=" " alt="" coords="11,82,117,110"/>
+<area shape="rect" id="Node000001" href="$structCLI_1_1detail_1_1is__mutable__container_3_01T_00_01conditional__t_3_01false_00_01void__t_34f912c4cf53fe26abfba2fd2b47c408d.html" title=" " alt="" coords="171,5,486,186"/>
+<area shape="poly" id="edge23_Node000000_Node000001" title=" " alt="" coords="130,94,172,94,168,97,134,98"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,699,123,727"/>
+<area shape="poly" id="edge24_Node000002_Node000001" title=" " alt="" coords="69,684,120,447,128,375,129,317,131,289,137,261,149,230,168,197,180,184,178,189,173,200,154,233,142,262,136,290,134,317,134,375,125,448,74,685"/>
+<area shape="rect" id="Node000003" href="$structCLI_1_1detail_1_1is__readable__container_3_01T_00_01conditional__t_3_01false_00_01void__t_a11f17935a0aadb8dce82cbccb9f2c68.html" title=" " alt="" coords="224,417,433,529"/>
+<area shape="poly" id="edge25_Node000002_Node000003" title=" " alt="" coords="74,684,110,613,137,575,169,540,194,522,225,506,222,510,197,526,172,544,141,578,115,616,79,686"/>
+<area shape="rect" id="Node000005" href="$structCLI_1_1detail_1_1is__wrapper_3_01T_00_01conditional__t_3_01false_00_01void__t_3_01typename64a0c6feb904f77c98810c843e4d2f1f.html" title=" " alt="" coords="228,554,429,632"/>
+<area shape="poly" id="edge26_Node000002_Node000005" title=" " alt="" coords="94,688,130,665,170,643,229,620,225,624,172,647,133,669,99,691"/>
+<area shape="rect" id="Node000006" href="$structCLI_1_1detail_1_1pair__adaptor_3_01T_00_01conditional__t_3_01false_00_01void__t_3_01typenac7f3d35561ff46242630d08443185a90.html" title=" " alt="" coords="227,657,430,769"/>
+<area shape="poly" id="edge27_Node000002_Node000006" title=" " alt="" coords="137,711,229,711,225,715,139,715"/>
+<area shape="rect" id="Node000007" href="$structCLI_1_1is__bool_3_01bool_01_4.html" title="Check to see if something is bool (true if actually a bool)." alt="" coords="252,210,405,238"/>
+<area shape="poly" id="edge28_Node000002_Node000007" title=" " alt="" coords="69,684,125,430,168,249,187,235,207,226,253,218,249,222,209,231,190,240,173,252,131,432,74,685"/>
+<area shape="rect" id="Node000008" href="$structCLI_1_1is__shared__ptr_3_01const_01std_1_1shared__ptr_3_01T_01_4_01_4.html" title="Check to see if something is a shared pointer (True if really a shared pointer)." alt="" coords="255,262,402,324"/>
+<area shape="poly" id="edge29_Node000002_Node000008" title=" " alt="" coords="69,684,116,487,145,388,157,353,169,334,187,319,209,308,256,295,252,299,211,313,190,323,173,337,162,356,150,390,121,489,74,685"/>
+<area shape="rect" id="Node000009" href="$structCLI_1_1is__shared__ptr_3_01std_1_1shared__ptr_3_01T_01_4_01_4.html" title="Check to see if something is a shared pointer (True if really a shared pointer)." alt="" coords="235,348,422,393"/>
+<area shape="poly" id="edge30_Node000002_Node000009" title=" " alt="" coords="64,683,70,624,86,548,100,509,117,470,140,434,169,403,199,384,236,373,233,377,202,388,172,407,145,437,122,473,105,511,91,550,75,625,69,684"/>
+<area shape="rect" id="Node000010" href="$structCLI_1_1detail_1_1is__mutable__container.html" title=" " alt="" coords="245,965,412,1010"/>
+<area shape="poly" id="edge31_Node000002_Node000010" title=" " alt="" coords="70,739,82,788,101,845,130,903,150,929,172,951,207,971,247,983,242,985,205,976,169,955,146,932,126,906,96,847,77,789,69,745"/>
+<area shape="rect" id="Node000011" href="$structCLI_1_1detail_1_1is__readable__container.html" title=" " alt="" coords="244,1035,413,1079"/>
+<area shape="poly" id="edge32_Node000002_Node000011" title=" " alt="" coords="66,740,75,801,91,877,104,916,122,954,144,990,172,1020,206,1041,246,1054,240,1055,204,1046,169,1024,140,993,117,957,99,918,86,878,70,802,66,745"/>
+<area shape="rect" id="Node000012" href="$structCLI_1_1detail_1_1is__wrapper.html" title=" " alt="" coords="246,1104,411,1149"/>
+<area shape="poly" id="edge33_Node000002_Node000012" title=" " alt="" coords="70,739,86,823,108,928,137,1027,154,1065,173,1090,188,1102,206,1111,248,1125,243,1125,204,1116,186,1106,169,1094,150,1067,132,1029,103,929,81,824,69,745"/>
+<area shape="rect" id="Node000013" href="$structCLI_1_1detail_1_1pair__adaptor.html" title=" " alt="" coords="240,793,416,838"/>
+<area shape="poly" id="edge34_Node000002_Node000013" title=" " alt="" coords="95,734,132,758,172,779,242,801,237,803,170,783,129,762,96,739"/>
+<area shape="rect" id="Node000014" href="$structCLI_1_1is__bool.html" title="Check to see if something is bool (fail check by default)." alt="" coords="262,862,395,890"/>
+<area shape="poly" id="edge35_Node000002_Node000014" title=" " alt="" coords="78,738,117,796,142,825,172,848,216,866,264,875,259,877,214,871,169,853,138,829,112,799,79,743"/>
+<area shape="rect" id="Node000015" href="$structCLI_1_1is__shared__ptr.html" title="Check to see if something is a shared pointer." alt="" coords="241,914,416,942"/>
+<area shape="poly" id="edge36_Node000002_Node000015" title=" " alt="" coords="73,739,88,778,108,821,136,864,172,899,205,915,243,926,238,928,203,920,169,903,132,867,103,824,83,780,73,745"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="8,408,120,436"/>
+<area shape="poly" id="edge37_Node000004_Node000003" title=" " alt="" coords="134,433,225,451,221,455,136,438"/>
+<area shape="poly" id="edge38_Node000004_Node000005" title=" " alt="" coords="82,447,122,494,146,518,172,539,229,567,225,570,169,543,142,522,118,498,83,452"/>
+<area shape="poly" id="edge39_Node000004_Node000006" title=" " alt="" coords="72,448,87,492,107,543,135,596,173,643,198,663,229,681,224,683,196,668,169,647,131,599,102,546,82,494,72,453"/>
+<area shape="poly" id="edge40_Node000004_Node000007" title=" " alt="" coords="72,393,86,358,106,319,134,280,169,248,209,230,253,222,250,226,210,235,172,253,138,284,111,322,91,361,77,394"/>
+<area shape="poly" id="edge41_Node000004_Node000008" title=" " alt="" coords="87,396,124,363,169,333,211,316,256,304,252,308,213,321,172,338,128,367,92,399"/>
+<area shape="poly" id="edge42_Node000004_Node000009" title=" " alt="" coords="133,406,236,387,233,391,137,411"/>
+</map>

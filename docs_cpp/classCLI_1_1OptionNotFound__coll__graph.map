@@ -1,0 +1,7 @@
+<map id="CLI::OptionNotFound" name="CLI::OptionNotFound">
+<area shape="rect" id="Node000001" title="Thrown when counting a non&#45;existent option." alt="" coords="5,157,160,184"/>
+<area shape="rect" id="Node000002" href="$classCLI_1_1Error.html" title="All errors derive from this one." alt="" coords="42,81,123,109"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="84,123,85,157,80,155,81,126"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="13,5,152,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="84,46,85,81,80,80,81,51"/>
+</map>

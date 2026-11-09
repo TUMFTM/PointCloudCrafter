@@ -1,0 +1,9 @@
+<map id="CLI::BadNameString" name="CLI::BadNameString">
+<area shape="rect" id="Node000001" title="Thrown on construction of a bad name." alt="" coords="11,232,162,260"/>
+<area shape="rect" id="Node000002" href="$classCLI_1_1ConstructionError.html" title="Construction errors (not in parsing)." alt="" coords="5,157,168,184"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="88,198,89,233,84,231,85,202"/>
+<area shape="rect" id="Node000003" href="$classCLI_1_1Error.html" title="All errors derive from this one." alt="" coords="46,81,127,109"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="88,122,89,157,84,156,85,127"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="17,5,156,33"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="87,46,89,81,84,80,86,51"/>
+</map>
